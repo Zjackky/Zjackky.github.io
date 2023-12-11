@@ -16,12 +16,12 @@
   <meta name="author" content="Zjacky">
   <meta name="keywords" content="Zjacky">
   
-    <meta name="description" content="CommonsCollections 全系列详解‍ 前言emmm首先这篇文章是跟着@白日梦组长学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫条条大路通罗马​的含义，这里就对反序列化和一些基">
+    <meta name="description" content="CommonsCollections 全系列详解‍ 前言emmm首先这篇文章是跟着@白日梦组长学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫条条大路通罗马​的含义，这里对反序列化和一些基础">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CommonsCollections 全系列详解">
 <meta property="og:url" content="https://zjackky.github.io/2023/12/11/CommonsCollections%20%E5%85%A8%E7%B3%BB%E5%88%97%E8%AF%A6%E8%A7%A3/index.html">
 <meta property="og:site_name" content="Zjacky Blog">
-<meta property="og:description" content="CommonsCollections 全系列详解‍ 前言emmm首先这篇文章是跟着@白日梦组长学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫条条大路通罗马​的含义，这里就对反序列化和一些基">
+<meta property="og:description" content="CommonsCollections 全系列详解‍ 前言emmm首先这篇文章是跟着@白日梦组长学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫条条大路通罗马​的含义，这里对反序列化和一些基础">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://zjackky.github.io/img/image-20231208142552-9n427sh.png">
 <meta property="og:image" content="https://zjackky.github.io/img/image-20231208142933-xrcdf5i.png">
@@ -79,7 +79,7 @@
 <meta property="og:image" content="https://zjackky.github.io/img/image-20231211144700-vlhuj64.png">
 <meta property="og:image" content="https://zjackky.github.io/img/image-20231211135100-19md6in.png">
 <meta property="article:published_time" content="2023-12-11T05:30:12.000Z">
-<meta property="article:modified_time" content="2023-12-11T07:51:12.565Z">
+<meta property="article:modified_time" content="2023-12-11T07:54:41.529Z">
 <meta property="article:author" content="Zjacky">
 <meta property="article:tag" content="Java">
 <meta name="twitter:card" content="summary_large_image">
@@ -342,7 +342,7 @@
               <div class="markdown-body">
                 
                 <h1 id="CommonsCollections-全系列详解"><a href="#CommonsCollections-全系列详解" class="headerlink" title="CommonsCollections 全系列详解"></a>CommonsCollections 全系列详解</h1><p>‍</p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>emmm首先这篇文章是跟着@<a target="_blank" rel="noopener" href="https://space.bilibili.com/2142877265/video?tid=0&amp;special_type=&amp;pn=1&amp;keyword=">白日梦组长</a>学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫<code>条条大路通罗马</code>​的含义，这里就对反序列化和一些基础知识就不过多赘述，目的就是为了让我忘记CC的时候看我这篇博客可以完全想起来CC到底是怎么个事，文章顺序是跟组长一样的，因为他安排的已经非常到位了</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>emmm首先这篇文章是跟着@<a target="_blank" rel="noopener" href="https://space.bilibili.com/2142877265/video?tid=0&amp;special_type=&amp;pn=1&amp;keyword=">白日梦组长</a>学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫<code>条条大路通罗马</code>​的含义，这里对反序列化和一些基础知识就不过多赘述，目的就是为了让我忘记CC的时候看我这篇博客可以完全想起来CC到底是怎么个事，文章顺序是跟组长一样的，因为他安排的已经非常到位了</p>
 <p>‍</p>
 <h1 id="CC1"><a href="#CC1" class="headerlink" title="CC1"></a>CC1</h1><p>CC1有两条 分别是 <code>TransformedMap</code>​  跟<code>LazyMap</code>​</p>
 <p>环境配置如下</p>
@@ -742,12 +742,6 @@
                   </article>
                   <article class="post-next col-6">
                     
-                    
-                      <a href="/2023/12/10/hello-world/" title="Hello World">
-                        <span class="hidden-mobile">Hello World</span>
-                        <span class="visible-mobile">下一篇</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
                     
                   </article>
                 </div>
