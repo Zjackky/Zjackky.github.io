@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312111540219.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312111540645.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312111540785.png">
+<meta property="og:image" content="c:\Users\Zachariah.Jack\Desktop\tmp_wp_picture\202312142038728.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312111540940.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312111540126.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312111540254.png">
@@ -384,7 +384,7 @@
 <p>那么我们找到了危险函数，我们就往上找谁去能够调用<code>transform</code>​并且是可以传入可控的Object对象的</p>
 <p>‍</p>
 <h3 id="TransformedMap​​​"><a href="#TransformedMap​​​" class="headerlink" title="TransformedMap​​​"></a><code>TransformedMap</code>​​​</h3><p>作者就找到了<code>org\apache\commons\collections\map\TransformedMap</code>​类中的<code>checkSetValue</code>​方法是接收<code>Object</code>​对象并且调用了<code>transform</code>​方法，并且是<code>protected</code>​属性</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312111540785.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p><img src="C:\Users\Zachariah.Jack\Desktop\tmp_wp_picture\202312142038728.png" srcset="/img/loading.gif" lazyload alt="image"></p>
 <p>那么聪这个函数来看有颜色变换而且现在来看并不知道<code>valueTransformer</code>​是啥，所以我们先去看一下这个函数的构造方法</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312111540940.png" srcset="/img/loading.gif" lazyload alt="image">发现是传入<code>Map map, Transformer keyTransformer, Transformer valueTransformer</code>​ 三个参数，并且把参数给到<code>this.valueTransformer</code>​ 但是这里由于是<code>protected</code>​属性，所以再去找一下是自己在哪里调用了自己</p>
 <p>发现存在一个静态方法<code>decorate</code>​，也是传入三个参数直接传入到构造方法中，那么我们从上面的代码进行修改一下看能否调用</p>
