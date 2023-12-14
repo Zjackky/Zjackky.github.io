@@ -16,12 +16,12 @@
   <meta name="author" content="Zjacky">
   <meta name="keywords" content="Zjacky">
   
-    <meta name="description" content="Java安全 - CommonsCollections 全系列详解‍ 前言emmm首先这篇文章是跟着@白日梦组长学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫条条大路通罗马​的含义，这里就">
+    <meta name="description" content="‍ 前言emmm首先这篇文章是跟着@白日梦组长学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫条条大路通罗马​的含义，这里就对反序列化和一些基础知识就不过多赘述，目的就是为了让我忘记CC的时">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java安全 - CommonsCollections 全系列详解">
+<meta property="og:title" content="Java安全 - CommonsCollections链 全系列详解">
 <meta property="og:url" content="https://zjackky.github.io/post/commonscollections-full-series-of-detailed-explanations-1ssdo3.html">
 <meta property="og:site_name" content="Zjacky Blog">
-<meta property="og:description" content="Java安全 - CommonsCollections 全系列详解‍ 前言emmm首先这篇文章是跟着@白日梦组长学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫条条大路通罗马​的含义，这里就">
+<meta property="og:description" content="‍ 前言emmm首先这篇文章是跟着@白日梦组长学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫条条大路通罗马​的含义，这里就对反序列化和一些基础知识就不过多赘述，目的就是为了让我忘记CC的时">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312111540219.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312111540645.png">
@@ -86,8 +86,10 @@
 <meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312111540219.png">
   
   
+    <meta name="referrer" content="no-referrer-when-downgrade">
   
-  <title>Java安全 - CommonsCollections 全系列详解 - Zjacky Blog</title>
+  
+  <title>Java安全 - CommonsCollections链 全系列详解 - Zjacky Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -265,7 +267,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Java安全 - CommonsCollections 全系列详解"></span>
+            <span id="subtitle" data-typed-text="Java安全 - CommonsCollections链 全系列详解"></span>
           
         </div>
 
@@ -296,6 +298,14 @@
     
 
     
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
     
   </div>
 
@@ -340,7 +350,7 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Java安全 - CommonsCollections 全系列详解</h1>
+            <h1 id="seo-header">Java安全 - CommonsCollections链 全系列详解</h1>
             
               <p class="note note-info">
                 
@@ -353,7 +363,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="Java安全-CommonsCollections-全系列详解"><a href="#Java安全-CommonsCollections-全系列详解" class="headerlink" title="Java安全 - CommonsCollections 全系列详解"></a><strong>Java安全 -</strong> CommonsCollections 全系列详解</h1><p>‍</p>
+                <p>‍</p>
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>emmm首先这篇文章是跟着@<a target="_blank" rel="noopener" href="https://space.bilibili.com/2142877265/video?tid=0&amp;special_type=&amp;pn=1&amp;keyword=">白日梦组长</a>学的，是在自己有一定的Java审计和Java反序列化的基础上重新回顾(其实我已经看了好几遍了，每次看的感觉都不一样，故自己再次总结一下CC的全系列)，其实归根来说，CC系列其实就是一个链子的排列组合，从我最后的图可以看出，其实就是一个迷宫，完美的诠释了什么叫<code>条条大路通罗马</code>​的含义，这里就对反序列化和一些基础知识就不过多赘述，目的就是为了让我忘记CC的时候看我这篇博客可以完全想起来CC到底是怎么个事，文章顺序是跟组长一样的，因为他安排的已经非常到位了</p>
 <p>‍</p>
 <h1 id="CC1"><a href="#CC1" class="headerlink" title="CC1"></a>CC1</h1><p>CC1有两条 分别是 <code>TransformedMap</code>​  跟<code>LazyMap</code>​</p>
@@ -706,7 +716,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Java安全 - CommonsCollections 全系列详解</div>
+      <div>Java安全 - CommonsCollections链 全系列详解</div>
       <div>https://zjackky.github.io/post/commonscollections-full-series-of-detailed-explanations-1ssdo3.html</div>
     </div>
     <div class="license-meta">
@@ -995,6 +1005,8 @@
   <script>Fluid.plugins.imageCaption();</script>
 
   <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 

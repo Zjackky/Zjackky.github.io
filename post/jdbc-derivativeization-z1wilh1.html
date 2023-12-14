@@ -16,12 +16,12 @@
   <meta name="author" content="Zjacky">
   <meta name="keywords" content="Zjacky">
   
-    <meta name="description" content="Java安全 - Mysql-JDBC反序列化‍ JDBC 反序列化JDBC（Java DataBase Connectivity）是Java和数据库之间的一个桥梁，是一个 规范 而不是一个实现，能够执行SQL语句 简单demo 12345678910111213String Driver &#x3D; &quot;com.mysql.cj.jdbc.Driver&quot;; &#x2F;&#x2F;从 mysql-conn">
+    <meta name="description" content="‍ JDBC 反序列化JDBC（Java DataBase Connectivity）是Java和数据库之间的一个桥梁，是一个 规范 而不是一个实现，能够执行SQL语句 简单demo 12345678910111213String Driver &#x3D; &quot;com.mysql.cj.jdbc.Driver&quot;; &#x2F;&#x2F;从 mysql-connector-java 6开始String DB">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java安全 - Mysql-JDBC反序列化">
 <meta property="og:url" content="https://zjackky.github.io/post/jdbc-derivativeization-z1wilh1.html">
 <meta property="og:site_name" content="Zjacky Blog">
-<meta property="og:description" content="Java安全 - Mysql-JDBC反序列化‍ JDBC 反序列化JDBC（Java DataBase Connectivity）是Java和数据库之间的一个桥梁，是一个 规范 而不是一个实现，能够执行SQL语句 简单demo 12345678910111213String Driver &#x3D; &quot;com.mysql.cj.jdbc.Driver&quot;; &#x2F;&#x2F;从 mysql-conn">
+<meta property="og:description" content="‍ JDBC 反序列化JDBC（Java DataBase Connectivity）是Java和数据库之间的一个桥梁，是一个 规范 而不是一个实现，能够执行SQL语句 简单demo 12345678910111213String Driver &#x3D; &quot;com.mysql.cj.jdbc.Driver&quot;; &#x2F;&#x2F;从 mysql-connector-java 6开始String DB">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312112207077.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312112207193.png">
@@ -35,6 +35,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312112207077.png">
   
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
   
   
   <title>Java安全 - Mysql-JDBC反序列化 - Zjacky Blog</title>
@@ -247,6 +249,14 @@
 
     
     
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
   </div>
 
 
@@ -303,7 +313,7 @@
             
               <div class="markdown-body">
                 
-                <h1 id="Java安全-Mysql-JDBC反序列化"><a href="#Java安全-Mysql-JDBC反序列化" class="headerlink" title="Java安全 - Mysql-JDBC反序列化"></a>Java安全 - Mysql-JDBC反序列化</h1><p>‍</p>
+                <p>‍</p>
 <h1 id="JDBC-反序列化"><a href="#JDBC-反序列化" class="headerlink" title="JDBC 反序列化"></a>JDBC 反序列化</h1><p>JDBC（Java DataBase Connectivity）是Java和数据库之间的一个桥梁，是一个 规范 而不是一个实现，能够执行SQL语句</p>
 <p>简单demo</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">Driver</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;com.mysql.cj.jdbc.Driver&quot;</span>; <span class="hljs-comment">//从 mysql-connector-java 6开始</span><br>String DB_URL=<span class="hljs-string">&quot;jdbc:mysql://127.0.0.1:3306/security&quot;</span>;<br><span class="hljs-comment">//1.加载启动</span><br>Class.forName(Driver);<br><span class="hljs-comment">//2.建立连接</span><br><span class="hljs-type">Connection</span> <span class="hljs-variable">conn</span> <span class="hljs-operator">=</span> DriverManager.getConnection(DB_URL,<span class="hljs-string">&quot;root&quot;</span>,<span class="hljs-string">&quot;root&quot;</span>);<br><span class="hljs-comment">//3.操作数据库，实现增删改查</span><br><span class="hljs-type">Statement</span> <span class="hljs-variable">stmt</span> <span class="hljs-operator">=</span> conn.createStatement();<br><span class="hljs-type">ResultSet</span> <span class="hljs-variable">rs</span> <span class="hljs-operator">=</span> stmt.executeQuery(<span class="hljs-string">&quot;select * from users&quot;</span>);<br><span class="hljs-comment">//如果有数据，rs.next()返回true</span><br><span class="hljs-keyword">while</span>(rs.next())&#123;<br>  System.out.println(rs.getString(<span class="hljs-string">&quot;id&quot;</span>)+<span class="hljs-string">&quot; : &quot;</span>+rs.getString(<span class="hljs-string">&quot;username&quot;</span>));<br>&#125;<br></code></pre></td></tr></table></figure>
@@ -728,6 +738,8 @@
   <script>Fluid.plugins.imageCaption();</script>
 
   <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
 
 
 
