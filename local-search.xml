@@ -4,6 +4,31 @@
   
   
   <entry>
+    <title>随记 - 记一次emo</title>
+    <link href="/post/record-remember-once-emo-2berae.html"/>
+    <url>/post/record-remember-once-emo-2berae.html</url>
+    
+    <content type="html"><![CDATA[<h1 id=""><a href="#" class="headerlink" title=""></a></h1><p>​好奇怪的感觉，今天是2023.12.15日，什么都没发生，再次之前接了个培训，说是五天的Web培训，价格中规中矩吧，但要求真的一堆，又是一定要什么红队技巧，又是要什么CTF题，还得自己搭建平台来给学员在线选拔，整了好几天，各种修改，今天早上终于把<code>Dockerfile</code>给写完了，害，中午真不想学了，就去跟WYE的聊聊天，下午又是一个下午的课，逃掉了，但是作业要随堂检测，又没平时分了，虽然不保研，但在上课期间逃课感觉就是静不下心来学习，所以下午去看了一眼师傅们的博客，emmm发现好多都看不懂(<del>静不下心</del>)，然后去碰了一下自己爆金币的知识星球学了一手报错的<code>Spel</code>注入，但是自己搭建的时候不知道为啥，确实能报错，也捕获了报错信息，但是并没有执行危险语句外带，然后搞了半天没玩明白，寄了。</p><p>然后刷了会手机，又发现efo-cms这套源码有师傅写了审计文章，那么就自己试试能否复现吧，结果沃日了maven没报错一执行全是这个错误(<del>包是在maven中难道不也算是软件包吗</del>)</p><p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151833218.png" alt="image">​</p><p>​我tmd要疯掉了，百度谷歌好久都没结果，可能这就是太菜了吧。</p><p>​然后不知道干啥，学不明白，又去看了一下组长的<code>Java安全大杂烩的CTF题-buggyloader</code>,题目很好，跟我没关系而已，codeql去找链子打二次反序列化打内存马，哥我看得懂吗？？害又被自己菜哭了，更哭笑不得的是，女朋友跟我一样都在emo，他面临着毕业设计的开题，也忙的焦头烂额，我是被自己菜哭了真的，呜呜呜，好羡慕我友链上的人啊，两个警察爷，技术还好，害，可能这就是菜逼Jack吧，每天都是想成为群友中的<code>Jack神</code></p><p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312151833863.png" alt="image">​</p><p>​结果我又不死心，就去看了一下团队的周报，突然注意到<code>Xenc</code>爹，于是看了他分享的一些Java和.NET流量绕Waf的内容，很好，哥们又没看懂，是一点都没看懂啊啊啊！你们这群爹的东西我是真看不明白了。明天就是强网了，害，好难，希望自己能出题吧，线下肯定是没机会的了，那都是Pwn爹玩的游戏，跟Web狗有什么关系？</p><p>​算了，emo归emo，现在去外面吃个饭买个奶茶，回来洗个澡再看看师傅们的博客周报公众号吧(回顾一天到底学了什么: 答案是0 )。今天就这样了，什么都没干，一事无成。又是羡慕群友的一天</p><p>‍</p><p>‍</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>随记</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>随记</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>Java安全 - Apache Log4j2 JNDI Injection 原理分析</title>
     <link href="/post/java-security-apache-log4j2-jndi-injection-principles-analysis-z1cmsb1.html"/>
     <url>/post/java-security-apache-log4j2-jndi-injection-principles-analysis-z1cmsb1.html</url>
