@@ -16,12 +16,12 @@
   <meta name="author" content="Zjacky">
   <meta name="keywords" content="Zjacky">
   
-    <meta name="description" content="代码审计 - 某通用系统审计‍ 前言emm这里先拉一套PHP的闭源代码来分析，已经提交相关SRC平台进行修复，也进行一系列的打码处理，主要是分享一下我个人的一些审计思路，欢迎师傅们相互交流学习 路由分析直接看登录接口 ​​​ 路由为 &#x2F;setting.php&#x2F;index&#x2F;login ‍ 找对应源码 ​​​ 第一个接口setting对应Application下的文件 第">
+    <meta name="description" content="代码审计 - PHP - 通用系统审计‍ 前言emm这里先拉一套PHP的闭源代码来分析，已经提交相关SRC平台进行修复，也进行一系列的打码处理，主要是分享一下我个人的一些审计思路，欢迎师傅们相互交流学习 路由分析直接看登录接口 ​​ 路由为 &#x2F;setting.php&#x2F;index&#x2F;login ‍ 找对应源码 ​​ 第一个接口setting对应Application下的文">
 <meta property="og:type" content="article">
-<meta property="og:title" content="代码审计 - 某通用系统审计">
+<meta property="og:title" content="代码审计 - PHP - 通用系统审计">
 <meta property="og:url" content="https://zjackky.github.io/post/code-audit-a-general-system-audit-z1uj4fj.html">
 <meta property="og:site_name" content="Zjacky Blog">
-<meta property="og:description" content="代码审计 - 某通用系统审计‍ 前言emm这里先拉一套PHP的闭源代码来分析，已经提交相关SRC平台进行修复，也进行一系列的打码处理，主要是分享一下我个人的一些审计思路，欢迎师傅们相互交流学习 路由分析直接看登录接口 ​​​ 路由为 &#x2F;setting.php&#x2F;index&#x2F;login ‍ 找对应源码 ​​​ 第一个接口setting对应Application下的文件 第">
+<meta property="og:description" content="代码审计 - PHP - 通用系统审计‍ 前言emm这里先拉一套PHP的闭源代码来分析，已经提交相关SRC平台进行修复，也进行一系列的打码处理，主要是分享一下我个人的一些审计思路，欢迎师傅们相互交流学习 路由分析直接看登录接口 ​​ 路由为 &#x2F;setting.php&#x2F;index&#x2F;login ‍ 找对应源码 ​​ 第一个接口setting对应Application下的文">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431449.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431999.png">
@@ -50,7 +50,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>代码审计 - 某通用系统审计 - Zjacky Blog</title>
+  <title>代码审计 - PHP - 通用系统审计 - Zjacky Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -228,7 +228,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="代码审计 - 某通用系统审计"></span>
+            <span id="subtitle" data-typed-text="代码审计 - PHP - 通用系统审计"></span>
           
         </div>
 
@@ -251,7 +251,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          910 字
+          909 字
         
       </span>
     
@@ -311,7 +311,7 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">代码审计 - 某通用系统审计</h1>
+            <h1 id="seo-header">代码审计 - PHP - 通用系统审计</h1>
             
               <p class="note note-info">
                 
@@ -324,14 +324,14 @@
             
               <div class="markdown-body">
                 
-                <h1 id="代码审计-某通用系统审计"><a href="#代码审计-某通用系统审计" class="headerlink" title="代码审计 - 某通用系统审计"></a>代码审计 - 某通用系统审计</h1><p>‍</p>
+                <h1 id="代码审计-PHP-通用系统审计"><a href="#代码审计-PHP-通用系统审计" class="headerlink" title="代码审计 - PHP - 通用系统审计"></a>代码审计 - PHP - 通用系统审计</h1><p>‍</p>
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>emm这里先拉一套PHP的闭源代码来分析，已经提交相关SRC平台进行修复，也进行一系列的打码处理，主要是分享一下我个人的一些审计思路，欢迎师傅们相互交流学习</p>
 <h1 id="路由分析"><a href="#路由分析" class="headerlink" title="路由分析"></a>路由分析</h1><p>直接看登录接口</p>
-<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431449.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431449.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p>路由为 &#x2F;setting.php&#x2F;index&#x2F;login</p>
 <p>‍</p>
 <p>找对应源码</p>
-<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431999.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431999.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p>第一个接口setting对应Application下的文件</p>
 <p>第二个接口Index对应Setting下的Controller文件名字</p>
 <p>第三个接口为Controller的方法名字</p>
@@ -360,7 +360,7 @@
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-keyword">private</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">checkExt</span>(<span class="hljs-params"><span class="hljs-variable">$ext</span></span>) </span>&#123;<br>    <span class="hljs-keyword">if</span>(!<span class="hljs-keyword">empty</span>(<span class="hljs-variable language_">$this</span>-&gt;allowExts))<br>        <span class="hljs-keyword">return</span> <span class="hljs-title function_ invoke__">in_array</span>(<span class="hljs-title function_ invoke__">strtolower</span>(<span class="hljs-variable">$ext</span>),<span class="hljs-variable">$this</span>-&gt;allowExts,<span class="hljs-literal">true</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
 <p>但是重点是他并没有赋值进去</p>
-<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431053.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431053.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p>在这进行反向验证，讲前面的属性修改为在config里头的内容</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431306.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
 <p>再次进行断点跟到最后面的config的地方发现成功修改</p>
@@ -386,11 +386,11 @@
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs xml">Authorization: Basic QWxhZGRpbjpPcGVuU2VzYW1l<br>X-Oss-Pub-Key-Url: aHR0cDovL2RxM2JlMC5kbnNsb2cuY24=<br></code></pre></td></tr></table></figure>
 
 <p>远程测了一下也是完全没问题的</p>
-<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431262.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431262.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p>加入后返回两百</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431449.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
 <p>最终也是测出了SSRF</p>
-<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431637.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431637.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p>‍</p>
 
                 
@@ -437,7 +437,7 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>代码审计 - 某通用系统审计</div>
+      <div>代码审计 - PHP - 通用系统审计</div>
       <div>https://zjackky.github.io/post/code-audit-a-general-system-audit-z1uj4fj.html</div>
     </div>
     <div class="license-meta">
