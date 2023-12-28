@@ -45,7 +45,7 @@
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514093.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514188.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514277.png">
-<meta property="og:image" content="https://zjackky.github.io/undefined">
+<meta property="og:image" content="c:\Users\Zachariah.Jack\Desktop\tmp_wp_picture\image-20231228152943-lrls7ph.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514530.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514855.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514954.png">
@@ -424,7 +424,7 @@
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514277.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
 <p>‍</p>
 <p>那么前边的sql的点依旧没有删，所以思路就是 进入后台并且通过sql去使用<code>load_file</code>​去读取根目录的flag，但如何进入后台呢？前面提到，容器在启动的时候使用了<code>memcached</code>​,其实这里也是我一开始对<code>thinkshop</code>​有点不太理解的地方(这里贴上跟@up哥的聊天记录)</p>
-<p><img src="/undefined" srcset="/img/loading.gif" lazyload></p>
+<p><img src="C:\Users\Zachariah.Jack\Desktop\tmp_wp_picture\image-20231228152943-lrls7ph.png" srcset="/img/loading.gif" lazyload></p>
 <p>其实这里确实就是这样，<code>find(xx)</code>​会先去<code>cache</code>​获取缓存，断点跟进下<code>find</code>​</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514530.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
 <p>发现是以<code>think:shop.admin|username</code>​ 这种形式去获取我们的值，那也就是说，如果我们能伪造一个缓存为admin admin 那么就可以登录后台了吧，由于出题人配置了cache，所以会将数据缓存到<code>memcached</code>​中</p>
