@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292016289.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292016414.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292016522.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292016646.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292112646.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292016756.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292016879.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292016019.png">
@@ -375,8 +375,8 @@
 <p>‍</p>
 <h3 id="RCE4"><a href="#RCE4" class="headerlink" title="RCE4"></a>RCE4</h3><p>‍</p>
 <p>也是一样通过上述方法搜索到该文件 <code>\restapi\restcontroler.php</code>​这个文件下还是存在命令参数的拼接的，但是需要一些跟进逻辑</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292016646.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
-<p>首先<code>GET</code>​得传<code>request</code>​进入if判断</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292112646.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>首先<code>GET</code>得传<code>request</code>进入if判断 也就是两个数组的事情，也就是exp中的<code>?request=conference/mute_member</code></p>
 <p>这里有个注意的点(傻呗冬夏跟我说这个点看了一晚上)</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-variable">$input</span> = <span class="hljs-title function_ invoke__">json_decode</span>(<span class="hljs-title function_ invoke__">file_get_contents</span>(<span class="hljs-string">&#x27;php://input&#x27;</span>),<span class="hljs-literal">true</span>);<br></code></pre></td></tr></table></figure>
 
@@ -410,7 +410,7 @@
 
 <h3 id="上传2"><a href="#上传2" class="headerlink" title="上传2"></a>上传2</h3><p>‍</p>
 <p>就不过多重复，这套源码，只要未授权，和鉴权<code>type</code>​都是任意文件上传(都非常多任意文件上传)</p>
-<p>​​​​</p>
+<p>​​​</p>
 <h2 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h2><p>‍</p>
 <p>全局搜索<code>select</code>​发现很多地方都是直接拼接后直接进行sql查询 <code>_query( $_sql );</code>​ 并没有做过多的预编译操作</p>
 <p>单引号报错了</p>
