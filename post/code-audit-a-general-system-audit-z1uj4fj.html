@@ -16,12 +16,12 @@
   <meta name="author" content="Zjacky">
   <meta name="keywords" content="Zjacky">
   
-    <meta name="description" content="代码审计 - PHP - 通用系统审计‍ 前言emm这里先拉一套PHP的闭源代码来分析，已经提交相关SRC平台进行修复，也进行一系列的打码处理，主要是分享一下我个人的一些审计思路，欢迎师傅们相互交流学习 路由分析直接看登录接口 ​​ 路由为 &#x2F;setting.php&#x2F;index&#x2F;login ‍ 找对应源码 ​​ 第一个接口setting对应Application下的文">
+    <meta name="description" content="代码审计 - PHP - 通用系统审计‍ 前言代码审计篇章都是自己跟几个师傅们一起审计的1day或者0day(当然都是小公司较为简单)，禁止未经允许进行转载，发布到博客的用意主要是想跟师傅们能够交流下审计的思路，毕竟审计的思路也是有说法的，或者是相互源码共享也OK，本次审计的目标是一套也是各大高校使用的通用系统，已经提交相关SRC平台进行修复 路由分析直接看登录接口 ​​ 路由为 &#x2F;se">
 <meta property="og:type" content="article">
 <meta property="og:title" content="代码审计 - PHP - 通用系统审计">
 <meta property="og:url" content="https://zjackky.github.io/post/code-audit-a-general-system-audit-z1uj4fj.html">
 <meta property="og:site_name" content="Zjacky Blog">
-<meta property="og:description" content="代码审计 - PHP - 通用系统审计‍ 前言emm这里先拉一套PHP的闭源代码来分析，已经提交相关SRC平台进行修复，也进行一系列的打码处理，主要是分享一下我个人的一些审计思路，欢迎师傅们相互交流学习 路由分析直接看登录接口 ​​ 路由为 &#x2F;setting.php&#x2F;index&#x2F;login ‍ 找对应源码 ​​ 第一个接口setting对应Application下的文">
+<meta property="og:description" content="代码审计 - PHP - 通用系统审计‍ 前言代码审计篇章都是自己跟几个师傅们一起审计的1day或者0day(当然都是小公司较为简单)，禁止未经允许进行转载，发布到博客的用意主要是想跟师傅们能够交流下审计的思路，毕竟审计的思路也是有说法的，或者是相互源码共享也OK，本次审计的目标是一套也是各大高校使用的通用系统，已经提交相关SRC平台进行修复 路由分析直接看登录接口 ​​ 路由为 &#x2F;se">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431449.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431999.png">
@@ -251,7 +251,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          909 字
+          972 字
         
       </span>
     
@@ -325,7 +325,7 @@
               <div class="markdown-body">
                 
                 <h1 id="代码审计-PHP-通用系统审计"><a href="#代码审计-PHP-通用系统审计" class="headerlink" title="代码审计 - PHP - 通用系统审计"></a>代码审计 - PHP - 通用系统审计</h1><p>‍</p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>emm这里先拉一套PHP的闭源代码来分析，已经提交相关SRC平台进行修复，也进行一系列的打码处理，主要是分享一下我个人的一些审计思路，欢迎师傅们相互交流学习</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>代码审计篇章都是自己跟几个师傅们一起审计的1day或者0day(当然都是小公司较为简单)，禁止未经允许进行转载，发布到博客的用意主要是想跟师傅们能够交流下审计的思路，毕竟审计的思路也是有说法的，或者是相互源码共享也OK，本次审计的目标是一套也是各大高校使用的通用系统，已经提交相关SRC平台进行修复</p>
 <h1 id="路由分析"><a href="#路由分析" class="headerlink" title="路由分析"></a>路由分析</h1><p>直接看登录接口</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312141431449.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p>路由为 &#x2F;setting.php&#x2F;index&#x2F;login</p>

