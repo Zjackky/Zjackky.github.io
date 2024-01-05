@@ -4,6 +4,56 @@
   
   
   <entry>
+    <title>渗透 - JS - 登录加密</title>
+    <link href="/post/penetration-js-login-encryption-z1vcpbk.html"/>
+    <url>/post/penetration-js-login-encryption-z1vcpbk.html</url>
+    
+    <content type="html"><![CDATA[<p>‍</p><h1 id="JS逆向"><a href="#JS逆向" class="headerlink" title="JS逆向"></a>JS逆向</h1><p>在一次登录中遇到了JS加密的情况，因为是比较入门级别的JS分析</p><p>想记录一下从入门到难得JS逆向</p><p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401051728499.png" alt="image">​​</p><p>肯定是前端进行了加密，于是在前端进行关键词的查询 个人比较喜欢查询加解密的关键词如下</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java">ciph<br>key<br>crypto<br>secret<br>miyao<br>pass<br>AES<br>iv<br>pwd<br>password<br>CryptoJS<br>encrypt<br></code></pre></td></tr></table></figure><p>这里搜索<code>key</code>​特别多 于是搜索了下<code>crypto</code>​</p><p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401051728341.png" alt="image">​​</p><p>发现已经找到了<code>cryptoKey</code>​这个密钥，那么单纯一个密钥并且这个密钥看上去就很想AES所以通过AES去解密，(可能有小伙伴会问，那不应该也得去找找<code>iv</code>​吗)—&gt;</p><p>是的，按道理来说应该要去找的，但是如果是ECB模式的就不用找啦</p><p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401051728527.png" alt="image">​</p><p>当然还有另外一种方式拿到<code>key</code>​ 就是断点法，这也是在实战过程中用到最多的方式</p><p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401051728683.png" alt="image">​​</p><p>在运用到这个<code>key</code>​的地方打下断点，点击登录就可以看到密钥了</p><p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401051728793.png" alt="image">​</p><p>‍</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>渗透</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>渗透</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>开发 - GoLang - 并发简单理解</title>
+    <link href="/post/develop-golang-paimorizing-a-simple-understanding-1okfrd.html"/>
+    <url>/post/develop-golang-paimorizing-a-simple-understanding-1okfrd.html</url>
+    
+    <content type="html"><![CDATA[<p>‍</p><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>emm这里会记录下我学<code>Go</code>​的一些小基础吧，毕竟之后肯定会接触<code>Go</code>​，用一些简单的例子来解释一些内容，这里大家可以尝试以写端口扫描工具来感受下并发</p><p>‍</p><p>‍</p><h1 id="并发机制"><a href="#并发机制" class="headerlink" title="并发机制"></a>并发机制</h1><p>‍</p><h2 id="不并发"><a href="#不并发" class="headerlink" title="不并发"></a>不并发</h2><p>‍</p><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br><span class="hljs-string">&quot;fmt&quot;</span><br><span class="hljs-string">&quot;net&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">porter</span><span class="hljs-params">()</span></span> &#123;<br><span class="hljs-keyword">for</span> port := <span class="hljs-number">0</span>; port &lt; <span class="hljs-number">65535</span>; port++ &#123;<br><br>address := fmt.Sprintf(<span class="hljs-string">&quot;192.168.0.128:%d&quot;</span>, port)<br>connect, connect_error := net.Dial(<span class="hljs-string">&quot;tcp&quot;</span>, address) <br><span class="hljs-comment">//这行代码创建了一个TCP连接到指定的address。net.Dial函数尝试去连接一个网络端点，并返回一个Conn接口和一个error</span><br><span class="hljs-comment">//net.Dial是Go语言标准库net包中的一个函数，用于创建一个到指定网络和地址的连接。第一个参数是网络类型（如&quot;tcp&quot;、&quot;udp&quot;、&quot;ip&quot;等），第二个参数是地址（如&quot;localhost:8080&quot;）</span><br><span class="hljs-keyword">if</span> connect_error != <span class="hljs-literal">nil</span> &#123;<br>fmt.Printf(<span class="hljs-string">&quot;[-] %d --&gt; close\n&quot;</span>, port)<br><span class="hljs-keyword">continue</span><br>&#125; <span class="hljs-keyword">else</span> &#123;<br>connect.Close()<br>fmt.Printf(<span class="hljs-string">&quot;[+] %d --&gt;opening \n&quot;</span>, port)<br>&#125;<br>fmt.Println(address)<br>&#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>porter()<br>&#125;<br><br></code></pre></td></tr></table></figure><p>‍</p><p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401051729422.png" alt="image">​</p><p>可以说是龟速</p><p>‍</p><h2 id="goroutine并发"><a href="#goroutine并发" class="headerlink" title="goroutine并发"></a>goroutine并发</h2><p>‍</p><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs golang"><span class="hljs-keyword">package</span> main<br><br><span class="hljs-keyword">import</span> (<br><span class="hljs-string">&quot;fmt&quot;</span><br><span class="hljs-string">&quot;net&quot;</span><br><span class="hljs-string">&quot;sync&quot;</span><br><span class="hljs-string">&quot;time&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">porter</span><span class="hljs-params">()</span></span> &#123;<br><span class="hljs-keyword">var</span> wait_group sync.WaitGroup <span class="hljs-comment">//声明一个类型为sync.WaitGroup的变量wait_group，用于等待所有的goroutine完成</span><br>time_start := time.Now()<br><span class="hljs-keyword">for</span> port := <span class="hljs-number">0</span>; port &lt; <span class="hljs-number">65535</span>; port++ &#123;<br>wait_group.Add(<span class="hljs-number">1</span>)<span class="hljs-comment">// 每次循环时，将等待组的计数器增加1</span><br><span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">(f_port <span class="hljs-type">int</span>)</span></span> &#123;<br><span class="hljs-keyword">defer</span> wait_group.Done() <span class="hljs-comment">//当goroutine完成时，将等待组的计数器减1</span><br>address := fmt.Sprintf(<span class="hljs-string">&quot;192.168.0.128:%d&quot;</span>, f_port)<br>connect, connect_error := net.Dial(<span class="hljs-string">&quot;tcp&quot;</span>, address)<br><span class="hljs-keyword">if</span> connect_error != <span class="hljs-literal">nil</span> &#123;<br><span class="hljs-comment">//fmt.Printf(&quot;[-] %d --&gt; close\n&quot;, f_port)</span><br><span class="hljs-keyword">return</span><br>&#125;<br>connect.Close()<br>fmt.Printf(<span class="hljs-string">&quot;[+] %d --&gt;opening \n&quot;</span>, f_port)<br>&#125;(port) <span class="hljs-comment">// 结束goroutine函数，并传入当前的端口号</span><br>&#125;<br>wait_group.Wait() <span class="hljs-comment">//等待所有的goroutine完成 </span><br>time_stop := time.Now()<br>time_def := time_stop.Sub(time_start)<br>fmt.Printf(<span class="hljs-string">&quot;[*] 1-65535端口扫描完毕，共用时：%v。\n&quot;</span>, time_def)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span> &#123;<br>porter()<br>&#125;<br><br></code></pre></td></tr></table></figure><p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401051729851.png" alt="image">​</p><p>对上述代码进行理解，其实就是在循环当中每次循环计数器加一来起一个<code>Goroutines</code>​ 去执行我的匿名函数，相当于主线程在循环的当中多了很多独立的协程去跑我们函数体</p><p>如图 —&gt; 还能开无数个 然后每个协程的任务完成后就计数器减一，(因为循环肯定比扫描快，所以肯定是先计数器完才到函数执行完)</p><p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401051729966.png" alt="image">​</p><p>‍</p><p>计数器的流程</p><p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401051729090.png" alt="image">​</p><p>‍</p><p>‍</p><h2 id="Goroutines是什么"><a href="#Goroutines是什么" class="headerlink" title="Goroutines是什么"></a>Goroutines是什么</h2><p>Goroutines 可以看作是轻量级线程。创建一个 goroutine 非常简单，只需要把 <code>go</code>​关键字放在函数调用语句前</p><p>‍</p><h2 id="channel是什么"><a href="#channel是什么" class="headerlink" title="channel是什么"></a>channel是什么</h2><p>他是一个用来实现多个goroutine之间数据共享的东西  比如goroutine1和goroutine2  这两个都是独立的 使用channel 通过管道连接在一起 达到数据共享，可以把goroutine1得到的内容给goroutine2</p><p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401051729216.png" alt="d6fda19df616c7410e709aa90a98fe5">​</p><p>‍</p><p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401051729956.png" alt="d0ece49809e6cb929e7e440ef869d42">​</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>开发</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>开发</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>代码审计 - PHP - 某OA(Yii) - 0Day</title>
     <link href="/post/code-audit-php-some-oa-yii-0day-2poyy1.html"/>
     <url>/post/code-audit-php-some-oa-yii-0day-2poyy1.html</url>
