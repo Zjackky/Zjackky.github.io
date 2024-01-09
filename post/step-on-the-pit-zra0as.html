@@ -28,7 +28,7 @@
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645086.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645229.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645514.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645918.png">
+<meta property="og:image" content="c:\Users\Zachariah.Jack\Desktop\tmp_wp_picture\202401091655454.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645124.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645314.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645655.png">
@@ -36,7 +36,7 @@
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645138.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645417.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645543.png">
-<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645668.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091652749.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645808.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645058.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645277.png">
@@ -387,14 +387,14 @@
 <p>所以代码逻辑就清楚了，后续的关于<code>Attachment</code>​其实就是存储文件信息而已，实际已经上传成功了，但是其实这个上传是后台的上传</p>
 <p>‍</p>
 <p>因为在<code>web.xml</code>​中发现过滤器是需要鉴权的</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs xml">    <span class="hljs-tag">&lt;<span class="hljs-name">filter</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">filter-name</span>&gt;</span>sessionFilter<span class="hljs-tag">&lt;/<span class="hljs-name">filter-name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">filter-class</span>&gt;</span>com.newcapec.xgxt.filter.SessionFilter<span class="hljs-tag">&lt;/<span class="hljs-name">filter-class</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">filter</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">filter-mapping</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">filter-name</span>&gt;</span>sessionFilter<span class="hljs-tag">&lt;/<span class="hljs-name">filter-name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">url-pattern</span>&gt;</span>*.action<span class="hljs-tag">&lt;/<span class="hljs-name">url-pattern</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">filter-mapping</span>&gt;</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs xml">    <span class="hljs-tag">&lt;<span class="hljs-name">filter</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">filter-name</span>&gt;</span>sessionFilter<span class="hljs-tag">&lt;/<span class="hljs-name">filter-name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">filter-class</span>&gt;</span>com.xxx.xxx.filter.SessionFilter<span class="hljs-tag">&lt;/<span class="hljs-name">filter-class</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">filter</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">filter-mapping</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">filter-name</span>&gt;</span>sessionFilter<span class="hljs-tag">&lt;/<span class="hljs-name">filter-name</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">url-pattern</span>&gt;</span>*.action<span class="hljs-tag">&lt;/<span class="hljs-name">url-pattern</span>&gt;</span><br>  <span class="hljs-tag">&lt;/<span class="hljs-name">filter-mapping</span>&gt;</span><br></code></pre></td></tr></table></figure>
 
 <p>‍</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645514.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
 <p>就是个判断登录的逻辑，所以只能是后台了，由于是很早很早之前的就拿到的源码，当时是找到了账号的初始密码，所以通过默认密码+账号爆破再一次进入到该站的后台当中</p>
 <p>‍</p>
 <p>上传附件抓到报文</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645918.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="C:\Users\Zachariah.Jack\Desktop\tmp_wp_picture\202401091655454.png" srcset="/img/loading.gif" lazyload></p>
 <p>可以发现他的接口如下</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">/xxxx/xxxxx/fileUpload.action;jsessionid=xxxxxx?mark=xxxxx&amp;fileUUID=xxxxx<br></code></pre></td></tr></table></figure>
 
@@ -427,7 +427,7 @@
 <p>首先目录结构如下</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645543.png" srcset="/img/loading.gif" lazyload alt="image"></p>
 <p>‍</p>
-<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645668.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p>(<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091652749.png" srcset="/img/loading.gif" lazyload>)</p>
 <p>‍</p>
 <p>‍</p>
 <p>此时以<code>IDEA的反编译</code>​ + <code>jd-gui.exe</code>​ + <code>jadx</code>​ 三个反编译工具进行演示</p>
