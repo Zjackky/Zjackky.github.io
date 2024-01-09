@@ -34,6 +34,7 @@
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645655.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645890.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645138.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645417.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645668.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645808.png">
 <meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645058.png">
@@ -368,7 +369,7 @@
 <h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><p>搜索<code>upload</code>​一个一个找 发现了在这里</p>
 <p><code>@RequestMapping(&#123;&quot;/attachment/*&quot;&#125;)</code>​</p>
 <p>有个<code>fileUpload.action</code>​映射</p>
-<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645410.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645410.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645889.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
 <p>跟进<code>saveFile</code>​方法 发现是接口的方法，寻找实现接口的类重写的<code>saveFile</code>​方法</p>
 <p>‍</p>
@@ -376,7 +377,7 @@
 <p>‍</p>
 <p>跟到<code>\service\impl\AttachmentServiceImpl.java</code>​</p>
 <p>‍</p>
-<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645229.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645229.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p>关键代码就是</p>
 <p>‍</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">fileSuffix</span> <span class="hljs-operator">=</span> FileUtil.getFileSuffix(uFile.getOriginalFilename()); <span class="hljs-comment">// 直接获取用户上传的文件名后缀</span><br><span class="hljs-type">String</span> <span class="hljs-variable">fileName</span> <span class="hljs-operator">=</span> String.valueOf(DateUtils.formatNow(<span class="hljs-string">&quot;yyyyMMddHHmmssSSS&quot;</span>)) + fileSuffix; <span class="hljs-comment">// 并且与时间进行拼接</span><br> <span class="hljs-type">String</span> <span class="hljs-variable">url</span> <span class="hljs-operator">=</span> String.valueOf(basePath) + <span class="hljs-string">&quot;uploadFile/&quot;</span> + attachment.getMark() + <span class="hljs-string">&quot;/&quot;</span> + attachment.getUsername() + <span class="hljs-string">&quot;/&quot;</span> + fileName; <span class="hljs-comment">// 生成文件的路径</span><br><br><span class="hljs-comment">//接着就是真正的将上传的文件写入到一个File对象当中存储</span><br>byte0 = uFile.getBytes();<br><span class="hljs-type">File</span> <span class="hljs-variable">targetFile</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(pathUrl, fileName);<br>uFile.transferTo(targetFile);<br>targetFile.setReadOnly();<br></code></pre></td></tr></table></figure>
@@ -392,7 +393,7 @@
 <p>就是个判断登录的逻辑，所以只能是后台了，由于是很早很早之前的就拿到的源码，当时是找到了账号的初始密码，所以通过默认密码+账号爆破再一次进入到该站的后台当中</p>
 <p>‍</p>
 <p>上传附件抓到报文</p>
-<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645918.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645918.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p>可以发现他的接口如下</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">/xxxx/xxxxx/fileUpload.action;jsessionid=xxxxxx?mark=xxxxx&amp;fileUUID=xxxxx<br></code></pre></td></tr></table></figure>
 
@@ -400,15 +401,15 @@
 <p>‍</p>
 <p>但是上传jsp的时候就返回了</p>
 <p><code>上传材料格式不正确</code>​</p>
-<p>​​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645124.png" srcset="/img/loading.gif" lazyload alt="image">​​​</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645124.png" srcset="/img/loading.gif" lazyload alt="image">​​​</p>
 <p>‍</p>
 <p>虽然源码比较久远，但是马子还在，于是上去再看了下改过的代码下来 发现他有一个很奇葩的写法</p>
-<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645314.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645314.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p>我一开始以为是黑名单，但是仔细一看，发现是白名单啊！</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">   <span class="hljs-keyword">if</span> (!fileSuffix2.endsWith(<span class="hljs-string">&quot;jpg&quot;</span>) &amp;&amp; !fileSuffix2.endsWith(<span class="hljs-string">&quot;jpeg&quot;</span>) &amp;&amp; !fileSuffix2.endsWith(<span class="hljs-string">&quot;gif&quot;</span>) &amp;&amp; !fileSuffix2.endsWith(<span class="hljs-string">&quot;png&quot;</span>) &amp;&amp; !fileSuffix2.endsWith(<span class="hljs-string">&quot;bmp&quot;</span>) &amp;&amp; !fileSuffix2.endsWith(<span class="hljs-string">&quot;jsp&quot;</span>) &amp;&amp; !fileSuffix2.endsWith(<span class="hljs-string">&quot;js&quot;</span>) &amp;&amp; !fileSuffix2.endsWith(<span class="hljs-string">&quot;html&quot;</span>)) &#123;<br>msg = <span class="hljs-string">&quot;上传材料格式不正确&quot;</span>;&#125; <br></code></pre></td></tr></table></figure>
 
 <p>但是可是事实就是传不上去，难道是有什么限制吗？于是全局搜索了下<code>上传材料格式不正确</code>​ 关键词 ，发现仅仅只有四处存在</p>
-<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645655.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645655.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p>然后本地测了一下第一个<code>上传材料格式不正确</code>​ 发现肯定是能走进去的</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645890.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
 <p>第二个<code>上传材料格式不正确</code>​也不可能 因为根本走不到这里，因为只要后缀名为空就会被<code>catch</code>​捕捉到报错而进行报错，并不会因为后缀名为空就进入到这个<code>上传材料格式不正确</code>​中</p>
@@ -417,8 +418,7 @@
 <p>‍</p>
 <p>然后经过了两三四五个小时，最终经过了几个小伙伴的帮忙，终于找到了问题！真的x了，找到问题的前一个小时里头，我还写了以下笔记</p>
 <p>‍</p>
-<pre><code class="hljs">                                                                ![image](https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645417.png)​
-</code></pre>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645417.png" srcset="/img/loading.gif" lazyload alt="image"></p>
 <p>‍</p>
 <h2 id="小丑想法"><a href="#小丑想法" class="headerlink" title="小丑想法"></a>小丑想法</h2><p>‍</p>
 <p>最终发现TMD是<code>Jadx</code>​的问题，我发现他针对单文件的反编译是很正常的，但是只要是一个目录下，他就发生了一些错乱，比如 增加莫名其妙的代码或者是反编译错误把别的地方的代码混杂在一起，以下是踩坑记录</p>
@@ -427,14 +427,14 @@
 <pre><code class="hljs">                                                                         ![image](https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645543.png)​
 </code></pre>
 <p>‍</p>
-<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645668.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645668.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p>‍</p>
 <p>‍</p>
 <p>此时以<code>IDEA的反编译</code>​ + <code>jd-gui.exe</code>​ + <code>jadx</code>​ 三个反编译工具进行演示</p>
 <p>‍</p>
 <p>以下都关注方法<code>fileUpload</code>​内容</p>
 <p>IDEA直接打开<code>AttachmentController.class</code>​</p>
-<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645808.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645808.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
 <p><code>jd-gui.exe</code>​ 直接打开<code>AttachmentController.class</code>​</p>
 <p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202401091645058.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
 <p>此时使用<code>Jadx</code>​打开单文件</p>
